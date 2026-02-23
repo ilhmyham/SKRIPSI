@@ -6,9 +6,10 @@
 @section('content')
     <x-table
        :items="$tugasList->map(fn($t) => [
-            'id' => $t->tugas_id,
+            'id' => $t->id,
+            'module_id' => $t->module_id,
             'judul_tugas' => $t->judul_tugas,
-            'deskripsi' => $t->deskripsi ?? '-',
+            'deskripsi_tugas' => $t->deskripsi_tugas ?? '-',
             'deadline' => $t->deadline->format('d M Y'),
             'deadline_raw' => $t->deadline->format('Y-m-d'),
             'pengumpulan_count' => $t->pengumpulan_count ?? 0,
@@ -67,8 +68,18 @@
 
     <!-- Create Tugas Modal -->
     <x-modal name="create-tugas" title="Tambah Tugas Baru" description="Buat tugas baru untuk siswa." maxWidth="2xl">
-        <form method="POST" action="{{ route('guru.tugas.store') }}" class="space-y-5">
+        <form method="POST" action="{{ route('guru.tugas.store') }}" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
             @csrf
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Modul Pembelajaran</label>
+                <select name="module_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
+                    <option value="">-- Pilih Modul --</option>
+                    @foreach($modules as $module)
+                        <option value="{{ $module->id }}">{{ $module->nama_modul }}</option>
+                    @endforeach
+                </select>
+            </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Judul Tugas</label>
@@ -84,7 +95,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                 <textarea 
-                    name="deskripsi" 
+                    name="deskripsi_tugas" 
                     rows="4"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
@@ -112,9 +123,11 @@
                 </button>
                 <button 
                     type="submit"
-                    class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
+                    :disabled="isSubmitting"
+                    class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
                 >
-                    BUAT TUGAS
+                    <span x-show="!isSubmitting">BUAT TUGAS</span>
+                    <span x-show="isSubmitting">Membuat...</span>
                 </button>
             </div>
         </form>
@@ -123,9 +136,19 @@
     <!-- Edit Tugas Modal -->
     <div x-data="editTugasModal()" @open-modal-edit-tugas.window="openModal($event.detail)">
         <x-modal name="edit-tugas" title="Edit Tugas" description="Perbarui informasi tugas." maxWidth="2xl">
-            <form :action="`{{ route('guru.tugas.index') }}/${editData.id}`" method="POST" class="space-y-5">
+            <form :action="`{{ route('guru.tugas.index') }}/${editData.id}`" method="POST" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
                 @csrf
                 @method('PUT')
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Modul Pembelajaran</label>
+                    <select name="module_id" x-model="editData.module_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
+                        <option value="">-- Pilih Modul --</option>
+                        @foreach($modules as $module)
+                            <option value="{{ $module->id }}">{{ $module->nama_modul }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Judul Tugas</label>
@@ -141,8 +164,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                     <textarea 
-                        name="deskripsi" 
-                        x-model="editData.deskripsi"
+                        name="deskripsi_tugas" 
+                        x-model="editData.deskripsi_tugas"
                         rows="4"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
@@ -170,9 +193,11 @@
                     </button>
                     <button 
                         type="submit"
-                        class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
+                        :disabled="isSubmitting"
+                        class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
                     >
-                        UPDATE TUGAS
+                        <span x-show="!isSubmitting">UPDATE TUGAS</span>
+                        <span x-show="isSubmitting">Menyimpan...</span>
                     </button>
                 </div>
             </form>
@@ -184,15 +209,17 @@
             return {
                 editData: {
                     id: '',
+                    module_id: '',
                     judul_tugas: '',
-                    deskripsi: '',
+                    deskripsi_tugas: '',
                     deadline_raw: ''
                 },
                 openModal(data) {
                     this.editData = {
                         id: data.id,
+                        module_id: data.module_id,
                         judul_tugas: data.judul_tugas,
-                        deskripsi: data.deskripsi === '-' ? '' : data.deskripsi,
+                        deskripsi_tugas: data.deskripsi_tugas === '-' ? '' : data.deskripsi_tugas,
                         deadline_raw: data.deadline_raw
                     };
                 }

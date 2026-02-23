@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -27,13 +26,9 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        // Attempt to log in using password_2 field
-        $user = \App\Models\User::where('email', $credentials['email'])->first();
-
-        if ($user && Hash::check($credentials['password'], $user->password_2)) {
-            Auth::login($user, $request->filled('remember'));
-            
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
+            $user = Auth::user();
 
             // Load role for redirection
             $user->load('role');

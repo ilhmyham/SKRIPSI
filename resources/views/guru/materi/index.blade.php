@@ -14,7 +14,7 @@
                 <div class="flex items-start justify-between mb-4">
                     <div>
                         <h3 class="text-2xl font-bold mb-1" style="color: var(--color-primary);">{{ $module->nama_modul }}</h3>
-                        <p class="text-sm text-gray-500">{{ $module->materi_count}} materi</p>
+                        <p class="text-sm text-gray-500">{{ $module->materials_count}} materi</p>
                     </div>
                     <div class="p-3 bg-emerald-100 rounded-full">
                         <x-icon name="book" class="w-6 h-6 text-emerald-600" />

@@ -10,7 +10,7 @@
             'name' => $u->name,
             'email' => $u->email,
             'role' => $u->role->nama_role ?? '-',
-            'roles_role_id' => $u->roles_role_id,
+            'role_id' => $u->role_id,
         ])->values()"
 
         :columns="[
@@ -114,15 +114,18 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                <select 
-                    name="roles_role_id" 
+                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
+                    Role
+                    <x-tooltip text="Admin: kelola seluruh sistem dan pengguna. Guru: buat dan kelola materi, kuis, dan tugas. Siswa: akses pembelajaran dan kerjakan tugas." />
+                </label>
+                <select
+                    name="role_id"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition appearance-none bg-white"
                 >
                     <option value="">-- Pilih Role --</option>
                     @foreach($roles as $role)
-                        <option value="{{ $role->role_id }}">{{ ucfirst($role->nama_role) }}</option>
+                        <option value="{{ $role->id }}">{{ ucfirst($role->nama_role) }}</option>
                     @endforeach
                 </select>
             </div>
@@ -177,19 +180,22 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
                     <select 
-                        name="roles_role_id" 
-                        x-model="editData.roles_role_id"
+                        name="role_id" 
+                        x-model="editData.role_id"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition appearance-none bg-white"
                     >
                         @foreach($roles as $role)
-                            <option value="{{ $role->role_id }}">{{ ucfirst($role->nama_role) }}</option>
+                            <option value="{{ $role->id }}">{{ ucfirst($role->nama_role) }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="pt-4 border-t border-gray-200">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Reset Password (Opsional)</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5">
+                        Reset Password (Opsional)
+                        <x-tooltip text="Biarkan kosong jika tidak ingin mengubah password pengguna ini. Isi jika ingin mengganti password mereka." />
+                    </h4>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-2">Password Baru</label>
@@ -238,7 +244,7 @@
                     name: '',
                     email: '',
                     role: '',
-                    roles_role_id: ''
+                    role_id: ''
                 },
                openModal(data) {
     this.editData = {
@@ -246,7 +252,7 @@
         name: data.name,
         email: data.email,
         role: data.role,
-        roles_role_id: data.roles_role_id
+        role_id: data.role_id
     };
 }
 

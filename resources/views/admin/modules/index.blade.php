@@ -6,10 +6,10 @@
 @section('content')
     <x-table
         :items="$modules->map(fn($m) => [
-            'id' => $m->modul_id,
+            'id' => $m->id,
             'nama_modul' => $m->nama_modul,
             'deskripsi' => $m->deskripsi ?? '-',
-            'materi_count' => $m->materi_count ?? 0,
+            'materi_count' => $m->materials_count ?? 0,
         ])"
         :columns="[
             ['key' => 'nama_modul', 'label' => 'Nama Modul', 'class' => 'font-bold text-lg text-emerald-600'],
@@ -34,7 +34,7 @@
                 class="text-blue-600 hover:underline text-sm font-medium">
                 <x-icon name="edit" class="w-4 h-4 inline" />
                 Edit
-            </a>
+            </button>
             <form method="POST" :action="`{{ route('admin.modules.index') }}/${item.id}`" 
                   onsubmit="return confirm('Hapus modul ini? Semua materi terkait akan terhapus!')" class="inline">
                 @csrf

@@ -31,10 +31,10 @@
             <!-- Module Selection -->
             <div class="mb-6">
                 <label class="block text-lg font-semibold mb-2">Modul</label>
-                <select name="modul_iqra_modul_id" required
+                <select name="module_id" required
                         class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-emerald-500 focus:ring focus:ring-emerald-200">
                     @foreach($modules as $module)
-                        <option value="{{ $module->modul_id }}" {{ $kuis->modul_iqra_modul_id == $module->modul_id ? 'selected' : '' }}>
+                        <option value="{{ $module->id }}" {{ $kuis->module_id == $module->id ? 'selected' : '' }}>
                             {{ $module->nama_modul }}
                         </option>
                     @endforeach
@@ -254,7 +254,7 @@
                 <x-icon name="check" class="w-6 h-6" />
                 Update Kuis
             </button>
-            <a href="{{ route('admin.kuis.by-module', $kuis->modul_iqra_modul_id) }}" 
+            <a href="{{ route('admin.kuis.by-module', $kuis->module_id) }}" 
                class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold text-center">
                 Batal
             </a>

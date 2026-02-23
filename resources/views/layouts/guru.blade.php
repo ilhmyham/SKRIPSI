@@ -24,5 +24,6 @@
 
     <!-- Include Sidebar Layout -->
     @include('layouts.guru-sidebar')
+    @stack('scripts')
 </body>
 </html>

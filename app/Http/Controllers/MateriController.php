@@ -2,186 +2,156 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Materi;
-use App\Models\ModulIqra;
+use App\Models\Material;
+use App\Models\Module;
+use App\Models\MaterialCategory;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class MateriController extends Controller
 {
-    /**
-     * Display materi index (module cards)
-     */
     public function index()
     {
-        $modules = ModulIqra::withCount('materi')->orderBy('modul_id')->get();
-        
-        // Determine which view to use based on user role
+        $modules = Module::withCount('materials')->orderBy('id')->get();
         $view = auth()->user()->isAdmin() ? 'admin.materi.index' : 'guru.materi.index';
-        
         return view($view, compact('modules'));
     }
 
-    /**
-     * Display materi by module
-     */
-    public function byModule(ModulIqra $module)
+    public function byModule(Module $module)
     {
-        $materis = $module->materi()->orderBy('created_at', 'desc')->get();
-        $modules = ModulIqra::all(); // For dropdown in modal
+        $materis = $module->materials()
+            ->orderByRaw('urutan IS NULL, urutan ASC')
+            ->orderBy('created_at', 'asc')
+            ->get();
+        $modules = Module::all();
+        $categories = MaterialCategory::where('module_id', $module->id)->orderBy('urutan')->get();
         
-        // Determine which view to use based on user role
         $view = auth()->user()->isAdmin() ? 'admin.materi.show' : 'guru.materi.show';
-        
-        return view($view, compact('module', 'materis', 'modules'));
+        return view($view, compact('module', 'materis', 'modules', 'categories'));
     }
 
-    /**
-     * Store new materi
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'modul_iqra_modul_id' => 'required|exists:modul_iqra,modul_id',
+            'module_id' => 'required|exists:modules,id',
+            'category_id' => 'nullable|exists:material_categories,id',
             'judul_materi' => 'required|string|max:255',
             'huruf_hijaiyah' => 'nullable|string|max:10',
-            'file_video' => 'nullable|string', // Google Drive video ID
-            'file_path' => 'nullable|image|max:5120', // Support both field names
-            'image' => 'nullable|image|max:5120', // Guru uses 'image'
+            'file_video' => 'nullable|string',
+            'file_path' => 'nullable|image|max:5120',
+            'image' => 'nullable|image|max:5120',
             'deskripsi' => 'nullable|string',
+            'urutan' => 'nullable|integer|min:1',
         ]);
 
-        // Add the user who created this materi
-        $validated['users_user_id'] = auth()->id();
+        $validated['user_id'] = auth()->id();
 
-        // Handle image upload - support both 'file_path' and 'image' fields
+        $module = Module::find($validated['module_id']);
+        $folderPath = $this->getModuleFolderPath($module);
+
         if ($request->hasFile('file_path')) {
-            $validated['file_path'] = $request->file('file_path')->store('materi', 'public');
+            $validated['file_path'] = $request->file('file_path')->store($folderPath, 'public');
         } elseif ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = time() . '_' . $image->getClientOriginalName();
-            $validated['file_path'] = $image->storeAs('materi', $filename, 'public');
+            $validated['file_path'] = $image->storeAs($folderPath, $filename, 'public');
         }
 
-        // Remove 'image' field if it exists (we only store in file_path)
         unset($validated['image']);
 
-        $materi = Materi::create($validated);
-        $module = ModulIqra::find($validated['modul_iqra_modul_id']);
+        $materi = Material::create($validated);
+        $module = Module::find($validated['module_id']);
 
-        // Log activity only for admin
         if (auth()->user()->isAdmin()) {
-            $this->logActivity('created', 'Materi', $materi->materi_id, "Menambahkan materi \"" . $materi->judul_materi . "\" ke " . $module->nama_modul);
+            $this->logActivity('created', 'Material', $materi->id, "Menambahkan materi \"" . $materi->judul_materi . "\" ke " . $module->nama_modul);
         }
 
-        // Redirect based on user role
         $message = 'Materi berhasil ditambahkan';
 
         if (auth()->user()->isAdmin()) {
             return back()->with('success', $message);
         } else {
-            // Redirect to the module's material management table
-            $route = 'guru.materi.by-module';
-            return redirect()->route($route, ['module' => $validated['modul_iqra_modul_id']])->with('success', $message);
+            return redirect()->route('guru.materi.by-module', ['module' => $validated['module_id']])->with('success', $message);
         }
     }
 
-    /**
-     * Update materi
-     */
-    public function update(Request $request, Materi $materi)
+    public function update(Request $request, Material $materi)
     {
         $validated = $request->validate([
-            'modul_iqra_modul_id' => 'required|exists:modul_iqra,modul_id',
+            'module_id' => 'required|exists:modules,id',
+            'category_id' => 'nullable|exists:material_categories,id',
             'judul_materi' => 'required|string|max:255',
             'huruf_hijaiyah' => 'nullable|string|max:10',
             'file_video' => 'nullable|string',
-            'video_url' => 'nullable|string', // Admin uses 'video_url'
-            'gambar_isyarat' => 'nullable|image|max:5120', // Admin uses 'gambar_isyarat'
-            'image' => 'nullable|image|max:5120', // Guru uses 'image'
+            'video_url' => 'nullable|string',
+            'file_path' => 'nullable|image|max:5120',
+            'gambar_isyarat' => 'nullable|image|max:5120',
+            'image' => 'nullable|image|max:5120',
             'deskripsi' => 'nullable|string',
+            'urutan' => 'nullable|integer|min:1',
         ]);
 
-        // Handle video URL field (admin uses video_url, we store in file_video)
         if (isset($validated['video_url'])) {
             $validated['file_video'] = $validated['video_url'];
             unset($validated['video_url']);
+        } elseif (!$request->filled('file_video')) {
+            unset($validated['file_video']);
         }
 
-        // Handle image upload - support both 'gambar_isyarat' and 'image' fields
-        if ($request->hasFile('gambar_isyarat')) {
-            // Delete old image
-            if ($materi->file_path) {
-                Storage::disk('public')->delete($materi->file_path);
-            }
-            $validated['file_path'] = $request->file('gambar_isyarat')->store('materi', 'public');
+        $module = Module::find($validated['module_id']);
+        $folderPath = $this->getModuleFolderPath($module);
+
+        if ($request->hasFile('file_path')) {
+            if ($materi->file_path) Storage::disk('public')->delete($materi->file_path);
+            $validated['file_path'] = $request->file('file_path')->store($folderPath, 'public');
+        } elseif ($request->hasFile('gambar_isyarat')) {
+            if ($materi->file_path) Storage::disk('public')->delete($materi->file_path);
+            $validated['file_path'] = $request->file('gambar_isyarat')->store($folderPath, 'public');
         } elseif ($request->hasFile('image')) {
-            // Delete old image
-            if ($materi->file_path) {
-                Storage::disk('public')->delete($materi->file_path);
-            }
+            if ($materi->file_path) Storage::disk('public')->delete($materi->file_path);
             $image = $request->file('image');
             $filename = time() . '_' . $image->getClientOriginalName();
-            $validated['file_path'] = $image->storeAs('materi', $filename, 'public');
+            $validated['file_path'] = $image->storeAs($folderPath, $filename, 'public');
         }
 
-        // Remove temporary fields
         unset($validated['gambar_isyarat'], $validated['image']);
 
         $materi->update($validated);
 
-        // Log activity only for admin
         if (auth()->user()->isAdmin()) {
-            $this->logActivity('updated', 'Materi', $materi->materi_id, "Mengupdate materi \"" . $materi->judul_materi . "\"");
+            $this->logActivity('updated', 'Material', $materi->id, "Mengupdate materi \"" . $materi->judul_materi . "\"");
         }
 
-        // Redirect based on user role
         $message = 'Materi berhasil diupdate';
 
         if (auth()->user()->isAdmin()) {
             return back()->with('success', $message);
         } else {
-            // Redirect to the module's material management table
-            $route = 'guru.materi.by-module';
-            return redirect()->route($route, ['module' => $materi->modul_iqra_modul_id])->with('success', $message);
+            return redirect()->route('guru.materi.by-module', ['module' => $materi->module_id])->with('success', $message);
         }
     }
 
-    /**
-     * Delete materi
-     */
-    public function destroy(Materi $materi)
+    public function destroy(Material $materi)
     {
         $materiName = $materi->judul_materi;
         
-        // Delete image if exists
         if ($materi->file_path) {
             Storage::disk('public')->delete($materi->file_path);
         }
 
         $materi->delete();
         
-        // Log activity only for admin
         if (auth()->user()->isAdmin()) {
-            $this->logActivity('deleted', 'Materi', $materi->materi_id, "Menghapus materi \"" . $materiName . "\"");
+            $this->logActivity('deleted', 'Material', $materi->id, "Menghapus materi \"" . $materiName . "\"");
         }
         
         return back()->with('success', 'Materi berhasil dihapus');
     }
 
-    /**
-     * Helper method to log activities
-     */
-    private function logActivity(string $type, string $subjectType, $subjectId, string $description, array $properties = [])
+    private function getModuleFolderPath(Module $module): string
     {
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'activity_type' => $type,
-            'subject_type' => $subjectType,
-            'subject_id' => $subjectId,
-            'description' => $description,
-            'properties' => $properties,
-        ]);
+        $folderName = strtolower(str_replace(' ', '', $module->nama_modul));
+        return "materi/{$folderName}";
     }
 }

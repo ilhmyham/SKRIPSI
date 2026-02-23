@@ -1,12 +1,12 @@
 <!-- Guru Sidebar Navigation -->
-<div class="flex h-screen" x-data="{ profileOpen: false }">
+<div class="flex h-screen" x-data="{ profileOpen: false, isSidebarOpen: localStorage.getItem('sidebarOpen') === 'true' || localStorage.getItem('sidebarOpen') === null }" x-init="$watch('isSidebarOpen', val => localStorage.setItem('sidebarOpen', val))">
     <!-- Sidebar -->
-    <aside class="w-64 bg-gray-900 text-white flex flex-col sticky top-0 h-screen">
+    <aside :class="isSidebarOpen ? 'w-64' : 'w-20'" class="bg-gray-900 text-white flex flex-col sticky top-0 h-screen transition-all duration-300">
         <!-- Logo -->
-        <div class="p-6 border-b border-gray-700">
-            <div class="flex items-center gap-3">
-                <div class="text-3xl">☪️</div>
-                <div>
+        <div class="p-6 border-b border-gray-700 flex items-center justify-center h-[89px]">
+            <div class="flex items-center gap-3 w-full" :class="isSidebarOpen ? 'justify-start' : 'justify-center'">
+                <div class="text-3xl shrink-0">☪️</div>
+                <div x-show="isSidebarOpen" class="whitespace-nowrap transition-opacity duration-300">
                     <h1 class="text-xl font-bold">LMS Iqra</h1>
                     <p class="text-xs text-gray-400">Guru Panel</p>
                 </div>
@@ -14,29 +14,37 @@
         </div>
 
         <!-- Navigation Menu -->
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto overflow-x-hidden">
             <a href="{{ route('guru.dashboard') }}" 
-               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.dashboard') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}">
-                <x-icon name="home" class="w-5 h-5" />
-                <span class="font-medium">Dashboard</span>
+               title="Dashboard"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.dashboard') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+               :class="!isSidebarOpen && 'justify-center px-0'">
+                <x-icon name="home" class="w-5 h-5 shrink-0" />
+                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Dashboard</span>
             </a>
 
             <a href="{{ route('guru.materi.index') }}" 
-               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.materi.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}">
-                <x-icon name="book" class="w-5 h-5" />
-                <span class="font-medium">Manajemen Materi</span>
+               title="Manajemen Materi"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.materi.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+               :class="!isSidebarOpen && 'justify-center px-0'">
+                <x-icon name="book" class="w-5 h-5 shrink-0" />
+                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Manajemen Materi</span>
             </a>
 
             <a href="{{ route('guru.kuis.index') }}" 
-               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.kuis.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}">
-                <x-icon name="kuis" class="w-5 h-5" />
-                <span class="font-medium">Manajemen Kuis</span>
+               title="Manajemen Kuis"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.kuis.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+               :class="!isSidebarOpen && 'justify-center px-0'">
+                <x-icon name="kuis" class="w-5 h-5 shrink-0" />
+                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Manajemen Kuis</span>
             </a>
 
             <a href="{{ route('guru.tugas.index') }}" 
-               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.tugas.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}">
-                <x-icon name="clipboard-check" class="w-5 h-5" />
-                <span class="font-medium">Manajemen Tugas</span>
+               title="Manajemen Tugas"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.tugas.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+               :class="!isSidebarOpen && 'justify-center px-0'">
+                <x-icon name="clipboard-check" class="w-5 h-5 shrink-0" />
+                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Manajemen Tugas</span>
             </a>
         </nav>
 
@@ -51,7 +59,13 @@
         <!-- Top Header with Profile Dropdown -->
         <header class="bg-white shadow-sm border-b border-gray-200">
             <div class="px-6 py-4 flex items-center justify-between">
-                <div>
+                <div class="flex items-center gap-4">
+                    <!-- Hamburger Toggle Button -->
+                    <button @click="isSidebarOpen = !isSidebarOpen" class="p-2 -ml-2 rounded-lg hover:bg-gray-100 text-gray-500 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
                     <h2 class="text-2xl font-bold text-gray-800">@yield('page-title', 'Dashboard')</h2>
                 </div>
 

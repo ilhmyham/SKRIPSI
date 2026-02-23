@@ -15,14 +15,18 @@
 
     <x-table
         :items="$materis->map(fn($m) => [
-            'id' => $m->materi_id,
+            'id' => $m->id,
+            'urutan' => $m->urutan ?? '-',
             'judul_materi' => $m->judul_materi,
             'huruf_hijaiyah' => $m->huruf_hijaiyah ?? '-',
             'video_url' => $m->video_url ?? '-',
+            'category_id' => $m->category_id ?? '',
+            'kategori' => $m->category->nama ?? '-',
             'gambar_isyarat' => $m->gambar_isyarat,
             'deskripsi' => $m->deskripsi ?? '-',
         ])"
         :columns="[
+            ['key' => 'urutan', 'label' => '#', 'class' => 'text-center text-gray-500 w-12'],
             ['key' => 'judul_materi', 'label' => 'Judul Materi', 'class' => 'font-bold text-base'],
             ['key' => 'huruf_hijaiyah', 'label' => 'Huruf Hijaiyah', 'class' => 'text-center text-2xl'],
             ['key' => 'video_url', 'label' => 'Video', 'class' => 'text-sm text-gray-600'],
@@ -60,10 +64,10 @@
 
     <!-- Create Materi Modal -->
     <x-modal name="create-materi" title="Tambah Materi Baru" description="Tambahkan materi pembelajaran baru." maxWidth="3xl">
-        <form method="POST" action="{{ route('guru.materi.store') }}" enctype="multipart/form-data" class="space-y-5">
+        <form method="POST" action="{{ route('guru.materi.store') }}" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
             @csrf
 
-            <input type="hidden" name="modul_iqra_modul_id" value="{{ $module->modul_id }}">
+            <input type="hidden" name="module_id" value="{{ $module->id }}">
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -88,14 +92,46 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Google Drive Video ID</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
+                    Urutan <span class="text-gray-400 font-normal">(Opsional)</span>
+                    <x-tooltip text="Isi angka untuk mengatur posisi materi dalam modul. Materi diurutkan dari angka terkecil. Kosongkan jika urutan tidak penting." />
+                </label>
                 <input 
-                    type="text" 
+                    type="number" 
+                    name="urutan"
+                    min="1"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                    placeholder="Contoh: 1, 2, 3 ... (kosongkan jika tidak perlu urutan)"
+                >
+                <p class="mt-1 text-xs text-gray-500">Isi angka urutan untuk mengatur posisi materi. Materi tanpa urutan akan tampil di akhir.</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
+                    Link Video (YouTube atau Google Drive)
+                    <x-tooltip text="Gunakan link YouTube penuh (misal: https://youtu.be/xxxx) atau link Google Drive (https://drive.google.com/file/d/xxxx/view). Tambahkan ?start=30&end=60 untuk mulai/akhir detik tertentu." />
+                </label>
+                <input
+                    type="text"
                     name="file_video"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
-                    placeholder="Contoh: 1a2b3c4d5e6f7g8h"
+                    placeholder="https://youtu.be/xxx atau https://drive.google.com/file/d/xxx/view"
                 >
-                <p class="mt-1 text-xs text-gray-500">Masukkan ID video dari Google Drive URL</p>
+                <p class="mt-1 text-xs text-gray-500">Masukkan link YouTube lengkap atau link Google Drive</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Kategori (Opsional)</label>
+                <select 
+                    name="category_id"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                >
+                    <option value="">-- Tidak ada kategori --</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->nama }}</option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Pilih kategori materi ini (jika ada)</p>
             </div>
 
             <div>
@@ -128,9 +164,11 @@
                 </button>
                 <button 
                     type="submit"
-                    class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
+                    :disabled="isSubmitting"
+                    class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
                 >
-                    SIMPAN MATERI
+                    <span x-show="!isSubmitting">SIMPAN MATERI</span>
+                    <span x-show="isSubmitting">Menyimpan...</span>
                 </button>
             </div>
         </form>
@@ -139,11 +177,11 @@
     <!-- Edit Materi Modal -->
     <div x-data="editMateriModal()" @open-modal-edit-materi.window="openModal($event.detail)">
         <x-modal name="edit-materi" title="Edit Materi" description="Perbarui informasi materi." maxWidth="3xl">
-            <form :action="`{{ route('guru.materi.index') }}/${editData.id}`" method="POST" enctype="multipart/form-data" class="space-y-5">
+            <form :action="`{{ route('guru.materi.index') }}/${editData.id}`" method="POST" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
                 @csrf
                 @method('PUT')
 
-                <input type="hidden" name="modul_iqra_modul_id" value="{{ $module->modul_id }}">
+                <input type="hidden" name="module_id" value="{{ $module->id }}">
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -168,13 +206,43 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Google Drive Video ID</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Urutan <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                    <input 
+                        type="number" 
+                        name="urutan"
+                        x-model="editData.urutan"
+                        min="1"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                        placeholder="Contoh: 1, 2, 3 ... (kosongkan jika tidak perlu urutan)"
+                    >
+                    <p class="mt-1 text-xs text-gray-500">Isi angka urutan untuk mengatur posisi materi. Materi tanpa urutan akan tampil di akhir.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Link Video (YouTube atau Google Drive)</label>
                     <input 
                         type="text" 
                         name="file_video"
                         x-model="editData.file_video"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                        placeholder="https://youtu.be/xxx atau ID Google Drive"
                     >
+                    <p class="mt-1 text-xs text-gray-500">Masukkan link YouTube lengkap atau ID video Google Drive</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori (Opsional)</label>
+                    <select 
+                        name="category_id"
+                        x-model="editData.category_id"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                    >
+                        <option value="">-- Tidak ada kategori --</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->nama }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Pilih kategori materi ini (jika ada)</p>
                 </div>
 
                 <div>
@@ -207,9 +275,11 @@
                     </button>
                     <button 
                         type="submit"
-                        class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
+                        :disabled="isSubmitting"
+                        class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
                     >
-                        UPDATE MATERI
+                        <span x-show="!isSubmitting">UPDATE MATERI</span>
+                        <span x-show="isSubmitting">Menyimpan...</span>
                     </button>
                 </div>
             </form>
@@ -221,17 +291,23 @@
             return {
                 editData: {
                     id: '',
+                    urutan: '',
                     judul_materi: '',
                     huruf_hijaiyah: '',
                     file_video: '',
+                    category_id: '',
+                    kategori: '',
                     deskripsi: ''
                 },
                 openModal(data) {
                     this.editData = {
                         id: data.id,
+                        urutan: data.urutan !== '-' ? data.urutan : '',
                         judul_materi: data.judul_materi,
                         huruf_hijaiyah: data.huruf_hijaiyah || '',
                         file_video: data.file_video || '',
+                        category_id: data.category_id || '',
+                        kategori: data.kategori || '',
                         deskripsi: data.deskripsi || ''
                     };
                 }

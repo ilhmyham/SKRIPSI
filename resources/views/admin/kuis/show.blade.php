@@ -12,7 +12,7 @@
             <span class="font-semibold">{{ $module->nama_modul }}</span>
         </nav>
 
-        <a href="{{ route('admin.kuis.create', ['module_id' => $module->modul_id]) }}" 
+        <a href="{{ route('admin.kuis.create', ['module_id' => $module->id]) }}" 
            class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
             <x-icon name="plus" class="w-5 h-5" />
             Tambah Kuis
@@ -24,7 +24,7 @@
             <div class="text-center py-12">
                 <x-icon name="kuis" class="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <p class="text-gray-500 mb-4">Belum ada kuis untuk modul ini</p>
-                <a href="{{ route('admin.kuis.create', ['module_id' => $module->modul_id]) }}" 
+                <a href="{{ route('admin.kuis.create', ['module_id' => $module->id]) }}" 
                    class="text-emerald-600 hover:underline">
                     Buat kuis pertama
                 </a>

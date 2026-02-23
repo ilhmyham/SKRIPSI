@@ -11,7 +11,7 @@ use App\Http\Controllers\KuisController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
 
-// Redirect root to login
+// Homepage - show landing page, redirect logged-in users to their dashboard
 Route::get('/', function () {
     if (auth()->check()) {
         $user = auth()->user();
@@ -21,8 +21,9 @@ Route::get('/', function () {
         if ($user->isGuru()) return redirect('/guru/dashboard');
         if ($user->isSiswa()) return redirect('/siswa/dashboard');
     }
-    return redirect('/login');
-});
+    return view('welcome');
+})->name('home');
+
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -43,18 +44,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     
     // User Management - Now using UserController
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
     
     // Module Management - Now using ModuleController
     Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
-    Route::get('/modules/create', [ModuleController::class, 'create'])->name('modules.create');
     Route::post('/modules', [ModuleController::class, 'store'])->name('modules.store');
-    Route::get('/modules/{module}/edit', [ModuleController::class, 'edit'])->name('modules.edit');
     Route::put('/modules/{module}', [ModuleController::class, 'update'])->name('modules.update');
     Route::delete('/modules/{module}', [ModuleController::class, 'destroy'])->name('modules.destroy');
     
@@ -82,9 +79,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
     // Material Management - Now using shared MateriController
     Route::get('/materi', [MateriController::class, 'index'])->name('materi.index');
     Route::get('/materi/module/{module}', [MateriController::class, 'byModule'])->name('materi.by-module');
-    Route::get('/materi/create', [GuruController::class, 'createMateri'])->name('materi.create');
     Route::post('/materi', [MateriController::class, 'store'])->name('materi.store');
-    Route::get('/materi/{materi}/edit', [GuruController::class, 'editMateri'])->name('materi.edit');
     Route::put('/materi/{materi}', [MateriController::class, 'update'])->name('materi.update');
     Route::delete('/materi/{materi}', [MateriController::class, 'destroy'])->name('materi.destroy');
     
@@ -118,7 +113,6 @@ Route::middleware(['auth', 'role:siswa'])->prefix('siswa')->name('siswa.')->grou
     
     // Learning Materials
     Route::get('/materi', [SiswaController::class, 'materi'])->name('materi.index');
-    Route::get('/materi/{materi}', [SiswaController::class, 'showMateri'])->name('materi.show');
     Route::post('/materi/{materi}/complete', [SiswaController::class, 'completeMateri'])->name('materi.complete');
     
     // Quizzes

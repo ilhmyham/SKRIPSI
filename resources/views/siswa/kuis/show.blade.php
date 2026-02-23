@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.siswa')
 
 @section('title', $kuis->judul_kuis)
 
@@ -15,7 +15,7 @@
 
             <div class="flex items-center justify-center gap-8 mb-8">
                 <div class="text-center">
-                    <div class="text-5xl font-bold mb-2" style="color: var(--color-primary);">{{ $kuis->pertanyaan->count() }}</div>
+                    <div class="text-5xl font-bold mb-2" style="color: var(--color-primary);">{{ $kuis->questions->count() }}</div>
                     <p style="color: var(--color-text-secondary);">Pertanyaan</p>
                 </div>
             </div>
@@ -34,29 +34,29 @@
             <!-- Progress Bar -->
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-lg font-semibold">Pertanyaan <span x-text="currentQuestion + 1"></span> dari {{ $kuis->pertanyaan->count() }}</span>
-                    <span class="text-lg" style="color: var(--color-text-secondary);" x-text="Math.round(((currentQuestion + 1) / {{ $kuis->pertanyaan->count() }}) * 100) + '%'"></span>
+                    <span class="text-lg font-semibold">Pertanyaan <span x-text="currentQuestion + 1"></span> dari {{ $kuis->questions->count() }}</span>
+                    <span class="text-lg" style="color: var(--color-text-secondary);" x-text="Math.round(((currentQuestion + 1) / {{ $kuis->questions->count() }}) * 100) + '%'"></span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-bar-fill" :style="`width: ${((currentQuestion + 1) / {{ $kuis->pertanyaan->count() }}) * 100}%`"></div>
+                    <div class="progress-bar-fill" :style="`width: ${((currentQuestion + 1) / {{ $kuis->questions->count() }}) * 100}%`"></div>
                 </div>
             </div>
 
             <!-- Questions -->
-            @foreach($kuis->pertanyaan as $index => $pertanyaan)
+            @foreach($kuis->questions as $index => $pertanyaan)
                 <div x-show="currentQuestion === {{ $index }}" class="card">
                     <h2 class="text-2xl font-bold mb-6">{{ $pertanyaan->text_pertanyaan }}</h2>
 
                     <div class="space-y-4">
-                        @foreach($pertanyaan->opsiJawaban as $opsi)
+                        @foreach($pertanyaan->options as $opsi)
                             <button 
-                                @click="selectAnswer({{ $pertanyaan->pertanyaan_id }}, {{ $opsi->opsi_id }})"
-                                :class="answers[{{ $pertanyaan->pertanyaan_id }}] === {{ $opsi->opsi_id }} ? 'bg-green-100 border-green-500' : 'bg-white border-gray-300'"
+                                @click="selectAnswer({{ $pertanyaan->id }}, {{ $opsi->id }})"
+                                :class="answers[{{ $pertanyaan->id }}] === {{ $opsi->id }} ? 'bg-green-100 border-green-500' : 'bg-white border-gray-300'"
                                 class="w-full text-left px-6 py-4 text-lg border-2 rounded-lg hover:border-green-400 transition">
                                 <div class="flex items-center gap-4">
                                     <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
-                                         :class="answers[{{ $pertanyaan->pertanyaan_id }}] === {{ $opsi->opsi_id }} ? 'border-green-500 bg-green-500' : 'border-gray-400'">
-                                        <svg x-show="answers[{{ $pertanyaan->pertanyaan_id }}] === {{ $opsi->opsi_id }}" 
+                                         :class="answers[{{ $pertanyaan->id }}] === {{ $opsi->id }} ? 'border-green-500 bg-green-500' : 'border-gray-400'">
+                                        <svg x-show="answers[{{ $pertanyaan->id }}] === {{ $opsi->id }}" 
                                              class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                         </svg>
@@ -76,13 +76,13 @@
                             Sebelumnya
                         </button>
                         <button 
-                            x-show="currentQuestion < {{ $kuis->pertanyaan->count() - 1 }}"
+                            x-show="currentQuestion < {{ $kuis->questions->count() - 1 }}"
                             @click="currentQuestion++"
                             class="btn btn-primary flex-1">
                             Selanjutnya
                         </button>
                         <button 
-                            x-show="currentQuestion === {{ $kuis->pertanyaan->count() - 1 }}"
+                            x-show="currentQuestion === {{ $kuis->questions->count() - 1 }}"
                             @click="submitQuiz"
                             class="btn btn-primary flex-1">
                             Selesai
@@ -92,10 +92,8 @@
             @endforeach
         </div>
 
-        <!-- Hidden form for submission -->
         <form id="quizForm" method="POST" action="{{ route('siswa.kuis.submit', $kuis) }}" style="display: none;">
             @csrf
-            <input type="hidden" name="answers" x-model="JSON.stringify(answers)">
         </form>
     </div>
 </div>
@@ -117,28 +115,26 @@ function quizApp() {
         },
         
         submitQuiz() {
-            if (Object.keys(this.answers).length < {{ $kuis->pertanyaan->count() }}) {
+            if (Object.keys(this.answers).length < {{ $kuis->questions->count() }}) {
                 if (!confirm('Masih ada pertanyaan yang belum dijawab. Lanjutkan submit?')) {
                     return;
                 }
             }
             
-            // Convert answers object to format expected by backend
-            const formData = new FormData();
-            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+            const form = document.getElementById('quizForm');
+            // Bersihkan input lama jika ada (selain CSRF)
+            form.querySelectorAll('.answer-input').forEach(e => e.remove());
             
             for (const [questionId, optionId] of Object.entries(this.answers)) {
-                formData.append(`answers[${questionId}]`, optionId);
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `answers[${questionId}]`;
+                input.value = optionId;
+                input.className = 'answer-input';
+                form.appendChild(input);
             }
             
-            fetch('{{ route('siswa.kuis.submit', $kuis) }}', {
-                method: 'POST',
-                body: formData
-            }).then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                }
-            });
+            form.submit();
         }
     }
 }

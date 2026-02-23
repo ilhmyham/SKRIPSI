@@ -246,3 +246,24 @@ html {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: var(--color-primary-dark);
 }
+
+/* Huruf Hijaiyah Styling */
+.hijaiyah {
+    font-family: 'Times New Roman', serif;
+    font-weight: normal;
+    line-height: 1.2;
+}
+
+.hijaiyah-large {
+    font-family: 'Times New Roman', serif;
+    font-weight: normal;
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.hijaiyah-xl {
+    font-family: 'Times New Roman', serif;
+    font-weight: normal;
+    font-size: 4rem;
+    line-height: 1;
+}

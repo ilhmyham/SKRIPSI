@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\ModulIqra;
+use App\Models\Module;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
@@ -15,7 +15,7 @@ class AdminController extends Controller
             'total_users' => User::count(),
             'total_guru' => User::whereHas('role', fn($q) => $q->where('nama_role', 'guru'))->count(),
             'total_siswa' => User::whereHas('role', fn($q) => $q->where('nama_role', 'siswa'))->count(),
-            'total_modules' => ModulIqra::count(),
+            'total_modules' => Module::count(),
         ];
         
         $recentActivities = ActivityLog::with('user')->recent(10)->get();

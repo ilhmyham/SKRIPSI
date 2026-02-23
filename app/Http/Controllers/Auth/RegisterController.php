@@ -42,8 +42,8 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password_2' => Hash::make($validated['password']),
-            'roles_role_id' => $siswaRole->role_id,
+            'password' => Hash::make($validated['password']),
+            'role_id' => $siswaRole->id,
         ]);
 
         // Log in the user
@@ -95,8 +95,8 @@ class RegisterController extends Controller
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
-                    'roles_role_id' => $siswaRole->role_id,
-                    'password_2' => null, // No password for OAuth users
+                    'role_id' => $siswaRole->id,
+                    'password' => null, // No password for OAuth users
                 ]);
             }
 

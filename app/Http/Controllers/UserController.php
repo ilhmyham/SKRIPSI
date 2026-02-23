@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    /**
-     * Display users list
-     */
     public function index(Request $request)
     {
         $query = User::with('role');
@@ -27,63 +24,39 @@ class UserController extends Controller
         return view('admin.users.index', compact('users', 'roles'));
     }
 
-    /**
-     * Show create user form
-     */
-    public function create()
-    {
-        $roles = Role::all();
-        return view('admin.users.create', compact('roles'));
-    }
-
-    /**
-     * Store new user
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'roles_role_id' => 'required|exists:roles,role_id',
+            'role_id' => 'required|exists:roles,id',
         ]);
 
-        $validated['password_2'] = Hash::make($validated['password']);
-        unset($validated['password']);
+        $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
-        $role = Role::find($validated['roles_role_id']);
+        $role = Role::find($validated['role_id']);
 
         $this->logActivity('created', 'User', $user->id, "Menambahkan pengguna baru \"" . $user->name . "\" sebagai " . $role->nama_role);
 
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil ditambahkan');
     }
 
-    /**
-     * Show edit user form
-     */
-    public function edit(User $user)
-    {
-        $roles = Role::all();
-        return view('admin.users.edit', compact('user', 'roles'));
-    }
-
-    /**
-     * Update user
-     */
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'roles_role_id' => 'required|exists:roles,role_id',
+            'role_id' => 'required|exists:roles,id',
             'password' => 'nullable|min:6',
         ]);
 
         if ($request->filled('password')) {
-            $validated['password_2'] = Hash::make($validated['password']);
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
         }
-        unset($validated['password']);
 
         $user->update($validated);
 
@@ -92,9 +65,6 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil diupdate');
     }
 
-    /**
-     * Delete user
-     */
     public function destroy(User $user)
     {
         $userName = $user->name;
@@ -105,9 +75,6 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil dihapus');
     }
 
-    /**
-     * Reset user password
-     */
     public function resetPassword(Request $request, User $user)
     {
         $validated = $request->validate([
@@ -115,26 +82,11 @@ class UserController extends Controller
         ]);
 
         $user->update([
-            'password_2' => Hash::make($validated['password']),
+            'password' => Hash::make($validated['password']),
         ]);
 
         $this->logActivity('reset', 'User', $user->id, "Mereset password untuk \"" . $user->name . "\"");
 
         return back()->with('success', 'Password berhasil direset');
-    }
-
-    /**
-     * Helper method to log activities
-     */
-    private function logActivity(string $type, string $subjectType, $subjectId, string $description, array $properties = [])
-    {
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'activity_type' => $type,
-            'subject_type' => $subjectType,
-            'subject_id' => $subjectId,
-            'description' => $description,
-            'properties' => $properties,
-        ]);
     }
 }

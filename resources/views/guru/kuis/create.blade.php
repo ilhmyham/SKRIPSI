@@ -1,4 +1,4 @@
-﻿@extends('layouts.guru')
+@extends('layouts.guru')
 
 @section('title', 'Buat Kuis')
 @section('page-title', 'Buat Kuis Baru')
@@ -30,11 +30,11 @@
             <!-- Module Selection -->
             <div class="mb-6">
                 <label class="block text-lg font-semibold mb-2">Modul</label>
-                <select name="modul_iqra_modul_id" required
+                <select name="module_id" required
                         class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-emerald-500 focus:ring focus:ring-emerald-200">
                     <option value="">Pilih Modul</option>
                     @foreach($modules as $module)
-                        <option value="{{ $module->modul_id }}" {{ $moduleId == $module->modul_id ? 'selected' : '' }}>
+                        <option value="{{ $module->id }}" {{ $moduleId == $module->id ? 'selected' : '' }}>
                             {{ $module->nama_modul }}
                         </option>
                     @endforeach
@@ -164,7 +164,7 @@
                                             <!-- Correct Badge -->
                                             <span x-show="opsi.is_benar" 
                                                   class="text-sm font-semibold text-green-600 mt-1 whitespace-nowrap">
-                                                ✓ Benar
+                                                ? Benar
                                             </span>
                                             
                                             <!-- Remove Option Button -->

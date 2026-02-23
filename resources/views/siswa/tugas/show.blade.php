@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.siswa')
 
 @section('title', $tugas->judul_tugas)
 
@@ -55,7 +55,7 @@
 
                 <div>
                     <p class="text-sm font-semibold" style="color: var(--color-text-secondary);">Dikumpulkan pada:</p>
-                    <p class="text-lg">{{ $pengumpulan->tanggal_kumpul->format('d M Y H:i') }}</p>
+                    <p class="text-lg">{{ $pengumpulan->created_at->format('d M Y H:i') }}</p>
                 </div>
 
                 @if($pengumpulan->nilai !== null)

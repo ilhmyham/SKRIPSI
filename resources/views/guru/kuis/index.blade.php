@@ -14,7 +14,7 @@
                 <div class="flex items-start justify-between mb-4">
                     <div>
                         <h3 class="text-2xl font-bold mb-1" style="color: var(--color-primary);">{{ $module->nama_modul }}</h3>
-                        <p class="text-sm text-gray-500">{{ $module->kuis_count}} kuis</p>
+                        <p class="text-sm text-gray-500">{{ $module->quizzes_count}} kuis</p>
                     </div>
                     <div class="p-3 bg-blue-100 rounded-full">
                         <x-icon name="kuis" class="w-6 h-6 text-blue-600" />
