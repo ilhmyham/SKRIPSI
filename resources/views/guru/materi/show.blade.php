@@ -15,15 +15,15 @@
 
     <x-table
         :items="$materis->map(fn($m) => [
-            'id' => $m->id,
-            'urutan' => $m->urutan ?? '-',
-            'judul_materi' => $m->judul_materi,
+            'id'             => $m->id,
+            'urutan'         => $m->urutan ?? '-',
+            'judul_materi'   => $m->judul_materi,
             'huruf_hijaiyah' => $m->huruf_hijaiyah ?? '-',
-            'video_url' => $m->video_url ?? '-',
-            'category_id' => $m->category_id ?? '',
-            'kategori' => $m->category->nama ?? '-',
-            'gambar_isyarat' => $m->gambar_isyarat,
-            'deskripsi' => $m->deskripsi ?? '-',
+            'video_url'      => $m->file_video ?? '-',
+            'category_id'    => $m->category_id ?? '',
+            'kategori'       => $m->category->nama ?? '-',
+            'file_path'      => $m->file_path,
+            'deskripsi'      => $m->deskripsi ?? '-',
         ])"
         :columns="[
             ['key' => 'urutan', 'label' => '#', 'class' => 'text-center text-gray-500 w-12'],
@@ -45,12 +45,12 @@
 
         <x-slot:actions>
             <button 
-                @click="$dispatch('open-modal-edit-materi', item)"
+                @click="$dispatch('set-edit-materi-data', item)"
                 class="text-blue-600 hover:underline text-sm font-medium">
                 <x-icon name="edit" class="w-4 h-4 inline" />
                 Edit
             </button>
-            <form method="POST" :action="`{{ route('guru.materi.index') }}/${item.id}`" 
+            <form method="POST" :action="`{{ url('guru/materi') }}/${item.id}`" 
                   onsubmit="return confirm('Hapus materi ini?')" class="inline">
                 @csrf
                 @method('DELETE')
@@ -128,7 +128,7 @@
                 >
                     <option value="">-- Tidak ada kategori --</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->nama }}</option>
+                        <option value="{{ $category->id }}">{{ Str::title(str_replace('_', ' ', $category->nama)) }}</option>
                     @endforeach
                 </select>
                 <p class="mt-1 text-xs text-gray-500">Pilih kategori materi ini (jika ada)</p>
@@ -175,9 +175,9 @@
     </x-modal>
 
     <!-- Edit Materi Modal -->
-    <div x-data="editMateriModal()" @open-modal-edit-materi.window="openModal($event.detail)">
+    <div x-data="editMateriModal()">
         <x-modal name="edit-materi" title="Edit Materi" description="Perbarui informasi materi." maxWidth="3xl">
-            <form :action="`{{ route('guru.materi.index') }}/${editData.id}`" method="POST" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
+            <form :action="`{{ url('guru/materi') }}/${editData.id}`" method="POST" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
                 @csrf
                 @method('PUT')
 
@@ -287,8 +287,8 @@
     </div>
 
     <script>
-        function editMateriModal() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('editMateriModal', () => ({
                 editData: {
                     id: '',
                     urutan: '',
@@ -296,22 +296,26 @@
                     huruf_hijaiyah: '',
                     file_video: '',
                     category_id: '',
-                    kategori: '',
                     deskripsi: ''
                 },
-                openModal(data) {
-                    this.editData = {
-                        id: data.id,
-                        urutan: data.urutan !== '-' ? data.urutan : '',
-                        judul_materi: data.judul_materi,
-                        huruf_hijaiyah: data.huruf_hijaiyah || '',
-                        file_video: data.file_video || '',
-                        category_id: data.category_id || '',
-                        kategori: data.kategori || '',
-                        deskripsi: data.deskripsi || ''
-                    };
+                init() {
+                    window.addEventListener('set-edit-materi-data', (e) => {
+                        const data = e.detail;
+                        this.editData = {
+                            id: data.id,
+                            urutan: data.urutan !== '-' ? data.urutan : '',
+                            judul_materi: data.judul_materi,
+                            huruf_hijaiyah: data.huruf_hijaiyah !== '-' ? data.huruf_hijaiyah : '',
+                            file_video: data.video_url !== '-' ? data.video_url : '',
+                            category_id: data.category_id || '',
+                            deskripsi: data.deskripsi !== '-' ? data.deskripsi : ''
+                        };
+                        this.$nextTick(() => {
+                            window.dispatchEvent(new CustomEvent('open-modal-edit-materi'));
+                        });
+                    });
                 }
-            }
-        }
+            }));
+        });
     </script>
 @endsection

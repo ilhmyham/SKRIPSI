@@ -15,15 +15,15 @@
 
     <x-table
         :items="$materis->map(fn($m) => [
-            'id' => $m->id,
-            'urutan' => $m->urutan ?? '-',
-            'judul_materi' => $m->judul_materi,
+            'id'             => $m->id,
+            'urutan'         => $m->urutan ?? '-',
+            'judul_materi'   => $m->judul_materi,
             'huruf_hijaiyah' => $m->huruf_hijaiyah ?? '-',
-            'video_url' => $m->file_video ?? '-',
-            'category_id' => $m->category_id ?? '',
-            'kategori' => $m->category->nama ?? '-',
-            'gambar_isyarat' => $m->gambar_isyarat,
-            'deskripsi' => $m->deskripsi ?? '-',
+            'video_url'      => $m->file_video ?? '-',
+            'category_id'    => $m->category_id ?? '',
+            'kategori'       => $m->category->nama ?? '-',
+            'file_path'      => $m->file_path,
+            'deskripsi'      => $m->deskripsi ?? '-',
         ])"
         :columns="[
             ['key' => 'urutan', 'label' => '#', 'class' => 'text-center text-gray-500 w-12'],
@@ -34,23 +34,30 @@
         :searchKeys="['judul_materi', 'huruf_hijaiyah']"
     >
         <x-slot:header>
-            <button 
-                @click="$dispatch('open-modal-create-materi')"
-                class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
-            >
-                <x-icon name="plus" class="w-5 h-5" />
-                Tambah Materi
-            </button>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.categories.index', $module) }}"
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition">
+                    <x-icon name="list-bullet" class="w-5 h-5" />
+                    Kelola Kategori
+                </a>
+                <button 
+                    @click="$dispatch('open-modal-create-materi')"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
+                >
+                    <x-icon name="plus" class="w-5 h-5" />
+                    Tambah Materi
+                </button>
+            </div>
         </x-slot:header>
 
         <x-slot:actions>
             <button 
-                @click="$dispatch('open-modal-edit-materi', item)"
+                @click="$dispatch('set-edit-materi-data', item)"
                 class="text-blue-600 hover:underline text-sm font-medium">
                 <x-icon name="edit" class="w-4 h-4 inline" />
                 Edit
             </button>
-            <form method="POST" :action="`{{ route('admin.materi.index') }}/${item.id}`" 
+            <form method="POST" :action="`{{ url('admin/materi') }}/${item.id}`" 
                   onsubmit="return confirm('Hapus materi ini?')" class="inline">
                 @csrf
                 @method('DELETE')
@@ -122,7 +129,7 @@
                 >
                     <option value="">-- Tidak ada kategori --</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->nama }}</option>
+                        <option value="{{ $category->id }}">{{ Str::title(str_replace('_', ' ', $category->nama)) }}</option>
                     @endforeach
                 </select>
                 <p class="mt-1 text-xs text-gray-500">Pilih kategori materi ini (jika ada)</p>
@@ -169,9 +176,9 @@
     </x-modal>
 
     <!-- Edit Materi Modal -->
-    <div x-data="editMateriModal()" @open-modal-edit-materi.window="openModal($event.detail)">
+    <div x-data="editMateriModal()">
         <x-modal name="edit-materi" title="Edit Materi" description="Perbarui informasi materi." maxWidth="3xl">
-            <form :action="`{{ route('admin.materi.index') }}/${editData.id}`" method="POST" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
+            <form :action="`{{ url('admin/materi') }}/${editData.id}`" method="POST" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
                 @csrf
                 @method('PUT')
 
@@ -233,7 +240,7 @@
                 >
                     <option value="">-- Tidak ada kategori --</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->nama }}</option>
+                        <option value="{{ $category->id }}">{{ Str::title(str_replace('_', ' ', $category->nama)) }}</option>
                     @endforeach
                 </select>
                 <p class="mt-1 text-xs text-gray-500">Pilih kategori materi ini (jika ada)</p>
@@ -281,8 +288,8 @@
     </div>
 
     <script>
-        function editMateriModal() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('editMateriModal', () => ({
                 editData: {
                     id: '',
                     urutan: '',
@@ -290,22 +297,26 @@
                     huruf_hijaiyah: '',
                     file_video: '',
                     category_id: '',
-                    kategori: '',
                     deskripsi: ''
                 },
-                openModal(data) {
-                    this.editData = {
-                        id: data.id,
-                        urutan: data.urutan !== '-' ? data.urutan : '',
-                        judul_materi: data.judul_materi,
-                        huruf_hijaiyah: data.huruf_hijaiyah || '',
-                        file_video: data.video_url || '',
-                        category_id: data.category_id || '',
-                        kategori: data.kategori || '',
-                        deskripsi: data.deskripsi || ''
-                    };
+                init() {
+                    window.addEventListener('set-edit-materi-data', (e) => {
+                        const data = e.detail;
+                        this.editData = {
+                            id: data.id,
+                            urutan: data.urutan !== '-' ? data.urutan : '',
+                            judul_materi: data.judul_materi,
+                            huruf_hijaiyah: data.huruf_hijaiyah !== '-' ? data.huruf_hijaiyah : '',
+                            file_video: data.video_url !== '-' ? data.video_url : '',
+                            category_id: data.category_id || '',
+                            deskripsi: data.deskripsi !== '-' ? data.deskripsi : ''
+                        };
+                        this.$nextTick(() => {
+                            window.dispatchEvent(new CustomEvent('open-modal-edit-materi'));
+                        });
+                    });
                 }
-            }
-        }
+            }));
+        });
     </script>
 @endsection

@@ -29,6 +29,12 @@
         </x-slot:header>
 
         <x-slot:actions>
+            <a 
+                :href="`{{ url('admin/categories/module') }}/${item.id}`"
+                class="text-emerald-600 hover:underline text-sm font-medium inline-flex items-center gap-1">
+                <x-icon name="folder" class="w-4 h-4 inline" />
+                Kategori
+            </a>
             <button 
                 @click="$dispatch('open-modal-edit-module', item)"
                 class="text-blue-600 hover:underline text-sm font-medium">

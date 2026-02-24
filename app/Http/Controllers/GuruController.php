@@ -6,7 +6,9 @@ use App\Models\Assignment;
 use App\Models\Submission;
 use App\Models\User;
 use App\Models\Material;
+use App\Models\Module;
 use App\Models\Quiz;
+use App\Models\LearningProgress;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
@@ -138,5 +140,49 @@ class GuruController extends Controller
         $submission->update($validated);
 
         return back()->with('success', 'Nilai berhasil disimpan');
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  PROGRESS MONITORING
+    // ─────────────────────────────────────────────────────────
+
+    public function progress()
+    {
+        $siswaList = User::whereHas('role', fn($q) => $q->where('nama_role', 'siswa'))
+            ->with(['progress'])
+            ->get();
+
+        $totalMateri = Material::count();
+
+        $siswaList = $siswaList->map(function ($siswa) use ($totalMateri) {
+            $completed = $siswa->progress->where('status', 'selesai')->count();
+            $siswa->completed_materi = $completed;
+            $siswa->progress_pct = $totalMateri > 0
+                ? round(($completed / $totalMateri) * 100, 1)
+                : 0;
+            return $siswa;
+        });
+
+        return view('guru.progress.index', compact('siswaList', 'totalMateri'));
+    }
+
+    public function studentProgress(User $user)
+    {
+        $progressList = LearningProgress::where('user_id', $user->id)
+            ->with('material.module')
+            ->latest('updated_at')
+            ->get();
+
+        $modules = Module::withCount('materials')->get();
+        $totalMateri = Material::count();
+        $completedMateri = $progressList->where('status', 'selesai')->count();
+        $overallProgress = $totalMateri > 0
+            ? round(($completedMateri / $totalMateri) * 100, 1)
+            : 0;
+
+        return view('guru.progress.show', compact(
+            'user', 'progressList', 'modules',
+            'totalMateri', 'completedMateri', 'overallProgress'
+        ));
     }
 }

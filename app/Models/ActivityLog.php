@@ -88,28 +88,6 @@ class ActivityLog extends Model
      */
     public function getRelativeTimeAttribute(): string
     {
-        $diff = $this->created_at->diffForHumans();
-        
-        // Translate to Indonesian
-        $translations = [
-            'seconds ago' => 'detik yang lalu',
-            'second ago' => 'detik yang lalu',
-            'minutes ago' => 'menit yang lalu',
-            'minute ago' => 'menit yang lalu',
-            'hours ago' => 'jam yang lalu',
-            'hour ago' => 'jam yang lalu',
-            'days ago' => 'hari yang lalu',
-            'day ago' => 'hari yang lalu',
-            'weeks ago' => 'minggu yang lalu',
-            'week ago' => 'minggu yang lalu',
-            'months ago' => 'bulan yang lalu',
-            'month ago' => 'bulan yang lalu',
-        ];
-
-        foreach ($translations as $en => $id) {
-            $diff = str_replace($en, $id, $diff);
-        }
-
-        return $diff;
+        return $this->created_at->locale('id')->diffForHumans();
     }
 }

@@ -46,6 +46,14 @@
                 <x-icon name="clipboard-check" class="w-5 h-5 shrink-0" />
                 <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Manajemen Tugas</span>
             </a>
+
+            <a href="{{ route('guru.progress.index') }}" 
+               title="Monitoring Progress"
+               class="hidden flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.progress.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+               :class="!isSidebarOpen && 'justify-center px-0'">
+                <x-icon name="chart-bar" class="w-5 h-5 shrink-0" />
+                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Monitoring Progress</span>
+            </a>
         </nav>
 
         <!-- Footer Info -->

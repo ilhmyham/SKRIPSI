@@ -41,15 +41,15 @@
             </x-slot:header>
 
             <x-slot:actions>
-                <button
-        @click="$dispatch('open-modal-edit-user', item)"
-        class="text-blue-600 hover:underline text-sm font-medium"
-    >
-        <x-icon name="edit" class="w-4 h-4 inline" />
-        Edit
-    </button>
+            <button
+                @click="$dispatch('set-edit-user-data', item)"
+                class="text-blue-600 hover:underline text-sm font-medium"
+            >
+                <x-icon name="edit" class="w-4 h-4 inline" />
+                Edit
+            </button>
 
-            <form method="POST" :action="`{{ route('admin.users.index') }}/${item.id}`" 
+            <form method="POST" :action="`{{ url('admin/users') }}/${item.id}`"
                   onsubmit="return confirm('Hapus pengguna ini?')" class="inline">
                 @csrf
                 @method('DELETE')
@@ -82,13 +82,13 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input 
-                    type="text" 
+                    type="email" 
                     name="email" 
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
-                    placeholder="Masukkan username/email"
+                    placeholder="Masukkan email"
                 >
             </div>
 
@@ -149,7 +149,7 @@
     </x-modal>
 
     <!-- Edit User Modal -->
-    <div x-data="editUserModal()" @open-modal-edit-user.window="openModal($event.detail)">
+    <div x-data="editUserModal()">
         <x-modal name="edit-user" title="Edit Pengguna" description="Perbarui informasi pengguna.">
             <form :action="`{{ route('admin.users.index') }}/${editData.id}`" method="POST" class="space-y-5">
                 @csrf
@@ -166,16 +166,16 @@
                     >
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                    <input 
-                        type="text" 
-                        name="email" 
-                        x-model="editData.email"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
-                    >
-                </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    x-model="editData.email"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                >
+            </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
@@ -237,8 +237,8 @@
     </div>
 
     <script>
-        function editUserModal() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('editUserModal', () => ({
                 editData: {
                     id: '',
                     name: '',
@@ -246,17 +246,22 @@
                     role: '',
                     role_id: ''
                 },
-               openModal(data) {
-    this.editData = {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        role_id: data.role_id
-    };
-}
-
-            }
-        }
+                init() {
+                    window.addEventListener('set-edit-user-data', (e) => {
+                        const data = e.detail;
+                        this.editData = {
+                            id: data.id,
+                            name: data.name,
+                            email: data.email,
+                            role: data.role,
+                            role_id: data.role_id
+                        };
+                        this.$nextTick(() => {
+                            window.dispatchEvent(new CustomEvent('open-modal-edit-user'));
+                        });
+                    });
+                }
+            }));
+        });
     </script>
 @endsection

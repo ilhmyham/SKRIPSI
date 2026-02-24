@@ -142,9 +142,28 @@ class SiswaController extends Controller
                 'tanda_waqaf'     => ['label' => 'Waqaf',       'fullLabel' => 'TANDA WAQAF',          'color' => 'orange'],
             ];
 
-            $orderedKeys  = array_keys($allKategoriConfig);
-            $kategoriList = array_values(array_intersect($orderedKeys, $existingKategori));
-            $kategoriInfo = array_intersect_key($allKategoriConfig, array_flip($kategoriList));
+            // Prioritize known categories first (in their defined order),
+            // then append any dynamic/unknown categories at the end.
+            $orderedKnown   = array_values(array_intersect(array_keys($allKategoriConfig), $existingKategori));
+            $dynamicUnknown = array_values(array_diff($existingKategori, array_keys($allKategoriConfig)));
+            $kategoriList   = array_merge($orderedKnown, $dynamicUnknown);
+
+            // Build $kategoriInfo: use hardcoded config for known ones,
+            // and auto-generate label from slug for dynamic ones.
+            foreach ($kategoriList as $kat) {
+                if (isset($allKategoriConfig[$kat])) {
+                    $kategoriInfo[$kat] = $allKategoriConfig[$kat];
+                } else {
+                    // Auto-generate human-readable label from slug
+                    // e.g. "ragam_hamzah" → label: "Ragam Hamzah", fullLabel: "RAGAM HAMZAH"
+                    $humanLabel = \Illuminate\Support\Str::title(str_replace('_', ' ', $kat));
+                    $kategoriInfo[$kat] = [
+                        'label'     => $humanLabel,
+                        'fullLabel' => strtoupper(str_replace('_', ' ', $kat)),
+                        'color'     => 'emerald',
+                    ];
+                }
+            }
 
             foreach ($kategoriList as $kat) {
                 if ($materisByKategori->has($kat)) {
@@ -183,7 +202,19 @@ class SiswaController extends Controller
     public function showKuis(Quiz $kuis)
     {
         $kuis->load(['questions.options']);
-        return view('siswa.kuis.show', compact('kuis'));
+
+        // Check if already completed
+        $hasAnswered = \App\Models\QuizAnswer::where('quiz_id', $kuis->id)
+            ->where('user_id', auth()->id())
+            ->exists();
+
+        return view('siswa.kuis.show', compact('kuis', 'hasAnswered'));
+    }
+
+    public function startKuis(Quiz $kuis)
+    {
+        // Just redirect to the quiz show page; the form is already there
+        return redirect()->route('siswa.kuis.show', $kuis);
     }
 
     public function submitKuis(Request $request, Quiz $kuis)
@@ -225,7 +256,31 @@ class SiswaController extends Controller
 
     public function kuisResults(Quiz $kuis)
     {
-        return view('siswa.kuis.results', compact('kuis'));
+        $kuis->load(['questions.options']);
+
+        // Load user answers from DB (persistent — no session dependency)
+        $userAnswers = \App\Models\QuizAnswer::where('quiz_id', $kuis->id)
+            ->where('user_id', auth()->id())
+            ->pluck('option_id', 'question_id');
+
+        $totalQuestions = $kuis->questions->count();
+        $correctAnswers = 0;
+
+        foreach ($kuis->questions as $question) {
+            $selectedOptionId = $userAnswers[$question->id] ?? null;
+            $correctOption = $question->options->firstWhere('is_correct', true);
+            if ($correctOption && $correctOption->id == $selectedOptionId) {
+                $correctAnswers++;
+            }
+        }
+
+        $score = $totalQuestions > 0
+            ? round(($correctAnswers / $totalQuestions) * 100, 1)
+            : 0;
+
+        return view('siswa.kuis.results', compact(
+            'kuis', 'score', 'correctAnswers', 'totalQuestions', 'userAnswers'
+        ));
     }
 
     public function tugas()

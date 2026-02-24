@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\MateriController;
+use App\Http\Controllers\MaterialCategoryController;
 use App\Http\Controllers\KuisController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
@@ -62,6 +63,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/materi/{materi}', [MateriController::class, 'update'])->name('materi.update');
     Route::delete('/materi/{materi}', [MateriController::class, 'destroy'])->name('materi.destroy');
     
+    // Material Category Management
+    Route::get('/categories/module/{module}', [MaterialCategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories/module/{module}', [MaterialCategoryController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{category}', [MaterialCategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [MaterialCategoryController::class, 'destroy'])->name('categories.destroy');
+
     // Quiz Management - Now using shared KuisController
     Route::get('/kuis', [KuisController::class, 'index'])->name('kuis.index');
     Route::get('/kuis/module/{module}', [KuisController::class, 'byModule'])->name('kuis.by-module');
