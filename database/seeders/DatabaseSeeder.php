@@ -15,7 +15,13 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             ModuleSeeder::class,
-            MaterialCategorySeeder::class,
+            KategoriSeeder::class,
+            Iqra1MateriSeeder::class,
+            Iqra2MateriSeeder::class,
+            Iqra3MateriSeeder::class,
+            Iqra4StrategisSeeder::class,
+            Iqra5MateriSeeder::class,
+            Iqra6MateriSeeder::class,
         ]);
     }
 }
