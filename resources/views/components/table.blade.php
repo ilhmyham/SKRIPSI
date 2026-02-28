@@ -4,7 +4,7 @@
     'filterKey' => null,
     'filterOptions' => [],
     'searchKeys' => [],
-    'itemsPerPage' => 10,
+    'itemsPerPage' => 5,
 ])
 
 @php

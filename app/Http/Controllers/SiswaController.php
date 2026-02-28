@@ -90,7 +90,7 @@ class SiswaController extends Controller
                 $q->where('user_id', $user->id);
             }])
             ->where('module_id', $currentModuleId)
-            ->orderBy('created_at')
+            ->orderBy('urutan')
             ->get();
 
         $totalModules = $modules->count();
@@ -105,6 +105,11 @@ class SiswaController extends Controller
         $firstTab = null;
 
         if ($hasKategori) {
+            // Ambil urutan kategori langsung dari DB berdasarkan kolom 'urutan'
+            $kategorisOrdered = \App\Models\MaterialCategory::where('module_id', $currentModuleId)
+                ->orderBy('urutan')
+                ->get();
+
             $materisByKategori = $materis->groupBy(function ($m) {
                 return $m->category ? $m->category->nama : '';
             })->map(function ($items) {
@@ -142,10 +147,12 @@ class SiswaController extends Controller
                 'tanda_waqaf'     => ['label' => 'Waqaf',       'fullLabel' => 'TANDA WAQAF',          'color' => 'orange'],
             ];
 
-            // Prioritize known categories first (in their defined order),
-            // then append any dynamic/unknown categories at the end.
-            $orderedKnown   = array_values(array_intersect(array_keys($allKategoriConfig), $existingKategori));
-            $dynamicUnknown = array_values(array_diff($existingKategori, array_keys($allKategoriConfig)));
+            // Urutan kategori diambil dari DB (kolom 'urutan'), bukan dari array hardcoded.
+            // Kategoris yang ada di DB didahulukan sesuai urutan DB,
+            // lalu tambahkan kategori dinamis yang tidak ada di DB di akhir.
+            $dbNamaOrdered  = $kategorisOrdered->pluck('nama')->toArray();
+            $orderedKnown   = array_values(array_intersect($dbNamaOrdered, $existingKategori));
+            $dynamicUnknown = array_values(array_diff($existingKategori, $dbNamaOrdered));
             $kategoriList   = array_merge($orderedKnown, $dynamicUnknown);
 
             // Build $kategoriInfo: use hardcoded config for known ones,
@@ -369,7 +376,7 @@ class SiswaController extends Controller
         $user->email = $validated['email'];
 
         if (! empty($validated['password'])) {
-            $user->password = bcrypt($validated['password']);
+            $user->password = \Illuminate\Support\Facades\Hash::make($validated['password']);
         }
 
         if ($request->hasFile('photo')) {

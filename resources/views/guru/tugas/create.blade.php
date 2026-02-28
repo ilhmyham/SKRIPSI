@@ -1,13 +1,13 @@
-@extends('layouts.app')
+@extends('layouts.guru')
 
-@section('title', 'Buat Tugas')
+@section('title', 'Buat Tugas Baru')
+@section('page-title', 'Buat Tugas Baru')
 
 @section('content')
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h1 class="text-4xl font-bold mb-8" style="color: var(--color-primary);">Buat Tugas Baru</h1>
+<div class="max-w-4xl mx-auto">
 
     <div class="card">
-        <form method="POST" action="{{ route('guru.tugas.store') }}" class="space-y-6">
+        <form method="POST" action="{{ route('guru.tugas.store') }}" class="space-y-6" autocomplete="off">
             @csrf
 
             <div>

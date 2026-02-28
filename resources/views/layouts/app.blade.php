@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'LMS Iqra') - Tunarungu & Tunawicara</title>
+    <title>@yield('title', 'Ayat Isyarat') - Tunarungu & Tunawicara</title>
     
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -62,7 +62,7 @@
 
         <!-- Footer -->
         <footer class="py-6 text-center text-sm" style="color: var(--color-text-muted);">
-            <p>LMS Iqra untuk Tunarungu & Tunawicara © {{ date('Y') }}</p>
+            <p>Ayat Isyarat untuk Tunarungu & Tunawicara © {{ date('Y') }}</p>
         </footer>
 
         <!-- Bottom Navigation for Students -->

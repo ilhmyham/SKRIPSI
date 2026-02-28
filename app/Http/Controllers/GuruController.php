@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Assignment;
+use App\Models\QuizAnswer;
 use App\Models\Submission;
 use App\Models\User;
 use App\Models\Material;
 use App\Models\Module;
 use App\Models\Quiz;
+use App\Models\Question;
 use App\Models\LearningProgress;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
@@ -180,9 +182,108 @@ class GuruController extends Controller
             ? round(($completedMateri / $totalMateri) * 100, 1)
             : 0;
 
+        // ── Rekap Hasil Kuis ─────────────────────────────────────────────────
+        $kuisList = Quiz::with('questions')->get();
+        $hasilKuis = $kuisList->map(function ($kuis) use ($user) {
+            $totalSoal = $kuis->questions->count();
+            if ($totalSoal === 0) return null;
+
+            $answers = QuizAnswer::where('quiz_id', $kuis->id)
+                ->where('user_id', $user->id)
+                ->with('option')
+                ->get();
+
+            if ($answers->isEmpty()) return null; // belum mengerjakan
+
+            $benar = $answers->filter(fn($a) => $a->option && $a->option->is_correct)->count();
+            $skor  = round(($benar / $totalSoal) * 100, 1);
+
+            return [
+                'kuis'       => $kuis,
+                'skor'       => $skor,
+                'benar'      => $benar,
+                'total_soal' => $totalSoal,
+                'dikerjakan_at' => $answers->max('updated_at'),
+            ];
+        })->filter()->values();
+
+        // ── Rekap Nilai Tugas ─────────────────────────────────────────────────
+        $submissions = Submission::where('user_id', $user->id)
+            ->with('assignment.module')
+            ->latest()
+            ->get();
+
         return view('guru.progress.show', compact(
             'user', 'progressList', 'modules',
-            'totalMateri', 'completedMateri', 'overallProgress'
+            'totalMateri', 'completedMateri', 'overallProgress',
+            'hasilKuis', 'submissions'
+        ));
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  MONITORING HASIL KUIS SISWA
+    // ─────────────────────────────────────────────────────────
+
+    /**
+     * Daftar semua kuis beserta rekap jumlah siswa yang sudah mengerjakan.
+     */
+    public function kuisMonitoring()
+    {
+        $kuisList = Quiz::with('module')
+            ->withCount(['answers as total_pengerjaan' => function ($q) {
+                $q->select(\DB::raw('COUNT(DISTINCT user_id)'));
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalSiswa = User::whereHas('role', fn($q) => $q->where('nama_role', 'siswa'))->count();
+
+        return view('guru.kuis.monitoring', compact('kuisList', 'totalSiswa'));
+    }
+
+    /**
+     * Detail hasil kuis: daftar siswa + skor masing-masing.
+     */
+    public function kuisMonitoringDetail(Quiz $kuis)
+    {
+        $kuis->load('module', 'questions.options');
+        $totalSoal = $kuis->questions->count();
+
+        // Ambil semua siswa yang sudah mengerjakan kuis ini
+        $siswaIds = QuizAnswer::where('quiz_id', $kuis->id)
+            ->distinct('user_id')
+            ->pluck('user_id');
+
+        $hasilSiswa = $siswaIds->map(function ($userId) use ($kuis, $totalSoal) {
+            $siswa = User::find($userId);
+            if (!$siswa) return null;
+
+            $answers = QuizAnswer::where('quiz_id', $kuis->id)
+                ->where('user_id', $userId)
+                ->with('option')
+                ->get();
+
+            $benar = $answers->filter(fn($a) => $a->option && $a->option->is_correct)->count();
+            $skor  = $totalSoal > 0 ? round(($benar / $totalSoal) * 100, 1) : 0;
+
+            return [
+                'siswa'      => $siswa,
+                'benar'      => $benar,
+                'salah'      => $totalSoal - $benar,
+                'total_soal' => $totalSoal,
+                'skor'       => $skor,
+                'dikerjakan_at' => $answers->max('updated_at'),
+            ];
+        })->filter()->sortByDesc('skor')->values();
+
+        $avgSkor = $hasilSiswa->count() > 0
+            ? round($hasilSiswa->avg('skor'), 1)
+            : '-';
+
+        $totalSiswa = User::whereHas('role', fn($q) => $q->where('nama_role', 'siswa'))->count();
+
+        return view('guru.kuis.monitoring-detail', compact(
+            'kuis', 'hasilSiswa', 'avgSkor', 'totalSiswa', 'totalSoal'
         ));
     }
 }

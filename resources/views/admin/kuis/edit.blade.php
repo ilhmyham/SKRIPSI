@@ -88,6 +88,11 @@
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-emerald-500"
                                    placeholder="Tulis pertanyaan...">
                             
+                            {{-- Hidden: id soal lama (agar controller tahu ini update, bukan create baru) --}}
+                            <input type="hidden" 
+                                   :name="`pertanyaan[${qIndex}][id]`" 
+                                   :value="question.id ?? ''">
+
                             <!-- Hidden field for existing image path -->
                             <input type="hidden" 
                                    :name="`pertanyaan[${qIndex}][existing_gambar_pertanyaan]`" 
@@ -173,6 +178,11 @@
                                                 <input type="hidden" 
                                                        :name="`pertanyaan[${qIndex}][opsi][${oIndex}][is_benar]`" 
                                                        :value="opsi.is_benar ? 1 : 0">
+
+                                                {{-- Hidden: id opsi lama (agar controller tahu ini update, bukan create baru) --}}
+                                                <input type="hidden" 
+                                                       :name="`pertanyaan[${qIndex}][opsi][${oIndex}][id]`" 
+                                                       :value="opsi.id ?? ''">
                                                 
                                                 <!-- Hidden field for existing option image -->
                                                 <input type="hidden" 

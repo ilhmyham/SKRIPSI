@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="flex justify-between mt-2.5 text-white/60 text-xs font-semibold">
-                <span>{{ $completedModules ?? 0 }} materi selesai</span>
+                <span>{{ $completedModules ?? 0 }} modul selesai</span>
                 <span>{{ $modules->count() }} total modul</span>
             </div>
         </div>

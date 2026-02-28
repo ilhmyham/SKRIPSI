@@ -55,7 +55,7 @@
 
     <!-- Create Module Modal -->
     <x-modal name="create-module" title="Tambah Modul Baru" description="Buat modul Iqra baru untuk pembelajaran.">
-        <form method="POST" action="{{ route('admin.modules.store') }}" class="space-y-5">
+        <form method="POST" id="form-create-module" action="{{ route('admin.modules.store') }}" class="space-y-5">
             @csrf
 
             <div>
@@ -82,7 +82,7 @@
             <div class="flex gap-3 pt-4">
                 <button 
                     type="button"
-                    @click="$dispatch('close-modal-create-module')"
+                    @click="document.getElementById('form-create-module').reset(); $dispatch('close-modal-create-module')"
                     class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
                 >
                     Batal

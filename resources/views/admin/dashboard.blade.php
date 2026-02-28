@@ -66,19 +66,34 @@
         <!-- Quick Actions (Left) -->
         <div class="card">
             <h2 class="text-2xl font-bold mb-6">Aksi Cepat</h2>
-            <div class="grid grid-cols-1 gap-4">
-                <a href="{{ route('admin.users.index') }}" class="btn btn-primary text-center">
-                    <x-icon name="plus" class="w-6 h-6" />
-                    Tambah Pengguna Baru
+            <div class="grid grid-cols-1 gap-3">
+
+                {{-- Pengguna --}}
+                <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Pengguna</p>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-primary text-center text-sm">
+                    <x-icon name="plus" class="w-5 h-5" />
+                    Tambah User
                 </a>
-                <a href="{{ route('admin.modules.index') }}" class="btn btn-primary text-center">
-                    <x-icon name="plus" class="w-6 h-6" />
-                    Tambah Modul Iqra
+                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary text-center text-sm">
+                    <x-icon name="users" class="w-5 h-5" />
+                    Kelola User
                 </a>
-                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary text-center">
-                    <x-icon name="users" class="w-6 h-6" />
-                    Kelola Pengguna
+
+                {{-- Konten --}}
+                <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mt-2 mb-1">Konten</p>
+                <a href="{{ route('admin.modules.index') }}" class="btn btn-primary text-center text-sm">
+                    <x-icon name="plus" class="w-5 h-5" />
+                    Tambah Modul
                 </a>
+                <a href="{{ route('admin.materi.index') }}" class="btn btn-secondary text-center text-sm">
+                    <x-icon name="book" class="w-5 h-5" />
+                    Kelola Materi
+                </a>
+                <a href="{{ route('admin.kuis.index') }}" class="btn btn-secondary text-center text-sm">
+                    <x-icon name="clipboard-list" class="w-5 h-5" />
+                    Kelola Kuis
+                </a>
+
             </div>
         </div>
 

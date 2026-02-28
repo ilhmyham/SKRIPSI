@@ -4,7 +4,7 @@
 @section('page-title', 'Monitoring Progress Siswa')
 
 @section('content')
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex items-center gap-4">
             <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
                 <x-icon name="users" class="w-6 h-6 text-emerald-600" />
@@ -23,7 +23,7 @@
                 <p class="text-sm text-gray-500">Total Materi</p>
             </div>
         </div>
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex items-center gap-4">
+        <!-- <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex items-center gap-4">
             <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
                 <x-icon name="chart-bar" class="w-6 h-6 text-orange-600" />
             </div>
@@ -33,7 +33,7 @@
                 </p>
                 <p class="text-sm text-gray-500">Rata-rata Progress</p>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
@@ -48,7 +48,7 @@
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Nama Siswa</th>
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Email</th>
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-center">Materi Selesai</th>
-                        <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Progress</th>
+                        <!-- <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Progress</th> -->
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Aksi</th>
                     </tr>
                 </thead>
@@ -73,7 +73,7 @@
                                 <span class="font-semibold text-gray-900">{{ $siswa->completed_materi }}</span>
                                 <span class="text-gray-500"> / {{ $totalMateri }}</span>
                             </td>
-                            <td class="px-6 py-4 min-w-[160px]">
+                            <!-- <td class="px-6 py-4 min-w-[160px]">
                                 <div class="flex items-center gap-3">
                                     <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                                         <div class="h-full rounded-full transition-all
@@ -83,7 +83,7 @@
                                     </div>
                                     <span class="text-xs font-semibold text-gray-700 w-10 text-right">{{ $siswa->progress_pct }}%</span>
                                 </div>
-                            </td>
+                            </td> -->
                             <td class="px-6 py-4">
                                 <a href="{{ route('guru.progress.show', $siswa) }}"
                                    class="text-blue-600 hover:underline text-sm font-medium">

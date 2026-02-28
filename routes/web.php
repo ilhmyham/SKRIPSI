@@ -112,6 +112,10 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
     // Progress Monitoring
     Route::get('/progress', [GuruController::class, 'progress'])->name('progress.index');
     Route::get('/progress/{user}', [GuruController::class, 'studentProgress'])->name('progress.show');
+
+    // Kuis Monitoring
+    Route::get('/kuis-monitoring', [GuruController::class, 'kuisMonitoring'])->name('kuis.monitoring');
+    Route::get('/kuis-monitoring/{kuis}', [GuruController::class, 'kuisMonitoringDetail'])->name('kuis.monitoring.detail');
 });
 
 // Siswa (Student) Routes

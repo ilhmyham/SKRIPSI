@@ -160,7 +160,7 @@
                                 </div>
 
                                 {{-- Pagination --}}
-                                <div class="flex items-center justify-center gap-2 flex-wrap">
+                                <div class="flex items-center justify-center gap-2 flex-wrap mt-8" x-show="getTotalPages('{{ $kategori }}') > 1">
                                     <button
                                         @click="currentPage > 1 && currentPage--"
                                         :disabled="currentPage === 1"
@@ -323,7 +323,7 @@ function materiPagination() {
     return {
         activeTab:    '{{ $firstTab }}',
         currentPage:  1,
-        itemsPerPage: 10,
+        itemsPerPage: 50,
         materiData:   @json($materiData),
 
         getPaginatedItems(kategori) {

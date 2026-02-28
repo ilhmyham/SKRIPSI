@@ -29,9 +29,10 @@
             ['key' => 'urutan', 'label' => '#', 'class' => 'text-center text-gray-500 w-12'],
             ['key' => 'judul_materi', 'label' => 'Judul Materi', 'class' => 'font-bold text-base'],
             ['key' => 'huruf_hijaiyah', 'label' => 'Huruf Hijaiyah', 'class' => 'text-center text-2xl'],
+            ['key' => 'kategori', 'label' => 'Kategori', 'class' => 'text-sm text-gray-600 font-medium capitalize'],
             ['key' => 'video_url', 'label' => 'Video', 'class' => 'text-sm text-gray-600'],
         ]"
-        :searchKeys="['judul_materi', 'huruf_hijaiyah']"
+        :searchKeys="['judul_materi', 'huruf_hijaiyah', 'kategori']"
     >
         <x-slot:header>
             <button 
@@ -64,7 +65,7 @@
 
     <!-- Create Materi Modal -->
     <x-modal name="create-materi" title="Tambah Materi Baru" description="Tambahkan materi pembelajaran baru." maxWidth="3xl">
-        <form method="POST" action="{{ route('guru.materi.store') }}" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
+        <form id="form-create-materi" method="POST" action="{{ route('guru.materi.store') }}" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
             @csrf
 
             <input type="hidden" name="module_id" value="{{ $module->id }}">
@@ -157,7 +158,7 @@
             <div class="flex gap-3 pt-4">
                 <button 
                     type="button"
-                    @click="$dispatch('close-modal-create-materi')"
+                    @click="document.getElementById('form-create-materi').reset(); $dispatch('close-modal-create-materi')"
                     class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
                 >
                     Batal

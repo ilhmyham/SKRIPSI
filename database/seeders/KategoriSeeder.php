@@ -18,6 +18,7 @@ class KategoriSeeder extends Seeder
             if ($modul) {
                 $urutan = 1;
                 foreach ($daftarKategori as $kat) {
+                    // Mengonversi nama (misal: 'Konsep Sambung') menjadi slug ('konsep_sambung')
                     $slug = Str::slug($kat, '_');
                     
                     DB::table('material_categories')->updateOrInsert(
@@ -36,21 +37,24 @@ class KategoriSeeder extends Seeder
             }
         };
 
-        // 1. Kategori Iqra 2
+        // 1. Kategori Iqra 1
+        $seedKategori('Iqra 1', ['Hijaiyah']);
+
+        // 2. Kategori Iqra 2
         $seedKategori('Iqra 2', ['Fathah', 'Kasrah', 'Dammah']);
 
-        // 2. Kategori Iqra 3
+        // 3. Kategori Iqra 3
         $seedKategori('Iqra 3', ['Fathatain', 'Kasratain', 'Dammatain', 'Sukun', 'Tasydid']);
 
-        // 3. Kategori Iqra 4
+        // 4. Kategori Iqra 4
         $seedKategori('Iqra 4', ['Konsep Sambung', 'Latihan 2 Huruf', 'Latihan 3 Huruf', 'Latihan 4 Huruf']);
 
-        // 4. Kategori Iqra 5
+        // 5. Kategori Iqra 5
         $seedKategori('Iqra 5', ['Mad 2 Harakat', 'Mad 4 5 Harakat', 'Mad 6 Harakat']);
 
-        // 5. Kategori Iqra 6
+        // 6. Kategori Iqra 6
         $seedKategori('Iqra 6', ['Muqattaah', 'Tanda Sifir', 'Tanda Waqaf']);
 
-        $this->command->info('✅ Seluruh Kategori Iqra 2 - 6 berhasil dibuat/diperbarui!');
+        $this->command->info('✅ Seluruh Kategori Iqra 1 - 6 berhasil dibuat/diperbarui!');
     }
 }

@@ -3,34 +3,33 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Materi;
-use App\Models\ModulIqra;
-use Illuminate\Support\Facades\DB;
+use App\Models\Material;
+use App\Models\Module;
 
 class ResetIqra1MateriSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * Reset seeder untuk membersihkan materi Iqra 1.
      */
     public function run(): void
     {
-        // Get Iqra 1 module ID
-        $iqra1 = ModulIqra::where('nama_modul', 'Iqra 1')->first();
-        
+        // 1. Mencari modul berdasarkan nama 'Iqra 1'
+        $iqra1 = Module::where('nama_modul', 'Iqra 1')->first();
+
         if (!$iqra1) {
             $this->command->error('Modul Iqra 1 tidak ditemukan!');
             return;
         }
 
-        // Count existing materials
-        $oldCount = Materi::where('modul_iqra_modul_id', $iqra1->modul_id)->count();
-        
+        // 2. Menghitung jumlah materi yang ada sebelum dihapus
+        $oldCount = Material::where('module_id', $iqra1->id)->count();
+
         $this->command->info("Menghapus {$oldCount} materi lama Iqra 1...");
-        
-        // Delete all old Iqra 1 materials
-        Materi::where('modul_iqra_modul_id', $iqra1->modul_id)->delete();
-        
-        $this->command->info("✅ Berhasil menghapus {$oldCount} materi lama!");
-        $this->command->info("Sekarang jalankan: php artisan db:seed --class=Iqra1MateriSeeder");
+
+        // 3. Menghapus materi berdasarkan module_id
+        Material::where('module_id', $iqra1->id)->delete();
+
+        $this->command->info("✅ Berhasil menghapus {$oldCount} materi lama Iqra 1!");
     }
 }

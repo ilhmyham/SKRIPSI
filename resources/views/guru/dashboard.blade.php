@@ -61,22 +61,36 @@
 
     <!-- Two Column Layout: Quick Actions & Activity History -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Quick Actions (Left) -->
         <div class="card">
             <h2 class="text-2xl font-bold mb-6">Aksi Cepat</h2>
-            <div class="grid grid-cols-1 gap-4">
-                <a href="{{ route('guru.materi.index') }}" class="btn btn-primary text-center">
-                    <x-icon name="plus" class="w-6 h-6" />
-                    Tambah Materi Baru
+            <div class="grid grid-cols-2 gap-3">
+
+                {{-- Konten --}}
+                <p class="col-span-2 text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Kelola Konten</p>
+                <a href="{{ route('guru.materi.index') }}" class="btn btn-primary text-center text-sm">
+                    <x-icon name="plus" class="w-5 h-5" />
+                    Tambah Materi
                 </a>
-                <a href="{{ route('guru.kuis.create') }}" class="btn btn-primary text-center">
-                    <x-icon name="plus" class="w-6 h-6" />
-                    Buat Kuis Baru
+                <a href="{{ route('guru.kuis.create') }}" class="btn btn-primary text-center text-sm">
+                    <x-icon name="plus" class="w-5 h-5" />
+                    Buat Kuis
                 </a>
-                <a href="{{ route('guru.tugas.index') }}" class="btn btn-secondary text-center">
-                    <x-icon name="document" class="w-6 h-6" />
-                    Kelola Tugas
+                <a href="{{ route('guru.tugas.create') }}" class="btn btn-secondary text-center text-sm col-span-2">
+                    <x-icon name="document" class="w-5 h-5" />
+                    Buat Tugas Baru
                 </a>
+
+                {{-- Monitoring --}}
+                <p class="col-span-2 text-xs font-bold uppercase tracking-widest text-gray-400 mt-2 mb-1">Monitoring</p>
+                <a href="{{ route('guru.progress.index') }}" class="btn btn-secondary text-center text-sm">
+                    <x-icon name="chart-bar" class="w-5 h-5" />
+                    Progress Siswa
+                </a>
+                <a href="{{ route('guru.kuis.monitoring') }}" class="btn btn-secondary text-center text-sm">
+                    <x-icon name="clipboard-list" class="w-5 h-5" />
+                    Hasil Kuis
+                </a>
+
             </div>
         </div>
 

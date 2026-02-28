@@ -8,9 +8,11 @@
         <!-- Login Card -->
         <div class="card">
             <!-- Header -->
-            <div class="text-center mb-8">
-                <div class="text-6xl mb-4">☪️</div>
-                <h1 class="text-3xl font-bold" style="color: var(--color-primary);">LMS Iqra</h1>
+            <div class="text-center mb-4">
+                <div class="flex justify-center mb-0">
+                    <img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-24 w-24 object-contain">
+                </div>
+                <h1 class="text-3xl font-bold" style="color: var(--color-primary);">Ayat Isyarat</h1>
                 <p class="text-lg mt-2" style="color: var(--color-text-secondary);">Tunarungu & Tunawicara</p>
             </div>
 
@@ -99,16 +101,7 @@
                     <span>Masuk</span>
                 </button>
             </form>
-
-            <!-- Help Text -->
-            <div class="mt-8 text-center">
-                <p class="text-sm" style="color: var(--color-text-muted);">
-                    Akun demo:<br>
-                    <strong>admin@lms.com</strong> / <strong>guru@lms.com</strong> / <strong>siswa@lms.com</strong><br>
-                    Password: <strong>password</strong>
-                </p>
-            </div>
-
+                    
             <!-- Registration Link -->
             <div class="mt-6 text-center pt-6 border-t-2 border-gray-200">
                 <p class="text-base" style="color: var(--color-text-secondary);">

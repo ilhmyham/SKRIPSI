@@ -3,32 +3,23 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Materi;
-use App\Models\ModulIqra;
+use App\Models\Material;
+use App\Models\Module;
 
 class ResetIqra3MateriSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Get Iqra 3 module ID
-        $iqra3 = ModulIqra::where('nama_modul', 'Iqra 3')->first();
-        
+        $iqra3 = Module::where('nama_modul', 'Iqra 3')->first();
+
         if (!$iqra3) {
             $this->command->error('Modul Iqra 3 tidak ditemukan!');
             return;
         }
 
-        // Count existing materials
-        $oldCount = Materi::where('modul_iqra_modul_id', $iqra3->modul_id)->count();
-        
+        $oldCount = Material::where('module_id', $iqra3->id)->count();
         $this->command->info("Menghapus {$oldCount} materi lama Iqra 3...");
-        
-        // Delete all old Iqra 3 materials
-        Materi::where('modul_iqra_modul_id', $iqra3->modul_id)->delete();
-        
-        $this->command->info("✅ Berhasil menghapus {$oldCount} materi lama!");
+        Material::where('module_id', $iqra3->id)->delete();
+        $this->command->info("✅ Berhasil menghapus {$oldCount} materi lama Iqra 3!");
     }
 }

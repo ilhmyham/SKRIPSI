@@ -5,9 +5,11 @@
         <!-- Logo -->
         <div class="p-6 border-b border-gray-700 flex items-center justify-center h-[89px]">
             <div class="flex items-center gap-3 w-full" :class="isSidebarOpen ? 'justify-start' : 'justify-center'">
-                <div class="text-3xl shrink-0">☪️</div>
+                <div class="shrink-0">
+                    <img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-11 w-11 object-contain">
+                </div>
                 <div x-show="isSidebarOpen" class="whitespace-nowrap transition-opacity duration-300">
-                    <h1 class="text-xl font-bold">LMS Iqra</h1>
+                    <h1 class="text-xl font-bold">Ayat Isyarat</h1>
                     <p class="text-xs text-gray-400">Admin Panel</p>
                 </div>
             </div>
@@ -58,7 +60,7 @@
 
         <!-- Footer Info -->
         <div class="p-4 border-t border-gray-700">
-            <p class="text-xs text-gray-400 text-center">© {{ date('Y') }} LMS Iqra</p>
+            <p class="text-xs text-gray-400 text-center">© {{ date('Y') }} Ayat Isyarat</p>
         </div>
     </aside>
 

@@ -5,60 +5,96 @@
         <!-- Logo -->
         <div class="p-6 border-b border-gray-700 flex items-center justify-center h-[89px]">
             <div class="flex items-center gap-3 w-full" :class="isSidebarOpen ? 'justify-start' : 'justify-center'">
-                <div class="text-3xl shrink-0">☪️</div>
+                <div class="shrink-0">
+                    <img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-11 w-11 object-contain">
+                </div>
                 <div x-show="isSidebarOpen" class="whitespace-nowrap transition-opacity duration-300">
-                    <h1 class="text-xl font-bold">LMS Iqra</h1>
+                    <h1 class="text-xl font-bold">Ayat Isyarat</h1>
                     <p class="text-xs text-gray-400">Guru Panel</p>
                 </div>
             </div>
         </div>
 
-        <!-- Navigation Menu -->
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto overflow-x-hidden">
-            <a href="{{ route('guru.dashboard') }}" 
+        {{-- ── Navigation Menu ── --}}
+        <nav class="flex-1 px-3 py-5 overflow-y-auto overflow-x-hidden space-y-1">
+
+            {{-- GRUP: Umum --}}
+            <div x-show="isSidebarOpen"
+                 class="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                Umum
+            </div>
+
+            <a href="{{ route('guru.dashboard') }}"
                title="Dashboard"
-               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.dashboard') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('guru.dashboard') ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
                :class="!isSidebarOpen && 'justify-center px-0'">
                 <x-icon name="home" class="w-5 h-5 shrink-0" />
-                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Dashboard</span>
+                <span x-show="isSidebarOpen" class="text-sm font-medium whitespace-nowrap">Dashboard</span>
             </a>
 
-            <a href="{{ route('guru.materi.index') }}" 
-               title="Manajemen Materi"
-               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.materi.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+            {{-- DIVIDER --}}
+            <div class="my-2 border-t border-gray-700/60"></div>
+
+            {{-- GRUP: Kelola Konten --}}
+            <div x-show="isSidebarOpen"
+                 class="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                Kelola Konten
+            </div>
+
+            <a href="{{ route('guru.materi.index') }}"
+               title="Materi"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('guru.materi.*') ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
                :class="!isSidebarOpen && 'justify-center px-0'">
                 <x-icon name="book" class="w-5 h-5 shrink-0" />
-                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Manajemen Materi</span>
+                <span x-show="isSidebarOpen" class="text-sm font-medium whitespace-nowrap">Materi</span>
             </a>
 
-            <a href="{{ route('guru.kuis.index') }}" 
-               title="Manajemen Kuis"
-               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.kuis.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+            <a href="{{ route('guru.kuis.index') }}"
+               title="Kuis"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('guru.kuis.index') || request()->routeIs('guru.kuis.create') || request()->routeIs('guru.kuis.edit') ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
                :class="!isSidebarOpen && 'justify-center px-0'">
                 <x-icon name="kuis" class="w-5 h-5 shrink-0" />
-                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Manajemen Kuis</span>
+                <span x-show="isSidebarOpen" class="text-sm font-medium whitespace-nowrap">Kuis</span>
             </a>
 
-            <a href="{{ route('guru.tugas.index') }}" 
-               title="Manajemen Tugas"
-               class="flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.tugas.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+            <a href="{{ route('guru.tugas.index') }}"
+               title="Tugas"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('guru.tugas.*') ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
                :class="!isSidebarOpen && 'justify-center px-0'">
                 <x-icon name="clipboard-check" class="w-5 h-5 shrink-0" />
-                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Manajemen Tugas</span>
+                <span x-show="isSidebarOpen" class="text-sm font-medium whitespace-nowrap">Tugas</span>
             </a>
 
-            <a href="{{ route('guru.progress.index') }}" 
-               title="Monitoring Progress"
-               class="hidden flex items-center gap-3 px-4 py-3 rounded-lg transition {{ request()->routeIs('guru.progress.*') ? 'bg-white text-gray-900' : 'text-gray-300 hover:bg-gray-800' }}"
+            {{-- DIVIDER --}}
+            <div class="my-2 border-t border-gray-700/60"></div>
+
+            {{-- GRUP: Monitoring --}}
+            <div x-show="isSidebarOpen"
+                 class="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                Monitoring Siswa
+            </div>
+
+            <a href="{{ route('guru.progress.index') }}"
+               title="Progress Belajar"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('guru.progress.*') ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
                :class="!isSidebarOpen && 'justify-center px-0'">
                 <x-icon name="chart-bar" class="w-5 h-5 shrink-0" />
-                <span x-show="isSidebarOpen" class="font-medium whitespace-nowrap transition-opacity duration-300">Monitoring Progress</span>
+                <span x-show="isSidebarOpen" class="text-sm font-medium whitespace-nowrap">Progress Belajar</span>
             </a>
+
+            <a href="{{ route('guru.kuis.monitoring') }}"
+               title="Hasil Kuis"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ request()->routeIs('guru.kuis.monitoring*') ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
+               :class="!isSidebarOpen && 'justify-center px-0'">
+                <x-icon name="clipboard-list" class="w-5 h-5 shrink-0" />
+                <span x-show="isSidebarOpen" class="text-sm font-medium whitespace-nowrap">Hasil Kuis</span>
+            </a>
+
         </nav>
 
         <!-- Footer Info -->
         <div class="p-4 border-t border-gray-700">
-            <p class="text-xs text-gray-400 text-center">© {{ date('Y') }} LMS Iqra</p>
+            <p class="text-xs text-gray-400 text-center">© {{ date('Y') }} Ayat Isyarat</p>
         </div>
     </aside>
 

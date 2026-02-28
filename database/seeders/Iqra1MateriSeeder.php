@@ -5,13 +5,14 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Material;
 use App\Models\Module;
+use Illuminate\Support\Facades\DB;
 
 class Iqra1MateriSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      * Seeder Iqra 1: Huruf Hijaiah (1-32)
-     * Update: Menggunakan link video dengan timestamp terbaru.
+     * Update: Menambahkan category_id 'hijaiyah'.
      */
     public function run(): void
     {
@@ -23,8 +24,18 @@ class Iqra1MateriSeeder extends Seeder
             return;
         }
 
-        // 2. Daftar Data 
-        // Nama file gambar (1.png - 32.png) akan otomatis mengikuti urutan array ini
+        // 2. Fungsi Helper untuk mengambil ID Kategori 'hijaiyah' secara dinamis
+        $categoryId = DB::table('material_categories')
+            ->where('module_id', $iqra1->id)
+            ->where('nama', 'hijaiyah')
+            ->value('id');
+
+        if (!$categoryId) {
+            $this->command->error('Kategori "hijaiyah" tidak ditemukan! Jalankan KategoriSeeder terlebih dahulu.');
+            return;
+        }
+
+        // 3. Daftar Data 
         $hurufHijaiyah = [
             ['name' => 'Alif', 'symbol' => 'ا', 'desc' => 'Telapak tangan menghadap ke kiri. Jari-jari menggenggam, kecuali ibu jari menghadap ke luar, lurus menunjuk ke atas.', 'video' => 'https://youtu.be/QACK81j2nqw?start=13&end=22'],
             ['name' => 'Ba', 'symbol' => 'ب', 'desc' => 'Telapak tangan menghadap ke luar. Jari telunjuk lurus menunjuk ke atas. Mengisyaratkan satu titik.', 'video' => 'https://youtu.be/QACK81j2nqw?start=23&end=32'],
@@ -58,9 +69,9 @@ class Iqra1MateriSeeder extends Seeder
             ['name' => 'Alif Maqsurah', 'symbol' => 'ى', 'desc' => 'Seperti Ya, sambil menggerakkan pergelangan tangan ke dalam dua kali.', 'video' => 'https://youtu.be/QACK81j2nqw?start=308&end=317'], 
             ['name' => 'Ta Marbutah', 'symbol' => 'ة', 'desc' => 'Telunjuk & tengah melengkung renggang (dua titik).', 'video' => 'https://youtu.be/QACK81j2nqw?start=317&end=326'],    
             ['name' => 'Lam Alif', 'symbol' => 'لا', 'desc' => 'Isyarat Lam dan Alif dilakukan terpisah berurutan.', 'video' => 'https://youtu.be/QACK81j2nqw?start=279&end=287'], 
-            ];
+        ];
 
-        $this->command->info('Seeding materi Iqra 1 (Auto-mapping files 1.png - 32.png & New Videos)...');
+        $this->command->info('Seeding materi Iqra 1 dengan kategori "hijaiyah"...');
         
         foreach ($hurufHijaiyah as $index => $huruf) {
             $nomorFile = $index + 1; 
@@ -71,16 +82,16 @@ class Iqra1MateriSeeder extends Seeder
                 'user_id' => 1,
                 'judul_materi' => 'Huruf ' . $huruf['name'],
                 'huruf_hijaiyah' => $huruf['symbol'],
-                'category_id' => null,
+                'category_id' => $categoryId,
                 'deskripsi' => $huruf['desc'],
                 'file_video' => $huruf['video'],
                 'file_path' => 'materi/iqra1/' . $fileName, 
                 'urutan' => $nomorFile,
             ]);
 
-            $this->command->info("✓ Created: {$huruf['name']} -> Img: {$fileName} | Vid: {$huruf['video']}");
+            $this->command->info("✓ Created: {$huruf['name']} (Kategori: hijaiyah)");
         }
 
-        $this->command->info("✅ Sukses! 32 Materi telah diperbarui dengan video terbaru.");
+        $this->command->info("✅ Sukses! 32 Materi Iqra 1 berhasil diperbarui dengan kategori.");
     }
 }

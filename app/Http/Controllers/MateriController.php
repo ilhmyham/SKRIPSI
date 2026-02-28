@@ -21,9 +21,12 @@ class MateriController extends Controller
     public function byModule(Module $module)
     {
         $materis = $module->materials()
+            ->with('category')
             ->orderByRaw('urutan IS NULL, urutan ASC')
             ->orderBy('created_at', 'asc')
             ->get();
+
+
         $modules = Module::all();
         $categories = MaterialCategory::where('module_id', $module->id)->orderBy('urutan')->get();
         

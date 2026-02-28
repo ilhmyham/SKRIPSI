@@ -6,32 +6,28 @@ use Illuminate\Database\Seeder;
 use App\Models\Material;
 use App\Models\Module;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class Iqra3MateriSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     * Seeder Iqra 3: Tanwin, Sukun, dan Tasydid.
-     * Update: Hamzah di awal, Alif dihapus, Mapping Gambar diperbaiki.
-     */
     public function run(): void
     {
         $iqra3 = Module::where('nama_modul', 'Iqra 3')->first();
-        
-        $getCategoryId = function($kategori) use ($iqra3) {
-            $slug = Str::slug($kategori, '_');
-            return \Illuminate\Support\Facades\DB::table('material_categories')
-                ->where('module_id', $iqra3->id)
-                ->where('nama', $slug)
-                ->value('id');
-        };
         
         if (!$iqra3) {
             $this->command->error('Modul Iqra 3 tidak ditemukan!');
             return;
         }
 
-        // Daftar Huruf Dasar: Hamzah di awal, Alif dihapus
+        $getCategoryId = function($kategori) use ($iqra3) {
+            $slug = Str::slug($kategori, '_');
+            return DB::table('material_categories')
+                ->where('module_id', $iqra3->id)
+                ->where('nama', $slug)
+                ->value('id');
+        };
+
+        // Daftar Huruf Dasar untuk Tanwin
         $listHuruf = [
             ['slug' => 'hamzah',   'name' => 'Hamzah',   'arab' => 'ء', 'bunyi' => ''],
             ['slug' => 'ba',       'name' => 'Ba',       'arab' => 'ب', 'bunyi' => 'b'],
@@ -65,65 +61,56 @@ class Iqra3MateriSeeder extends Seeder
         ];
 
         $this->command->info('Mulai Seeding Iqra 3 (Tanwin, Sukun, Tasydid)...');
-        $urutan = 1;
 
-        foreach ($listHuruf as $h) {
-            
-            // Pengaturan bunyi vokal: Jika Hamzah (tanpa konsonan) maka 'an', 'in', 'un'
-            $vokalAn = $h['bunyi'] . 'an';
-            $vokalIn = $h['bunyi'] . 'in';
-            $vokalUn = $h['bunyi'] . 'un';
+        // 1. SEGMEN TANWIN
+        $tanwinConfig = [
+            ['nama' => 'fathatain', 'folder' => 'fathah_tanwin', 'suffix' => 'an', 'label' => 'Fathatain'],
+            ['nama' => 'kasratain', 'folder' => 'kasrah_tanwin', 'suffix' => 'in', 'label' => 'Kasratain'],
+            ['nama' => 'dammatain', 'folder' => 'dammah_tanwin', 'suffix' => 'un', 'label' => 'Dammatain'],
+        ];
 
-            // Mapping nama file gambar sesuai screenshot Anda
-            // Contoh: hamzah -> an.png, ba -> ban.png, ha_besar -> han_besar.png
-            $fileAn = ($h['slug'] == 'ha_besar') ? 'han_besar.png' : (($h['slug'] == 'ta_marbutah') ? 'tan_marbutah.png' : $vokalAn . '.png');
-            $fileIn = ($h['slug'] == 'ha_besar') ? 'hin_besar.png' : (($h['slug'] == 'ta_marbutah') ? 'tin_marbutah.png' : $vokalIn . '.png');
-            $fileUn = ($h['slug'] == 'ha_besar') ? 'hun_besar.png' : (($h['slug'] == 'ta_marbutah') ? 'tun_marbutah.png' : $vokalUn . '.png');
+        foreach ($tanwinConfig as $conf) {
+            $urutan = 1; // Reset urutan per segmen tanwin
+            foreach ($listHuruf as $h) {
+                $vokal = ($h['slug'] == 'hamzah') ? $conf['suffix'] : $h['bunyi'] . $conf['suffix'];
+                
+                // Penyesuaian nama file gambar khusus
+                if ($h['slug'] == 'ha_besar') {
+                    $fileName = $h['bunyi'] . $conf['suffix'] . '_besar.png';
+                } elseif ($h['slug'] == 'ta_marbutah') {
+                    $fileName = $h['bunyi'] . $conf['suffix'] . '_marbutah.png';
+                } else {
+                    $fileName = $vokal . '.png';
+                }
 
-            // 1. FATHATAIN (An)
-            $hurufAn = $h['arab'] . 'ً'; 
-            // Aturan: Tambah Alif kecuali Hamzah & Ta Marbutah
-            if ($h['slug'] !== 'ta_marbutah' && $h['slug'] !== 'hamzah') {
-                $hurufAn .= 'ا'; 
+                // Logika Simbol Hijaiyah
+                $simbol = match($conf['nama']) {
+                    'fathatain' => 'ً',
+                    'kasratain' => 'ٍ',
+                    'dammatain' => 'ٌ',
+                };
+
+                $hurufFinal = $h['arab'] . $simbol;
+                if ($conf['nama'] == 'fathatain' && $h['slug'] !== 'ta_marbutah' && $h['slug'] !== 'hamzah') {
+                    $hurufFinal .= 'ا';
+                }
+
+                Material::create([
+                    'module_id' => $iqra3->id,
+                    'user_id' => 1,
+                    'judul_materi' => "{$conf['label']}: {$h['name']} ({$vokal})",
+                    'huruf_hijaiyah' => $hurufFinal,
+                    'category_id' => $getCategoryId($conf['nama']),
+                    'deskripsi' => "Huruf {$h['name']} berharakat {$conf['label']}, dibaca '{$vokal}'.",
+                    'file_path' => "materi/iqra3/{$conf['folder']}/{$fileName}",
+                    'urutan' => $urutan++,
+                ]);
             }
-
-            Material::create([
-                'module_id' => $iqra3->id,
-                'user_id' => 1,
-                'judul_materi' => "Fathatain: {$h['name']} (an)",
-                'huruf_hijaiyah' => $hurufAn,
-                'category_id' => $getCategoryId('fathatain'),
-                'deskripsi' => "Huruf {$h['name']} berharakat Fathatain, dibaca 'an'.",
-                'file_path' => "materi/iqra3/fathah_tanwin/{$fileAn}",
-                'urutan' => $urutan++,
-            ]);
-
-            // 2. KASRATAIN (In)
-            Material::create([
-                'module_id' => $iqra3->id,
-                'user_id' => 1,
-                'judul_materi' => "Kasratain: {$h['name']} (in)",
-                'huruf_hijaiyah' => $h['arab'] . 'ٍ',
-                'category_id' => $getCategoryId('kasratain'),
-                'deskripsi' => "Huruf {$h['name']} berharakat Kasratain, dibaca 'in'.",
-                'file_path' => "materi/iqra3/kasrah_tanwin/{$fileIn}",
-                'urutan' => $urutan++,
-            ]);
-
-            // 3. DAMMATAIN (Un)
-            Material::create([
-                'module_id' => $iqra3->id,
-                'user_id' => 1,
-                'judul_materi' => "Dammatain: {$h['name']} (un)",
-                'huruf_hijaiyah' => $h['arab'] . 'ٌ',
-                'category_id' => $getCategoryId('dammatain'),
-                'deskripsi' => "Huruf {$h['name']} berharakat Dammatain, dibaca 'un'.",
-                'file_path' => "materi/iqra3/dammah_tanwin/{$fileUn}",
-                'urutan' => $urutan++,
-            ]);
+            $this->command->info("✓ Selesai kategori: " . $conf['label']);
         }
 
-        // 4. SUKUN (Materi tambahan sesuai modul)
+        // 2. SEGMEN SUKUN
+        $urutanSukun = 1; // Reset urutan untuk sukun
         $contohSukun = [
             ['judul' => 'Sukun: Ab',  'huruf' => 'أَبْ', 'file' => 'ab.png',  'desc' => 'Alif Fathah bertemu Ba Sukun.'],
             ['judul' => 'Sukun: Ah',  'huruf' => 'أَحْ', 'file' => 'ah.png',  'desc' => 'Alif Fathah bertemu Ha Sukun.'],
@@ -141,11 +128,13 @@ class Iqra3MateriSeeder extends Seeder
                 'category_id' => $getCategoryId('sukun'),
                 'deskripsi' => $item['desc'],
                 'file_path' => "materi/iqra3/sukun/{$item['file']}",
-                'urutan' => $urutan++,
+                'urutan' => $urutanSukun++,
             ]);
         }
+        $this->command->info("✓ Selesai kategori: Sukun");
 
-        // 5. TASYDID (Materi tambahan sesuai modul)
+        // 3. SEGMEN TASYDID
+        $urutanTasydid = 1; // Reset urutan untuk tasydid
         $contohTasydid = [
             ['judul' => 'Tasydid: Abba', 'huruf' => 'أَبَّ', 'file' => 'abba.png', 'desc' => 'Alif Fathah bertemu Ba Fathah Tasydid.'],
             ['judul' => 'Tasydid: Ahhi', 'huruf' => 'أَحِّ', 'file' => 'ahhi.png', 'desc' => 'Alif Fathah bertemu Ha Kasrah Tasydid.'],
@@ -163,10 +152,11 @@ class Iqra3MateriSeeder extends Seeder
                 'category_id' => $getCategoryId('tasydid'),
                 'deskripsi' => $item['desc'],
                 'file_path' => "materi/iqra3/tasydid/{$item['file']}",
-                'urutan' => $urutan++,
+                'urutan' => $urutanTasydid++,
             ]);
         }
+        $this->command->info("✓ Selesai kategori: Tasydid");
 
-        $this->command->info("✅ Sukses! Hamzah di awal, Alif dihapus, dan Tanwin otomatis sesuai gambar.");
+        $this->command->info("✅ SELESAI. Materi Iqra 3 Berhasil Dibuat dengan urutan per kategori.");
     }
 }
