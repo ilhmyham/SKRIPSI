@@ -8,7 +8,14 @@
         <!-- Registration Card -->
         <div class="card shadow-2xl">
             <!-- Header -->
-             <div class="text-center mb-4">
+             <div class="relative text-center mb-4">
+                <a href="{{ url('/') }}" 
+   class="absolute left-4 top-4 flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full text-gray-500 hover:bg-green-100 hover:text-green-600 transition-all duration-300 shadow-sm" 
+   title="Kembali ke Beranda">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+</a>
                 <div class="flex justify-center mb-0">
                     <img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-24 w-24 object-contain">
                 </div>
