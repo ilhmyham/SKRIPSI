@@ -40,8 +40,8 @@
             <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-xl shadow-lg shadow-emerald-500/30 text-white"><img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-15 w-15 object-contain"></div>
             Ayat<span class="text-emerald-500">Isyarat</span>
         </a>
-        <div class="hidden md:flex items-center gap-8 font-medium text-sm text-slate-600">            
-            <a href="{{ route('login') }}" class="px-6 py-2.5 bg-slate-900 text-white rounded-xl hover:-translate-y-1 shadow-lg shadow-slate-900/20 transition-all">Masuk</a>
+        <div class="flex items-center gap-4 md:gap-8 font-medium text-sm text-slate-600">            
+            <a href="{{ route('login') }}" class="px-5 py-2 md:px-6 md:py-2.5 bg-slate-900 text-white rounded-xl hover:-translate-y-1 shadow-lg shadow-slate-900/20 transition-all">Masuk</a>
         </div>
     </nav>
 
@@ -132,7 +132,7 @@
     </section>
 
     <footer class="py-8 text-center bg-slate-950 text-sm text-slate-400">
-        <p>© 2026 <span class="text-emerald-400 font-bold">AyatIsyarat</span>. Dibuat dengan ❤️ untuk kemudahan belajar.</p>
+        <p>© 2026 <span class="text-emerald-400 font-bold">AyatIsyarat</p>
     </footer>
 
     <script>
