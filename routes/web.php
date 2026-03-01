@@ -26,21 +26,28 @@ Route::get('/', function () {
 })->name('home');
 
 
-// Authentication Routes
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Authentication Routes (Khusus yang BELUM login)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    // Membatasi percobaan login max 5x gagal per menit
+    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
+    
+    // Registration Routes
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 
-// Registration Routes
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
+    // Google OAuth Routes
+    Route::get('/auth/google', [RegisterController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [RegisterController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+});
 
-// Google OAuth Routes
-Route::get('/auth/google', [RegisterController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [RegisterController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+// Fitur Logout (Khusus yang SUDAH login)
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+});
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin', 'prevent-back-history'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     
     // User Management - Now using UserController
@@ -80,7 +87,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 // Guru (Teacher) Routes
-Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(function () {
+Route::middleware(['auth', 'role:guru','prevent-back-history'])->prefix('guru')->name('guru.')->group(function () {
     Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
     
     // Material Management - Now using shared MateriController
@@ -119,7 +126,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
 });
 
 // Siswa (Student) Routes
-Route::middleware(['auth', 'role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
+Route::middleware(['auth', 'role:siswa', 'prevent-back-history'])->prefix('siswa')->name('siswa.')->group(function () {
     Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
     
     // Learning Materials
