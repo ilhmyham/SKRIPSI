@@ -47,13 +47,7 @@
 
     <section class="relative min-h-screen flex items-center justify-center px-6 pt-32 pb-16 text-center overflow-hidden">
         <div class="absolute top-20 left-1/4 w-[500px] h-[500px] bg-emerald-300/30 rounded-full blur-[100px] -z-10"></div>
-        <div class="absolute bottom-20 right-1/4 w-[400px] h-[400px] bg-amber-200/40 rounded-full blur-[100px] -z-10"></div>
-
-        <div class="absolute hidden lg:flex top-40 left-20 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 float-slow items-center gap-3 reveal">
-            <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-xl">🎬</div>
-            <div class="text-left"><p class="text-xs text-slate-500 font-bold">Video Isyarat</p><p class="text-sm font-black text-slate-800">Tersedia</p></div>
-        </div>
-       
+        <div class="absolute bottom-20 right-1/4 w-[400px] h-[400px] bg-amber-200/40 rounded-full blur-[100px] -z-10"></div>        
 
         <div class="relative z-10 max-w-4xl mx-auto">           
             <div class="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-700 mb-6 reveal tracking-tight">ا ب ت ث</div>
