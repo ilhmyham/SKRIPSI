@@ -100,6 +100,14 @@
                             </svg>
                         </button>
                     </div>
+                    {{-- Lupa Password --}}
+                    <div class="mt-2 text-right">
+                        <a href="https://wa.me/6285172112525?text=Halo%20Admin,%20saya%20lupa%20password%20akun%20AyatIsyarat%20saya.%20Mohon%20bantuannya!" 
+                           target="_blank" 
+                           class="text-sm font-semibold text-gray-500 hover:text-emerald-600 transition-colors">
+                           Lupa password? Hubungi Admin
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Remember Me -->
