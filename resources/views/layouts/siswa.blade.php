@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Belajar') — AyatIsyarat</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" type="image/webp" href="{{ asset('images/logo.webp') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Preconnect & DNS Prefetch untuk memangkas latensi video embed -->
@@ -44,7 +44,7 @@
             {{-- Brand --}}
             <a href="{{ route('siswa.dashboard') }}" class="flex items-center gap-2.5 group shrink-0">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-lg shadow-md shadow-emerald-300/50 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
-                    <img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-12 w-12 object-contain">
+                    <img src="{{ asset('images/logo.webp') }}" alt="Ayat Isyarat" class="h-12 w-12 object-contain">
                 </div>
                 <span class="text-[15px] font-black tracking-tight text-gray-900">
                     Ayat<span class="text-emerald-600">Isyarat</span>

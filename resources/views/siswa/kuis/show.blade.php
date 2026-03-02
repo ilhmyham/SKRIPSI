@@ -43,12 +43,7 @@
                     <div class="text-center">
                         <div class="text-4xl font-black text-emerald-600">{{ $kuis->kuisPertanyaan->count() }}</div>
                         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-1">Pertanyaan</p>
-                    </div>
-                    <div class="w-px bg-gray-200"></div>
-                    <div class="text-center">
-                        <div class="text-4xl font-black text-emerald-600">–</div>
-                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-1">Waktu</p>
-                    </div>
+                    </div>                   
                 </div>
 
                 <p class="text-sm text-gray-400 mb-6">Baca setiap pertanyaan dengan teliti sebelum menjawab.</p>

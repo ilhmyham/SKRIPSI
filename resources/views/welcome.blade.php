@@ -37,7 +37,7 @@
 
     <nav id="navbar" class="fixed top-0 inset-x-0 z-50 px-6 py-4 flex items-center justify-between backdrop-blur-xl bg-white/70 border-b border-slate-200 transition-all duration-300">
         <a href="/" class="flex items-center gap-3 font-bold text-xl text-slate-900">
-            <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-xl shadow-lg shadow-emerald-500/30 text-white"><img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-15 w-15 object-contain"></div>
+            <div class="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center text-xl shadow-lg shadow-emerald-500/30 text-white"><img src="{{ asset('images/logo.webp') }}" alt="Ayat Isyarat" class="h-15 w-15 object-contain"></div>
             Ayat<span class="text-emerald-500">Isyarat</span>
         </a>
         <div class="flex items-center gap-3 md:gap-4 font-medium text-sm text-slate-600">

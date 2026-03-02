@@ -5,7 +5,7 @@
             <div class="flex items-center flex-shrink-0">
                 <a href="#" class="flex items-center gap-2 group">
                     <div class="bg-white/10 p-1 rounded-lg group-hover:bg-white/20 transition-all duration-300">
-                        <img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-10 w-10 object-contain">
+                        <img src="{{ asset('images/logo.webp') }}" alt="Ayat Isyarat" class="h-10 w-10 object-contain">
                     </div>
                     <div class="flex flex-col">
                         <span class="text-xl font-bold tracking-tight text-white leading-none">Ayat Isyarat</span>

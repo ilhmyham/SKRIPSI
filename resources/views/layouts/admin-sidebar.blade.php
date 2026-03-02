@@ -6,7 +6,7 @@
         <div class="p-6 border-b border-gray-700 flex items-center justify-center h-[89px]">
             <div class="flex items-center gap-3 w-full" :class="isSidebarOpen ? 'justify-start' : 'justify-center'">
                 <div class="shrink-0">
-                    <img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-11 w-11 object-contain">
+                    <img src="{{ asset('images/logo.webp') }}" alt="Ayat Isyarat" class="h-11 w-11 object-contain">
                 </div>
                 <div x-show="isSidebarOpen" class="whitespace-nowrap transition-opacity duration-300">
                     <h1 class="text-xl font-bold">Ayat Isyarat</h1>

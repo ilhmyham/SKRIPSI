@@ -17,8 +17,8 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             'role_id' => $adminRoleId,
             'name' => 'Administrator',
-            'email' => 'admin@lms.com',
-            'password' => Hash::make('password'),
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('admin12345'),
             'email_verified_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),
@@ -27,8 +27,8 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             'role_id' => $guruRoleId,
             'name' => 'Guru Contoh',
-            'email' => 'guru@lms.com',
-            'password' => Hash::make('password'),
+            'email' => 'guru@gmail.com',
+            'password' => Hash::make('guru12345'),
             'email_verified_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),
@@ -37,8 +37,8 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             'role_id' => $siswaRoleId,
             'name' => 'Siswa Contoh',
-            'email' => 'siswa@lms.com',
-            'password' => Hash::make('password'),
+            'email' => 'siswa@gmail.com',
+            'password' => Hash::make('siswa12345'),
             'email_verified_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),

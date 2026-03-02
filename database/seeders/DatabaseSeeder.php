@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             Iqra4StrategisSeeder::class,
             Iqra5MateriSeeder::class,
             Iqra6MateriSeeder::class,
+            QuizSeeder::class,
+            DummySiswaSeeder::class,
         ]);
     }
 }

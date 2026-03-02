@@ -17,7 +17,7 @@
     </svg>
 </a>
                 <div class="flex justify-center mb-0">
-                    <img src="{{ asset('images/logo.png') }}" alt="Ayat Isyarat" class="h-24 w-24 object-contain">
+                    <img src="{{ asset('images/logo.webp') }}" alt="Ayat Isyarat" class="h-24 w-24 object-contain">
                 </div>
                 <h1 class="text-3xl font-bold" style="color: var(--color-primary);">Ayat Isyarat</h1>
                 <p class="text-lg mt-2" style="color: var(--color-text-secondary);">Tunarungu & Tunawicara</p>
