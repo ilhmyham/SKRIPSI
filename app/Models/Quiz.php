@@ -8,16 +8,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Quiz extends Model
 {
+    protected $table = 'kuis';
+
     protected $fillable = [
-        'module_id',
+        'modul_iqra_id',
         'user_id',
         'judul_kuis',
         'deskripsi',
     ];
 
-    public function module(): BelongsTo
+    public function modulIqra(): BelongsTo
     {
-        return $this->belongsTo(Module::class);
+        return $this->belongsTo(Module::class, 'modul_iqra_id');
     }
 
     public function creator(): BelongsTo
@@ -25,13 +27,13 @@ class Quiz extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function questions(): HasMany
+    public function kuisPertanyaan(): HasMany
     {
-        return $this->hasMany(Question::class);
+        return $this->hasMany(Question::class, 'kuis_id');
     }
 
-    public function answers(): HasMany
+    public function jawabanSiswa(): HasMany
     {
-        return $this->hasMany(QuizAnswer::class);
+        return $this->hasMany(QuizAnswer::class, 'kuis_id');
     }
 }

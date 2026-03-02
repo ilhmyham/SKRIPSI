@@ -25,8 +25,8 @@ class Iqra1MateriSeeder extends Seeder
         }
 
         // 2. Fungsi Helper untuk mengambil ID Kategori 'hijaiyah' secara dinamis
-        $categoryId = DB::table('material_categories')
-            ->where('module_id', $iqra1->id)
+        $categoryId = DB::table('kategori_materi')
+            ->where('modul_iqra_id', $iqra1->id)
             ->where('nama', 'hijaiyah')
             ->value('id');
 
@@ -78,14 +78,14 @@ class Iqra1MateriSeeder extends Seeder
             $fileName = $nomorFile . '.png';
 
             Material::create([
-                'module_id' => $iqra1->id,
+                'modul_iqra_id' => $iqra1->id,
                 'user_id' => 1,
                 'judul_materi' => 'Huruf ' . $huruf['name'],
                 'huruf_hijaiyah' => $huruf['symbol'],
-                'category_id' => $categoryId,
+                'kategori_materi_id' => $categoryId,
                 'deskripsi' => $huruf['desc'],
                 'file_video' => $huruf['video'],
-                'file_path' => 'materi/iqra1/' . $fileName, 
+                'path_file' => 'materi/iqra1/' . $fileName, 
                 'urutan' => $nomorFile,
             ]);
 

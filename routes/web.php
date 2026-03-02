@@ -13,7 +13,7 @@ use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
 
 // Homepage - show landing page, redirect logged-in users to their dashboard
-Route::get('/', function () {
+Route::middleware(['prevent-back-history'])->get('/', function () {
     if (auth()->check()) {
         $user = auth()->user();
         $user->load('role');
@@ -27,7 +27,7 @@ Route::get('/', function () {
 
 
 // Authentication Routes (Khusus yang BELUM login)
-Route::middleware('guest')->group(function () {
+Route::middleware(['guest', 'prevent-back-history'])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     // Membatasi percobaan login max 5x gagal per menit
     Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');

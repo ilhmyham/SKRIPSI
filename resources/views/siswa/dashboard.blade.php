@@ -105,7 +105,7 @@
             @foreach($modules as $module)
                 @php
                     $arabicNum = $arabicNums[$loop->index] ?? ($loop->iteration);
-                    $total     = $module->materials_count;
+                    $total     = $module->materi_count;
                     $done      = $module->done_count;
                     $pctMod    = round($module->progress);
                 @endphp

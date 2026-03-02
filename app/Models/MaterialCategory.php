@@ -8,19 +8,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MaterialCategory extends Model
 {
+    protected $table = 'kategori_materi';
+
     protected $fillable = [
-        'module_id',
+        'modul_iqra_id',
         'nama',
         'urutan',
     ];
 
-    public function module(): BelongsTo
+    public function modulIqra(): BelongsTo
     {
-        return $this->belongsTo(Module::class);
+        return $this->belongsTo(Module::class, 'modul_iqra_id');
     }
 
-    public function materials(): HasMany
+    public function materi(): HasMany
     {
-        return $this->hasMany(Material::class, 'category_id')->orderBy('urutan');
+        return $this->hasMany(Material::class, 'kategori_materi_id')->orderBy('urutan');
     }
 }

@@ -14,15 +14,15 @@ class KuisController extends Controller
 {
     public function index()
     {
-        $modules = Module::withCount('quizzes')->orderBy('id')->get();
+        $modules = Module::withCount('kuis')->orderBy('id')->get();
         $view = auth()->user()->isAdmin() ? 'admin.kuis.index' : 'guru.kuis.index';
         return view($view, compact('modules'));
     }
 
     public function byModule(Module $module)
     {
-        $kuisList = Quiz::where('module_id', $module->id)
-                       ->withCount('questions')
+        $kuisList = Quiz::where('modul_iqra_id', $module->id)
+                       ->withCount('kuisPertanyaan')
                        ->orderBy('created_at', 'desc')
                        ->get();
         
@@ -33,7 +33,7 @@ class KuisController extends Controller
     public function create(Request $request)
     {
         $modules = Module::all();
-        $moduleId = $request->query('module_id');
+        $moduleId = $request->query('modul_iqra_id');
         $view = auth()->user()->isAdmin() ? 'admin.kuis.create' : 'guru.kuis.create';
         return view($view, compact('modules', 'moduleId'));
     }
@@ -41,11 +41,11 @@ class KuisController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'module_id' => 'required|exists:modules,id',
+            'modul_iqra_id' => 'required|exists:modul_iqra,id',
             'judul_kuis' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'pertanyaan' => 'required|array|min:1',
-            'pertanyaan.*.text_pertanyaan' => 'nullable|string',
+            'pertanyaan.*.teks_pertanyaan' => 'nullable|string',
             'pertanyaan.*.gambar_pertanyaan' => 'nullable|image|max:2048',
             'pertanyaan.*.opsi' => 'required|array|min:2',
             'pertanyaan.*.opsi.*.teks_opsi' => 'nullable|string',
@@ -54,7 +54,7 @@ class KuisController extends Controller
         ]);
 
         $kuis = Quiz::create([
-            'module_id' => $validated['module_id'],
+            'modul_iqra_id' => $validated['modul_iqra_id'],
             'user_id' => auth()->id(),
             'judul_kuis' => $validated['judul_kuis'],
             'deskripsi' => $validated['deskripsi'] ?? null,
@@ -68,8 +68,8 @@ class KuisController extends Controller
             }
             
             $pertanyaan = Question::create([
-                'quiz_id' => $kuis->id,
-                'text_pertanyaan' => $pertanyaanData['text_pertanyaan'] ?? null,
+                'kuis_id' => $kuis->id,
+                'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
                 'gambar_pertanyaan' => $gambarPath,
             ]);
 
@@ -81,7 +81,7 @@ class KuisController extends Controller
                 }
                 
                 QuestionOption::create([
-                    'question_id' => $pertanyaan->id,
+                    'kuis_pertanyaan_id' => $pertanyaan->id,
                     'teks_opsi' => $opsiData['teks_opsi'] ?? null,
                     'gambar_opsi' => $gambarOpsiPath,
                     'is_correct' => $opsiData['is_benar'],
@@ -90,26 +90,26 @@ class KuisController extends Controller
         }
 
         if (auth()->user()->isAdmin()) {
-            $module = Module::find($validated['module_id']);
+            $module = Module::find($validated['modul_iqra_id']);
             $this->logActivity('created', 'Quiz', $kuis->id, "Membuat kuis \"" . $kuis->judul_kuis . "\" untuk " . $module->nama_modul);
         }
 
         $route = auth()->user()->isAdmin() ? 'admin.kuis.by-module' : 'guru.kuis.by-module';
-        return redirect()->route($route, $validated['module_id'])->with('success', 'Kuis berhasil ditambahkan');
+        return redirect()->route($route, $validated['modul_iqra_id'])->with('success', 'Kuis berhasil ditambahkan');
     }
 
     public function edit(Quiz $kuis)
     {
-        $kuis->load(['questions.options']);
+        $kuis->load(['kuisPertanyaan.opsiJawaban']);
         $modules = Module::all();
         
-        $quizData = $kuis->questions->map(function($p) {
+        $quizData = $kuis->kuisPertanyaan->map(function($p) {
             return [
                 'id' => $p->id,
-                'text_pertanyaan' => $p->text_pertanyaan,
+                'teks_pertanyaan' => $p->teks_pertanyaan,
                 'existing_gambar' => $p->gambar_pertanyaan,
                 'gambar_preview' => null,
-                'opsi' => $p->options->map(function($o) {
+                'opsi' => $p->opsiJawaban->map(function($o) {
                     return [
                         'id' => $o->id,
                         'teks_opsi' => $o->teks_opsi,
@@ -128,16 +128,16 @@ class KuisController extends Controller
     public function update(Request $request, Quiz $kuis)
     {
         $validated = $request->validate([
-            'module_id' => 'required|exists:modules,id',
+            'modul_iqra_id' => 'required|exists:modul_iqra,id',
             'judul_kuis' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'pertanyaan' => 'required|array|min:1',
-            'pertanyaan.*.id' => 'nullable|integer|exists:questions,id',
-            'pertanyaan.*.text_pertanyaan' => 'nullable|string',
+            'pertanyaan.*.id' => 'nullable|integer|exists:kuis_pertanyaan,id',
+            'pertanyaan.*.teks_pertanyaan' => 'nullable|string',
             'pertanyaan.*.gambar_pertanyaan' => 'nullable|image|max:2048',
             'pertanyaan.*.existing_gambar_pertanyaan' => 'nullable|string',
             'pertanyaan.*.opsi' => 'required|array|min:2',
-            'pertanyaan.*.opsi.*.id' => 'nullable|integer|exists:question_options,id',
+            'pertanyaan.*.opsi.*.id' => 'nullable|integer|exists:kuis_opsi_jawaban,id',
             'pertanyaan.*.opsi.*.teks_opsi' => 'nullable|string',
             'pertanyaan.*.opsi.*.gambar_opsi' => 'nullable|image|max:2048',
             'pertanyaan.*.opsi.*.existing_gambar_opsi' => 'nullable|string',
@@ -145,12 +145,12 @@ class KuisController extends Controller
         ]);
 
         $kuis->update([
-            'module_id' => $validated['module_id'],
+            'modul_iqra_id' => $validated['modul_iqra_id'],
             'judul_kuis' => $validated['judul_kuis'],
             'deskripsi' => $validated['deskripsi'] ?? null,
         ]);
 
-        $existingQuestionIds = $kuis->questions->pluck('id')->toArray();
+        $existingQuestionIds = $kuis->kuisPertanyaan->pluck('id')->toArray();
         $processedQuestionIds = [];
 
         foreach ($validated['pertanyaan'] as $index => $pertanyaanData) {
@@ -173,20 +173,20 @@ class KuisController extends Controller
             if ($questionId && in_array($questionId, $existingQuestionIds)) {
                 $pertanyaan = Question::find($questionId);
                 $pertanyaan->update([
-                    'text_pertanyaan' => $pertanyaanData['text_pertanyaan'] ?? null,
+                    'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
                     'gambar_pertanyaan' => $gambarPath,
                 ]);
                 $processedQuestionIds[] = $questionId;
             } else {
                 $pertanyaan = Question::create([
-                    'quiz_id' => $kuis->id,
-                    'text_pertanyaan' => $pertanyaanData['text_pertanyaan'] ?? null,
+                    'kuis_id' => $kuis->id,
+                    'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
                     'gambar_pertanyaan' => $gambarPath,
                 ]);
                 $processedQuestionIds[] = $pertanyaan->id;
             }
 
-            $existingOptionIds = $pertanyaan->options->pluck('id')->toArray();
+            $existingOptionIds = $pertanyaan->opsiJawaban->pluck('id')->toArray();
 
             // ⚠️ FIX: Reset per pertanyaan agar opsi soal lain tidak ikut terhitung
             $processedOptionIdsForThisQuestion = [];
@@ -218,7 +218,7 @@ class KuisController extends Controller
                     $processedOptionIdsForThisQuestion[] = $optionId;
                 } else {
                     $opsi = QuestionOption::create([
-                        'question_id' => $pertanyaan->id,
+                        'kuis_pertanyaan_id' => $pertanyaan->id,
                         'teks_opsi' => $opsiData['teks_opsi'] ?? null,
                         'gambar_opsi' => $gambarOpsiPath,
                         'is_correct' => $opsiData['is_benar'],
@@ -228,7 +228,7 @@ class KuisController extends Controller
             }
 
             // Hapus opsi yang dihilangkan dari form (scope hanya untuk pertanyaan ini)
-            $orphanedOptions = QuestionOption::where('question_id', $pertanyaan->id)
+            $orphanedOptions = QuestionOption::where('kuis_pertanyaan_id', $pertanyaan->id)
                 ->whereNotIn('id', $processedOptionIdsForThisQuestion)
                 ->get();
             
@@ -240,7 +240,7 @@ class KuisController extends Controller
             }
         }
 
-        $orphanedQuestions = Question::where('quiz_id', $kuis->id)
+        $orphanedQuestions = Question::where('kuis_id', $kuis->id)
             ->whereNotIn('id', $processedQuestionIds)
             ->get();
         
@@ -248,7 +248,7 @@ class KuisController extends Controller
             if ($orphanedQuestion->gambar_pertanyaan) {
                 Storage::disk('public')->delete($orphanedQuestion->gambar_pertanyaan);
             }
-            foreach ($orphanedQuestion->options as $opsi) {
+            foreach ($orphanedQuestion->opsiJawaban as $opsi) {
                 if ($opsi->gambar_opsi) {
                     Storage::disk('public')->delete($opsi->gambar_opsi);
                 }
@@ -262,21 +262,21 @@ class KuisController extends Controller
         }
 
         $route = auth()->user()->isAdmin() ? 'admin.kuis.by-module' : 'guru.kuis.by-module';
-        return redirect()->route($route, $kuis->module_id)->with('success', 'Kuis berhasil diupdate');
+        return redirect()->route($route, $kuis->modul_iqra_id)->with('success', 'Kuis berhasil diupdate');
     }
 
     public function destroy(Quiz $kuis)
     {
-        $moduleId = $kuis->module_id;
+        $moduleId = $kuis->modul_iqra_id;
         $kuisName = $kuis->judul_kuis;
 
-        $kuis->load('questions.options');
+        $kuis->load('kuisPertanyaan.opsiJawaban');
 
-        foreach ($kuis->questions as $pertanyaan) {
+        foreach ($kuis->kuisPertanyaan as $pertanyaan) {
             if ($pertanyaan->gambar_pertanyaan) {
                 Storage::disk('public')->delete($pertanyaan->gambar_pertanyaan);
             }
-            foreach ($pertanyaan->options as $opsi) {
+            foreach ($pertanyaan->opsiJawaban as $opsi) {
                 if ($opsi->gambar_opsi) {
                     Storage::disk('public')->delete($opsi->gambar_opsi);
                 }

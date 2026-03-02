@@ -26,8 +26,8 @@ class Iqra6MateriSeeder extends Seeder
 
         $getCategoryId = function($kategori) use ($iqra6) {
             $slug = Str::slug($kategori, '_');
-            return DB::table('material_categories')
-                ->where('module_id', $iqra6->id)
+            return DB::table('kategori_materi')
+                ->where('modul_iqra_id', $iqra6->id)
                 ->where('nama', $slug)
                 ->value('id');
         };
@@ -71,13 +71,13 @@ class Iqra6MateriSeeder extends Seeder
                 $filePath = 'materi/iqra6/' . $folderName . '/' . $nomorGambar . '.png';
 
                 Material::create([
-                    'module_id' => $iqra6->id,
+                    'modul_iqra_id' => $iqra6->id,
                     'user_id' => 1,
                     'judul_materi' => $item['judul'],
                     'huruf_hijaiyah' => $item['huruf'],
-                    'category_id' => $getCategoryId($item['kategori']),
+                    'kategori_materi_id' => $getCategoryId($item['kategori']),
                     'deskripsi' => $item['deskripsi'],
-                    'file_path' => $filePath, 
+                    'path_file' => $filePath, 
                     'urutan' => $urutanKategori++, // Mengisi kolom urutan mulai dari 1
                 ]);
 

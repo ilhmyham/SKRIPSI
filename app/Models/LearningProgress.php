@@ -7,22 +7,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LearningProgress extends Model
 {
-    protected $table = 'learning_progress';
+    protected $table = 'progress_belajar';
     
     protected $fillable = [
-        'material_id',
+        'materi_id',
         'user_id',
         'status',
-        'progress_value',
+        'nilai_progress',
     ];
 
     protected $casts = [
-        'progress_value' => 'float',
+        'nilai_progress' => 'float',
     ];
 
-    public function material(): BelongsTo
+    public function materi(): BelongsTo
     {
-        return $this->belongsTo(Material::class);
+        return $this->belongsTo(Material::class, 'materi_id');
     }
 
     public function user(): BelongsTo

@@ -7,11 +7,11 @@
     <x-table
        :items="$tugasList->map(fn($t) => [
             'id' => $t->id,
-            'module_id' => $t->module_id,
+            'modul_iqra_id' => $t->modul_iqra_id,
             'judul_tugas' => $t->judul_tugas,
             'deskripsi_tugas' => $t->deskripsi_tugas ?? '-',
-            'deadline' => $t->deadline->format('d M Y'),
-            'deadline_raw' => $t->deadline->format('Y-m-d'),
+            'deadline' => $t->tenggat_waktu->format('d M Y'),
+            'tenggat_waktu_raw' => $t->tenggat_waktu->format('Y-m-d'),
             'pengumpulan_count' => $t->pengumpulan_count ?? 0,
         ])"
 
@@ -73,7 +73,7 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Modul Pembelajaran</label>
-                <select name="module_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
+                <select name="modul_iqra_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
                     <option value="">-- Pilih Modul --</option>
                     @foreach($modules as $module)
                         <option value="{{ $module->id }}">{{ $module->nama_modul }}</option>
@@ -107,7 +107,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
                 <input 
                     type="date" 
-                    name="deadline" 
+                    name="tenggat_waktu" 
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                 >
@@ -142,7 +142,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Modul Pembelajaran</label>
-                    <select name="module_id" x-model="editData.module_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
+                    <select name="modul_iqra_id" x-model="editData.modul_iqra_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
                         <option value="">-- Pilih Modul --</option>
                         @foreach($modules as $module)
                             <option value="{{ $module->id }}">{{ $module->nama_modul }}</option>
@@ -176,8 +176,8 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
                     <input 
                         type="date" 
-                        name="deadline" 
-                        x-model="editData.deadline_raw"
+                        name="tenggat_waktu" 
+                        x-model="editData.tenggat_waktu_raw"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     >
@@ -209,18 +209,18 @@
             return {
                 editData: {
                     id: '',
-                    module_id: '',
+                    modul_iqra_id: '',
                     judul_tugas: '',
                     deskripsi_tugas: '',
-                    deadline_raw: ''
+                    tenggat_waktu_raw: ''
                 },
                 openModal(data) {
                     this.editData = {
                         id: data.id,
-                        module_id: data.module_id,
+                        modul_iqra_id: data.modul_iqra_id,
                         judul_tugas: data.judul_tugas,
                         deskripsi_tugas: data.deskripsi_tugas === '-' ? '' : data.deskripsi_tugas,
-                        deadline_raw: data.deadline_raw
+                        tenggat_waktu_raw: data.tenggat_waktu_raw
                     };
                 }
             }

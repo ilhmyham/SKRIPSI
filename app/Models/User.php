@@ -54,28 +54,28 @@ class User extends Authenticatable
         return $this->role && $this->role->nama_role === 'siswa';
     }
 
-    public function materials(): HasMany
+    public function materi(): HasMany
     {
-        return $this->hasMany(Material::class);
+        return $this->hasMany(Material::class, 'user_id');
     }
 
-    public function progress(): HasMany
+    public function progressBelajar(): HasMany
     {
-        return $this->hasMany(LearningProgress::class);
+        return $this->hasMany(LearningProgress::class, 'user_id');
     }
 
-    public function quizAnswers(): HasMany
+    public function kuisJawabanSiswa(): HasMany
     {
-        return $this->hasMany(QuizAnswer::class);
+        return $this->hasMany(QuizAnswer::class, 'user_id');
     }
 
-    public function createdAssignments(): HasMany
+    public function tugasDibuat(): HasMany
     {
-        return $this->hasMany(Assignment::class);
+        return $this->hasMany(Assignment::class, 'user_id');
     }
 
-    public function submissions(): HasMany
+    public function pengumpulanTugas(): HasMany
     {
-        return $this->hasMany(Submission::class);
+        return $this->hasMany(Submission::class, 'user_id');
     }
 }

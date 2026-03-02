@@ -8,21 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('submissions', function (Blueprint $table) {
+        Schema::create('pengumpulan_tugas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete(); // Siswa
-            $table->foreignId('assignment_id')->constrained('assignments')->cascadeOnDelete();
+            $table->foreignId('tugas_id')->constrained('tugas')->cascadeOnDelete();
             $table->string('file_jawaban')->nullable();
             $table->decimal('nilai', 5, 2)->nullable();
             $table->text('catatan_guru')->nullable();
             $table->timestamps();
 
-            $table->unique(['assignment_id', 'user_id']);
+            $table->unique(['tugas_id', 'user_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('submissions');
+        Schema::dropIfExists('pengumpulan_tugas');
     }
 };

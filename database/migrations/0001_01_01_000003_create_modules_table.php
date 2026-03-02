@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('modules', function (Blueprint $table) {
+        Schema::create('modul_iqra', function (Blueprint $table) {
             $table->id();
             $table->string('nama_modul');
             $table->text('deskripsi')->nullable();
@@ -18,6 +18,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('modules');
+        Schema::dropIfExists('modul_iqra');
     }
 };

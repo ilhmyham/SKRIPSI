@@ -41,7 +41,7 @@
 
                 <div class="flex justify-center gap-8 mb-8">
                     <div class="text-center">
-                        <div class="text-4xl font-black text-emerald-600">{{ $kuis->questions->count() }}</div>
+                        <div class="text-4xl font-black text-emerald-600">{{ $kuis->kuisPertanyaan->count() }}</div>
                         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-1">Pertanyaan</p>
                     </div>
                     <div class="w-px bg-gray-200"></div>
@@ -71,21 +71,21 @@
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-sm font-bold text-gray-700">
                         Soal <span class="text-emerald-600" x-text="currentQuestion + 1"></span>
-                        <span class="text-gray-400 font-medium">/ {{ $kuis->questions->count() }}</span>
+                        <span class="text-gray-400 font-medium">/ {{ $kuis->kuisPertanyaan->count() }}</span>
                     </span>
                     <span class="text-xs font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full"
-                          x-text="Math.round(((currentQuestion + 1) / {{ $kuis->questions->count() }}) * 100) + '%'">
+                          x-text="Math.round(((currentQuestion + 1) / {{ $kuis->kuisPertanyaan->count() }}) * 100) + '%'">
                     </span>
                 </div>
                 <div class="w-full bg-gray-100 rounded-full h-2">
                     <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-500"
-                         :style="`width: ${((currentQuestion + 1) / {{ $kuis->questions->count() }}) * 100}%`">
+                         :style="`width: ${((currentQuestion + 1) / {{ $kuis->kuisPertanyaan->count() }}) * 100}%`">
                     </div>
                 </div>
             </div>
 
             {{-- Question Cards --}}
-            @foreach($kuis->questions as $index => $pertanyaan)
+            @foreach($kuis->kuisPertanyaan as $index => $pertanyaan)
             <div x-show="currentQuestion === {{ $index }}"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-x-4"
@@ -99,7 +99,7 @@
                             {{ $index + 1 }}
                         </div>
                         <h2 class="text-base sm:text-lg font-bold text-gray-800 leading-snug pt-0.5">
-                            {{ $pertanyaan->text_pertanyaan }}
+                            {{ $pertanyaan->teks_pertanyaan }}
                         </h2>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
                     {{-- Opsi --}}
                     <div class="space-y-3">
                         @php $optionLabels = ['A','B','C','D','E']; @endphp
-                        @foreach($pertanyaan->options as $oIdx => $opsi)
+                        @foreach($pertanyaan->opsiJawaban as $oIdx => $opsi)
                         <button
                             @click="selectAnswer({{ $pertanyaan->id }}, {{ $opsi->id }})"
                             :class="answers[{{ $pertanyaan->id }}] === {{ $opsi->id }}
@@ -172,7 +172,7 @@
                             Sebelumnya
                         </button>
 
-                        <button x-show="currentQuestion < {{ $kuis->questions->count() - 1 }}"
+                        <button x-show="currentQuestion < {{ $kuis->kuisPertanyaan->count() - 1 }}"
                                 @click="currentQuestion++"
                                 class="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm shadow-emerald-200 transition-all duration-200">
                             Selanjutnya
@@ -181,7 +181,7 @@
                             </svg>
                         </button>
 
-                        <button x-show="currentQuestion === {{ $kuis->questions->count() - 1 }}"
+                        <button x-show="currentQuestion === {{ $kuis->kuisPertanyaan->count() - 1 }}"
                                 @click="submitQuiz"
                                 class="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-lg shadow-emerald-200 transition-all duration-200">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -220,7 +220,7 @@ function quizApp() {
         },
 
         submitQuiz() {
-            const total = {{ $kuis->questions->count() }};
+            const total = {{ $kuis->kuisPertanyaan->count() }};
             const answered = Object.keys(this.answers).length;
             if (answered < total) {
                 if (!confirm(`Masih ada ${total - answered} pertanyaan yang belum dijawab. Lanjutkan submit?`)) return;

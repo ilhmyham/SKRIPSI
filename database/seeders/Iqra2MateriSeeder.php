@@ -21,8 +21,8 @@ class Iqra2MateriSeeder extends Seeder
 
         $getCategoryId = function($kategori) use ($iqra2) {
             $slug = Str::slug($kategori, '_');
-            return DB::table('material_categories')
-                ->where('module_id', $iqra2->id)
+            return DB::table('kategori_materi')
+                ->where('modul_iqra_id', $iqra2->id)
                 ->where('nama', $slug)
                 ->value('id');
         };
@@ -75,13 +75,13 @@ class Iqra2MateriSeeder extends Seeder
 
             foreach ($listHuruf as $h) {
                 Material::create([
-                    'module_id' => $iqra2->id,
+                    'modul_iqra_id' => $iqra2->id,
                     'user_id' => 1,
                     'judul_materi' => $h['name'] . ' ' . $harakat['nama'],
                     'huruf_hijaiyah' => $h['arab'] . $harakat['simbol'],
-                    'category_id' => $getCategoryId($harakat['kategori']),
+                    'kategori_materi_id' => $getCategoryId($harakat['kategori']),
                     'deskripsi' => "Isyarat huruf {$h['name']} diikuti gerakan {$harakat['desc']}",
-                    'file_path' => "materi/iqra2/{$harakat['folder']}/{$h['file']}.png",
+                    'path_file' => "materi/iqra2/{$harakat['folder']}/{$h['file']}.png",
                     'urutan' => $urutan,
                 ]);
 

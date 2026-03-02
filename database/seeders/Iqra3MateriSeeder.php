@@ -21,8 +21,8 @@ class Iqra3MateriSeeder extends Seeder
 
         $getCategoryId = function($kategori) use ($iqra3) {
             $slug = Str::slug($kategori, '_');
-            return DB::table('material_categories')
-                ->where('module_id', $iqra3->id)
+            return DB::table('kategori_materi')
+                ->where('modul_iqra_id', $iqra3->id)
                 ->where('nama', $slug)
                 ->value('id');
         };
@@ -96,13 +96,13 @@ class Iqra3MateriSeeder extends Seeder
                 }
 
                 Material::create([
-                    'module_id' => $iqra3->id,
+                    'modul_iqra_id' => $iqra3->id,
                     'user_id' => 1,
                     'judul_materi' => "{$conf['label']}: {$h['name']} ({$vokal})",
                     'huruf_hijaiyah' => $hurufFinal,
-                    'category_id' => $getCategoryId($conf['nama']),
+                    'kategori_materi_id' => $getCategoryId($conf['nama']),
                     'deskripsi' => "Huruf {$h['name']} berharakat {$conf['label']}, dibaca '{$vokal}'.",
-                    'file_path' => "materi/iqra3/{$conf['folder']}/{$fileName}",
+                    'path_file' => "materi/iqra3/{$conf['folder']}/{$fileName}",
                     'urutan' => $urutan++,
                 ]);
             }
@@ -121,13 +121,13 @@ class Iqra3MateriSeeder extends Seeder
 
         foreach ($contohSukun as $item) {
             Material::create([
-                'module_id' => $iqra3->id,
+                'modul_iqra_id' => $iqra3->id,
                 'user_id' => 1,
                 'judul_materi' => $item['judul'],
                 'huruf_hijaiyah' => $item['huruf'],
-                'category_id' => $getCategoryId('sukun'),
+                'kategori_materi_id' => $getCategoryId('sukun'),
                 'deskripsi' => $item['desc'],
-                'file_path' => "materi/iqra3/sukun/{$item['file']}",
+                'path_file' => "materi/iqra3/sukun/{$item['file']}",
                 'urutan' => $urutanSukun++,
             ]);
         }
@@ -145,13 +145,13 @@ class Iqra3MateriSeeder extends Seeder
 
         foreach ($contohTasydid as $item) {
             Material::create([
-                'module_id' => $iqra3->id,
+                'modul_iqra_id' => $iqra3->id,
                 'user_id' => 1,
                 'judul_materi' => $item['judul'],
                 'huruf_hijaiyah' => $item['huruf'],
-                'category_id' => $getCategoryId('tasydid'),
+                'kategori_materi_id' => $getCategoryId('tasydid'),
                 'deskripsi' => $item['desc'],
-                'file_path' => "materi/iqra3/tasydid/{$item['file']}",
+                'path_file' => "materi/iqra3/tasydid/{$item['file']}",
                 'urutan' => $urutanTasydid++,
             ]);
         }

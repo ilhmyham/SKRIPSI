@@ -7,16 +7,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class QuizAnswer extends Model
 {
+    protected $table = 'kuis_jawaban_siswa';
+
     protected $fillable = [
-        'quiz_id',
+        'kuis_id',
         'user_id',
-        'question_id',
-        'option_id',
+        'kuis_pertanyaan_id',
+        'kuis_opsi_jawaban_id',
     ];
 
-    public function quiz(): BelongsTo
+    public function kuis(): BelongsTo
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Quiz::class, 'kuis_id');
     }
 
     public function user(): BelongsTo
@@ -24,13 +26,13 @@ class QuizAnswer extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function question(): BelongsTo
+    public function kuisPertanyaan(): BelongsTo
     {
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class, 'kuis_pertanyaan_id');
     }
 
-    public function option(): BelongsTo
+    public function opsiJawaban(): BelongsTo
     {
-        return $this->belongsTo(QuestionOption::class);
+        return $this->belongsTo(QuestionOption::class, 'kuis_opsi_jawaban_id');
     }
 }

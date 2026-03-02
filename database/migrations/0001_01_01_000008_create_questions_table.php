@@ -8,20 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('questions', function (Blueprint $table) {
+        Schema::create('kuis_pertanyaan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('quiz_id')->constrained('quizzes')->cascadeOnDelete();
-            $table->text('text_pertanyaan')->nullable();
+            $table->foreignId('kuis_id')->constrained('kuis')->cascadeOnDelete();
+            $table->text('teks_pertanyaan')->nullable();
             $table->string('gambar_pertanyaan')->nullable();
             $table->enum('tipe', ['pilihan_ganda'])->default('pilihan_ganda');
             $table->timestamps();
 
-            $table->index('quiz_id');
+            $table->index('kuis_id');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('questions');
+        Schema::dropIfExists('kuis_pertanyaan');
     }
 };

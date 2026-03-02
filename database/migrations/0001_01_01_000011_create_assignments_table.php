@@ -8,22 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('assignments', function (Blueprint $table) {
+        Schema::create('tugas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete(); // Guru pembuat
-            $table->foreignId('module_id')->nullable()->constrained('modules')->nullOnDelete();
+            $table->foreignId('modul_iqra_id')->nullable()->constrained('modul_iqra')->nullOnDelete();
             $table->string('judul_tugas');
             $table->text('deskripsi_tugas')->nullable();
-            $table->date('deadline');
+            $table->date('tenggat_waktu');
             $table->timestamps();
 
-            $table->index('deadline');
-            $table->index(['module_id', 'deadline']);
+            $table->index('tenggat_waktu');
+            $table->index(['modul_iqra_id', 'tenggat_waktu']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('assignments');
+        Schema::dropIfExists('tugas');
     }
 };

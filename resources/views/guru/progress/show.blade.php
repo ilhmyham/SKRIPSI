@@ -80,16 +80,16 @@
                 @foreach($modules as $module)
                     @php
                         $doneCount = $progressList->where('status', 'selesai')
-                            ->filter(fn($p) => $p->material?->module_id === $module->id)
+                            ->filter(fn($p) => $p->materi?->modul_iqra_id === $module->id)
                             ->count();
-                        $pct = $module->materials_count > 0
-                            ? round(($doneCount / $module->materials_count) * 100)
+                        $pct = $module->materi_count > 0
+                            ? round(($doneCount / $module->materi_count) * 100)
                             : 0;
                     @endphp
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <span class="text-sm font-medium text-gray-700">{{ $module->nama_modul }}</span>
-                            <span class="text-xs text-gray-400">{{ $doneCount }}/{{ $module->materials_count }}</span>
+                            <span class="text-xs text-gray-400">{{ $doneCount }}/{{ $module->materi_count }}</span>
                         </div>
                         <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
                             <div class="h-full rounded-full {{ $pct >= 75 ? 'bg-emerald-500' : ($pct >= 40 ? 'bg-yellow-400' : 'bg-red-400') }}"
@@ -143,8 +143,8 @@
                     <div class="px-5 py-3">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-sm font-medium text-gray-800 leading-tight">{{ $sub->assignment?->judul_tugas }}</p>
-                                <p class="text-xs text-gray-400 mt-0.5">{{ $sub->assignment?->module?->nama_modul }}</p>
+                                <p class="text-sm font-medium text-gray-800 leading-tight">{{ $sub->tugas?->judul_tugas }}</p>
+                                <p class="text-xs text-gray-400 mt-0.5">{{ $sub->tugas?->modulIqra?->nama_modul }}</p>
                             </div>
                             <div class="ml-3 text-right">
                                 @if(!is_null($sub->nilai))
@@ -178,8 +178,8 @@
             @forelse($progressList->take(15) as $progress)
                 <div class="px-6 py-3 flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-800">{{ $progress->material?->judul_materi ?? '-' }}</p>
-                        <p class="text-xs text-gray-400">{{ $progress->material?->module?->nama_modul ?? '-' }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ $progress->materi?->judul_materi ?? '-' }}</p>
+                        <p class="text-xs text-gray-400">{{ $progress->materi?->modulIqra?->nama_modul ?? '-' }}</p>
                     </div>
                     <div class="flex items-center gap-3">
                         @if($progress->status === 'selesai')

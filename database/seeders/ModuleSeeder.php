@@ -19,7 +19,7 @@ class ModuleSeeder extends Seeder
         ];
 
         foreach ($modules as $module) {
-            DB::table('modules')->insert([
+            DB::table('modul_iqra')->insert([
                 'nama_modul' => $module['nama_modul'],
                 'deskripsi' => $module['deskripsi'],
                 'created_at' => now(),

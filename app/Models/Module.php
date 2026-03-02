@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Module extends Model
 {
+    protected $table = 'modul_iqra';
+
     protected $fillable = [
         'nama_modul',
         'deskripsi',
@@ -15,24 +17,24 @@ class Module extends Model
     /**
      * Get all categories in this module
      */
-    public function categories(): HasMany
+    public function kategoriMateri(): HasMany
     {
-        return $this->hasMany(MaterialCategory::class);
+        return $this->hasMany(MaterialCategory::class, 'modul_iqra_id');
     }
 
     /**
      * Get all materials in this module
      */
-    public function materials(): HasMany
+    public function materi(): HasMany
     {
-        return $this->hasMany(Material::class);
+        return $this->hasMany(Material::class, 'modul_iqra_id');
     }
 
     /**
      * Get all quizzes for this module
      */
-    public function quizzes(): HasMany
+    public function kuis(): HasMany
     {
-        return $this->hasMany(Quiz::class);
+        return $this->hasMany(Quiz::class, 'modul_iqra_id');
     }
 }

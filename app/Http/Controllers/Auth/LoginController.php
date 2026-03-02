@@ -33,13 +33,13 @@ class LoginController extends Controller
             // Load role for redirection
             $user->load('role');
 
-            // Redirect based on role
+            // Redirect based on role (DO NOT use intended() to prevent back-button routing loops from old caches)
             if ($user->isAdmin()) {
-                return redirect()->intended('/admin/dashboard');
+                return redirect('/admin/dashboard');
             } elseif ($user->isGuru()) {
-                return redirect()->intended('/guru/dashboard');
+                return redirect('/guru/dashboard');
             } elseif ($user->isSiswa()) {
-                return redirect()->intended('/siswa/dashboard');
+                return redirect('/siswa/dashboard');
             }
 
             return redirect('/');

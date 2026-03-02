@@ -30,7 +30,7 @@
             <!-- Module Selection -->
             <div class="mb-6">
                 <label class="block text-lg font-semibold mb-2">Modul</label>
-                <select name="module_id" required
+                <select name="modul_iqra_id" required
                         class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-emerald-500 focus:ring focus:ring-emerald-200">
                     <option value="">Pilih Modul</option>
                     @foreach($modules as $module)

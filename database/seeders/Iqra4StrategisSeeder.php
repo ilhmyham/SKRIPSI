@@ -26,8 +26,8 @@ class Iqra4StrategisSeeder extends Seeder
 
         $getCategoryId = function($kategori) use ($iqra4) {
             $slug = Str::slug($kategori, '_');
-            return DB::table('material_categories')
-                ->where('module_id', $iqra4->id)
+            return DB::table('kategori_materi')
+                ->where('modul_iqra_id', $iqra4->id)
                 ->where('nama', $slug)
                 ->value('id');
         };
@@ -77,13 +77,13 @@ class Iqra4StrategisSeeder extends Seeder
                 $filePath = 'materi/iqra4/' . $folderName . '/' . $item['file'];
 
                 Material::create([
-                    'module_id' => $iqra4->id,
+                    'modul_iqra_id' => $iqra4->id,
                     'user_id' => 1,
                     'judul_materi' => $item['judul'],
                     'huruf_hijaiyah' => $item['huruf'],
-                    'category_id' => $getCategoryId($kategoriName),
+                    'kategori_materi_id' => $getCategoryId($kategoriName),
                     'deskripsi' => isset($item['deskripsi']) ? $item['deskripsi'] : $item['desc'],
-                    'file_path' => $filePath, 
+                    'path_file' => $filePath, 
                     'urutan' => $urutan++,
                 ]);
             }

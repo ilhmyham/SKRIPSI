@@ -20,9 +20,9 @@
             'judul_materi'   => $m->judul_materi,
             'huruf_hijaiyah' => $m->huruf_hijaiyah ?? '-',
             'video_url'      => $m->file_video ?? '-',
-            'category_id'    => $m->category_id ?? '',
-            'kategori'       => $m->category->nama ?? '-',
-            'file_path'      => $m->file_path,
+            'kategori_materi_id' => $m->kategori_materi_id ?? '',
+            'kategori'       => $m->kategoriMateri->nama ?? '-',
+            'file_path'      => $m->path_file,
             'deskripsi'      => $m->deskripsi ?? '-',
         ])"
         :columns="[
@@ -68,7 +68,7 @@
         <form id="form-create-materi" method="POST" action="{{ route('guru.materi.store') }}" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
             @csrf
 
-            <input type="hidden" name="module_id" value="{{ $module->id }}">
+            <input type="hidden" name="modul_iqra_id" value="{{ $module->id }}">
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -124,7 +124,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Kategori (Opsional)</label>
                 <select 
-                    name="category_id"
+                    name="kategori_materi_id"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                 >
                     <option value="">-- Tidak ada kategori --</option>
@@ -139,7 +139,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Bahasa Isyarat</label>
                 <input 
                     type="file" 
-                    name="file_path"
+                    name="path_file"
                     accept="image/*"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                 >
@@ -182,7 +182,7 @@
                 @csrf
                 @method('PUT')
 
-                <input type="hidden" name="module_id" value="{{ $module->id }}">
+                <input type="hidden" name="modul_iqra_id" value="{{ $module->id }}">
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -234,8 +234,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Kategori (Opsional)</label>
                     <select 
-                        name="category_id"
-                        x-model="editData.category_id"
+                        name="kategori_materi_id"
+                        x-model="editData.kategori_materi_id"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     >
                         <option value="">-- Tidak ada kategori --</option>
@@ -250,7 +250,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Bahasa Isyarat (Opsional - Biarkan kosong jika tidak ingin mengganti)</label>
                     <input 
                         type="file" 
-                        name="file_path"
+                        name="path_file"
                         accept="image/*"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     >
@@ -296,7 +296,7 @@
                     judul_materi: '',
                     huruf_hijaiyah: '',
                     file_video: '',
-                    category_id: '',
+                    kategori_materi_id: '',
                     deskripsi: ''
                 },
                 init() {
@@ -308,7 +308,7 @@
                             judul_materi: data.judul_materi,
                             huruf_hijaiyah: data.huruf_hijaiyah !== '-' ? data.huruf_hijaiyah : '',
                             file_video: data.video_url !== '-' ? data.video_url : '',
-                            category_id: data.category_id || '',
+                            kategori_materi_id: data.kategori_materi_id || '',
                             deskripsi: data.deskripsi !== '-' ? data.deskripsi : ''
                         };
                         this.$nextTick(() => {

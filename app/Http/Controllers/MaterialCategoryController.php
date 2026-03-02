@@ -14,8 +14,8 @@ class MaterialCategoryController extends Controller
     public function index(Module $module)
     {
         // Load categories for this module, sorted by their set display order
-        $categories = MaterialCategory::where('module_id', $module->id)
-            ->withCount('materials')
+        $categories = MaterialCategory::where('modul_iqra_id', $module->id)
+            ->withCount('materi')
             ->orderByRaw('urutan IS NULL, urutan ASC')
             ->get();
 
@@ -37,7 +37,7 @@ class MaterialCategoryController extends Controller
         // Here we'll convert strictly machine slug format to remain consistent with seeders:
         $validated['nama'] = \Illuminate\Support\Str::slug($validated['nama'], '_');
         
-        $validated['module_id'] = $module->id;
+        $validated['modul_iqra_id'] = $module->id;
 
         MaterialCategory::create($validated);
 
@@ -71,7 +71,7 @@ class MaterialCategoryController extends Controller
         // but since materials' category_id is nullable, we can let foreign key cascade 
         // SET NULL handle it (if configured in schema), or manually check:
         
-        if ($category->materials()->count() > 0) {
+        if ($category->materi()->count() > 0) {
             return back()->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh beberapa materi. Hapus atau pindahkan materi terlebih dahulu.');
         }
 

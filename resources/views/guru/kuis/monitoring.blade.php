@@ -68,7 +68,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <span class="inline-block px-2 py-0.5 text-xs font-bold bg-indigo-100 text-indigo-700 rounded-full">
-                                    {{ $kuis->module?->nama_modul ?? '-' }}
+                                    {{ $kuis->modulIqra?->nama_modul ?? '-' }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">

@@ -10,7 +10,7 @@ class ModuleController extends Controller
 {
     public function index()
     {
-        $modules = Module::withCount('materials')->orderBy('id')->get();
+        $modules = Module::withCount('materi')->orderBy('id')->get();
         return view('admin.modules.index', compact('modules'));
     }
 

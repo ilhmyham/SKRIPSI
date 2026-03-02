@@ -40,7 +40,7 @@
                         <div class="flex-1 min-w-0">
                             {{-- Module badge --}}
                             <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-700 uppercase tracking-widest mb-1.5">
-                                {{ $kuis->module?->nama_modul ?? 'Modul' }}
+                                {{ $kuis->modulIqra?->nama_modul ?? 'Modul' }}
                             </span>
 
                             <h3 class="text-sm font-black text-gray-800 leading-tight">{{ $kuis->judul_kuis }}</h3>
@@ -53,7 +53,7 @@
                                 <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                <span class="text-xs font-semibold text-gray-400">{{ $kuis->questions->count() }} Pertanyaan</span>
+                                <span class="text-xs font-semibold text-gray-400">{{ $kuis->kuisPertanyaan->count() }} Pertanyaan</span>
                             </div>
                         </div>
 

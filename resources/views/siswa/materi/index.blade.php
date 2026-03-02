@@ -148,7 +148,7 @@
                                                 </div>
                                             </template>
 
-                                            <div class="text-4xl md:text-5xl font-bold text-gray-800 mb-1 group-hover:scale-110 transition-transform duration-300 hijaiyah"
+                                            <div class="text-4xl md:text-5xl font-arab text-gray-800 pb-4 mb-4 leading-none group-hover:scale-110 transition-transform duration-300"
                                                  x-text="materi.huruf_hijaiyah || '?'"></div>
                                             <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide group-hover:text-emerald-600 leading-tight"
                                                  x-text="materi.judul_materi"></div>
@@ -201,18 +201,18 @@
                             data-judul="{{ $materi->judul_materi }}"
                             data-video="{{ $materi->file_video }}"
                             data-desc="{{ $materi->deskripsi }}"
-                            data-gambar="{{ $materi->file_path ? asset('storage/' . $materi->file_path) : '' }}"
+                            data-gambar="{{ $materi->path_file ? asset('storage/' . $materi->path_file) : '' }}"
                             data-complete-url="{{ route('siswa.materi.complete', $materi->id) }}"
                             class="group relative bg-white border-2 border-gray-200 rounded-xl p-2.5 hover:border-emerald-400 hover:shadow-lg transition-all duration-300 flex flex-col items-center justify-center aspect-square text-center focus:outline-none focus:ring-4 focus:ring-emerald-200"
                         >
-                            @if($materi->progress?->first()?->status == 'selesai')
+                            @if($materi->progressBelajar?->first()?->status == 'selesai')
                                 <div class="absolute top-1.5 right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-md">
                                     <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                                     </svg>
                                 </div>
                             @endif
-                            <div class="text-4xl md:text-5xl font-bold text-gray-800 mb-1 group-hover:scale-110 transition-transform duration-300 hijaiyah">
+                            <div class="text-4xl md:text-5xl font-arab text-gray-800 pb-2 mb-2 leading-none group-hover:scale-110 transition-transform duration-300">
                                 {{ $materi->huruf_hijaiyah ?? '?' }}
                             </div>
                             <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide group-hover:text-emerald-600 leading-tight">
@@ -259,7 +259,7 @@
                 {{-- Modal Header --}}
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 flex justify-between items-center border-b border-gray-100">
                     <h3 id="modal-title" class="text-lg font-bold leading-6 text-gray-900">
-                        Belajar Huruf <span id="modalHurufTitle" class="text-emerald-600 text-xl ml-1 font-arabic"></span>
+                        Belajar Huruf <span id="modalHurufTitle" class="text-emerald-600 text-3xl ml-2 font-arab font-normal"></span>
                     </h3>
                     <button type="button" onclick="closeModal()" class="rounded-full p-1 hover:bg-gray-200 transition-colors focus:outline-none" aria-label="Tutup modal">
                         <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -348,7 +348,7 @@ function materiPagination() {
                 judul:       materi.judul_materi,
                 video:       materi.file_video   || '',
                 desc:        materi.deskripsi    || '',
-                gambar:      materi.file_path ? `/storage/${materi.file_path}` : '',
+                gambar:      materi.path_file ? `/storage/${materi.path_file}` : '',
                 completeUrl: `{{ url('siswa/materi') }}/${materi.id}/complete`,
             });
         },

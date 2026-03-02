@@ -8,9 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('question_options', function (Blueprint $table) {
+        Schema::create('kuis_opsi_jawaban', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('question_id')->constrained('questions')->cascadeOnDelete();
+            $table->foreignId('kuis_pertanyaan_id')->constrained('kuis_pertanyaan')->cascadeOnDelete();
             $table->text('teks_opsi')->nullable();
             $table->string('gambar_opsi')->nullable();
             $table->boolean('is_correct')->default(false);
@@ -20,6 +20,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('question_options');
+        Schema::dropIfExists('kuis_opsi_jawaban');
     }
 };

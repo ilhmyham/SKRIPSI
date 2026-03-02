@@ -8,21 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('quiz_answers', function (Blueprint $table) {
+        Schema::create('kuis_jawaban_siswa', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('quiz_id')->constrained('quizzes')->cascadeOnDelete();
+            $table->foreignId('kuis_id')->constrained('kuis')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('question_id')->constrained('questions')->cascadeOnDelete();
-            $table->foreignId('option_id')->nullable()->constrained('question_options')->nullOnDelete();
+            $table->foreignId('kuis_pertanyaan_id')->constrained('kuis_pertanyaan')->cascadeOnDelete();
+            $table->foreignId('kuis_opsi_jawaban_id')->nullable()->constrained('kuis_opsi_jawaban')->nullOnDelete();
             $table->timestamps();
 
-            $table->unique(['quiz_id', 'question_id', 'user_id']);
-            $table->index(['quiz_id', 'user_id']);
+            $table->unique(['kuis_id', 'kuis_pertanyaan_id', 'user_id'], 'jawaban_unik_siswa');
+            $table->index(['kuis_id', 'user_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('quiz_answers');
+        Schema::dropIfExists('kuis_jawaban_siswa');
     }
 };

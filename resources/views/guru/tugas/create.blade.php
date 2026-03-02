@@ -43,11 +43,11 @@
                         <x-tooltip text="Pilih tanggal batas pengumpulan. Pastikan memberikan waktu yang cukup bagi siswa. Siswa tidak bisa mengumpulkan tugas setelah tanggal ini." />
                     </div>
                 </label>
-                <input type="date" name="deadline" value="{{ old('deadline') }}" required
+                <input type="date" name="tenggat_waktu" value="{{ old('tenggat_waktu') }}" required
                        min="{{ date('Y-m-d', strtotime('+1 day')) }}"
-                       class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg @error('deadline') border-red-500 @enderror">
+                       class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg @error('tenggat_waktu') border-red-500 @enderror">
                 <p class="mt-1 text-xs text-gray-500">Deadline harus minimal 1 hari ke depan dari sekarang.</p>
-                @error('deadline')
+                @error('tenggat_waktu')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>

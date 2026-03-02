@@ -21,7 +21,7 @@
             'urutan' => $c->urutan ?? '-',
             'nama_raw' => $c->nama,
             'nama' => Str::title(str_replace('_', ' ', $c->nama)),
-            'materi_count' => $c->materials_count . ' Materi',
+            'materi_count' => $c->materi_count . ' Materi',
         ])"
         :columns="[
             ['key' => 'urutan', 'label' => '#', 'class' => 'text-center text-gray-500 w-12'],

@@ -21,10 +21,10 @@ class KategoriSeeder extends Seeder
                     // Mengonversi nama (misal: 'Konsep Sambung') menjadi slug ('konsep_sambung')
                     $slug = Str::slug($kat, '_');
                     
-                    DB::table('material_categories')->updateOrInsert(
+                    DB::table('kategori_materi')->updateOrInsert(
                         [
                             'nama' => $slug,
-                            'module_id' => $modul->id
+                            'modul_iqra_id' => $modul->id
                         ],
                         [
                             'urutan' => $urutan,

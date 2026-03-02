@@ -9,26 +9,28 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Question extends Model
 {
+    protected $table = 'kuis_pertanyaan';
+
     protected $fillable = [
-        'quiz_id',
-        'text_pertanyaan',
+        'kuis_id',
+        'teks_pertanyaan',
         'gambar_pertanyaan',
         'tipe',
     ];
 
-    public function quiz(): BelongsTo
+    public function kuis(): BelongsTo
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Quiz::class, 'kuis_id');
     }
 
-    public function options(): HasMany
+    public function opsiJawaban(): HasMany
     {
-        return $this->hasMany(QuestionOption::class);
+        return $this->hasMany(QuestionOption::class, 'kuis_pertanyaan_id');
     }
 
-    public function correctAnswer(): HasOne
+    public function jawabanBenar(): HasOne
     {
-        return $this->hasOne(QuestionOption::class)
+        return $this->hasOne(QuestionOption::class, 'kuis_pertanyaan_id')
                     ->where('is_correct', true);
     }
 

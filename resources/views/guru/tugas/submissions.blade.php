@@ -28,158 +28,163 @@
     });
 </script>
 
-{{-- ── PAGE WRAPPER ── --}}
-<div class="min-h-screen bg-gray-50/80" x-data="gradingApp">
+<div x-data="gradingApp">
 
-    {{-- ── HEADER STRIP ── --}}
-    <div class="bg-white border-b border-gray-200 sticky top-0 z-30">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
-            <a href="{{ route('guru.tugas.index') }}"
-               class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 flex items-center justify-center text-gray-500 transition-all duration-200">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+    {{-- Back Button & Header Info --}}
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <a href="{{ route('guru.tugas.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
+                Kembali
             </a>
-            <div class="flex-1 min-w-0">
-                <h1 class="text-base font-black text-gray-900 truncate">{{ $tugas->judul_tugas }}</h1>
-                <p class="text-xs text-gray-400 font-semibold">
-                    Deadline: {{ $tugas->deadline->format('d M Y') }}
-                    &nbsp;·&nbsp;
-                    {{ $pengumpulan->count() }} pengumpulan
-                </p>
+            <div>
+                <h1 class="text-xl font-bold text-gray-900">{{ $tugas->judul_tugas }}</h1>
+                <div class="flex items-center gap-2 text-sm text-gray-500 font-medium mt-1">
+                    <span>Deadline: {{ $tugas->tenggat_waktu->format('d M Y') }}</span>
+                    <span>&bull;</span>
+                    <span>{{ $pengumpulan->count() }} Pengumpulan</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+    {{-- Stats --}}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600 font-bold text-xl">
+                {{ $stats['total'] }}
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Siswa</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 font-bold text-xl">
+                {{ $stats['graded'] }}
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Sudah Dinilai</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 font-bold text-xl">
+                {{ $stats['ungraded'] }}
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Belum Dinilai</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 font-bold text-xl">
+                {{ $stats['avg'] }}
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Rata-rata Nilai</p>
+            </div>
+        </div>
+    </div>
 
-        {{-- ── SUMMARY CHIPS ── --}}
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            @foreach([
-                ['val' => $stats['total'],    'label' => 'Total Siswa',    'color' => 'from-emerald-500 to-emerald-700'],
-                ['val' => $stats['graded'],   'label' => 'Sudah Dinilai',  'color' => 'from-blue-500 to-blue-700'],
-                ['val' => $stats['ungraded'], 'label' => 'Belum Dinilai',  'color' => 'from-amber-500 to-amber-600'],
-                ['val' => $stats['avg'],      'label' => 'Rata-rata Nilai','color' => 'from-violet-500 to-violet-700'],
-            ] as $chip)
-                <div class="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm text-center">
-                    <p class="text-2xl font-black bg-gradient-to-br {{ $chip['color'] }} bg-clip-text text-transparent leading-none">
-                        {{ $chip['val'] }}
-                    </p>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1.5">{{ $chip['label'] }}</p>
-                </div>
-            @endforeach
+    {{-- Submissions Table --}}
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h2 class="font-semibold text-gray-800">Daftar Pengumpulan</h2>
         </div>
 
-        {{-- ── SUBMISSIONS TABLE ── --}}
         @if($pengumpulan->isEmpty())
-            <div class="bg-white rounded-2xl border border-dashed border-gray-200 p-16 text-center">
+            <div class="p-16 text-center">
                 <div class="text-5xl mb-4">📭</div>
                 <p class="text-base font-bold text-gray-400">Belum ada siswa yang mengumpulkan</p>
             </div>
         @else
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-
-                {{-- Table Header --}}
-                <div class="grid grid-cols-12 gap-3 px-5 py-3 bg-gray-50 border-b border-gray-100 text-[11px] font-black text-gray-400 uppercase tracking-widest">
-                    <div class="col-span-4">Siswa</div>
-                    <div class="col-span-3">Dikumpulkan</div>
-                    <div class="col-span-2 text-center">Status</div>
-                    <div class="col-span-1 text-center">Nilai</div>
-                    <div class="col-span-2 text-right">Aksi</div>
-                </div>
-
-                {{-- Table Rows --}}
-                <div class="divide-y divide-gray-50">
-                    @foreach($pengumpulan as $submission)
-                        @php
-                            $hasFile = !empty($submission->file_jawaban);
-                            $isGraded = $submission->nilai !== null;
-                            $ext = $hasFile ? strtolower(pathinfo($submission->file_jawaban, PATHINFO_EXTENSION)) : '';
-                            $isVideo = in_array($ext, ['mp4', 'webm', 'mov', 'avi']);
-                        @endphp
-                        <div class="grid grid-cols-12 gap-3 px-5 py-4 items-center hover:bg-emerald-50/30 transition-colors duration-150">
-
-                            {{-- Siswa --}}
-                            <div class="col-span-4 flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center text-sm font-black text-white shrink-0">
-                                    {{ substr($submission->user->name, 0, 1) }}
-                                </div>
-                                <div class="min-w-0">
-                                    <p class="text-sm font-bold text-gray-800 truncate">{{ $submission->user->name }}</p>
-                                    <p class="text-[11px] text-gray-400 truncate">{{ $submission->user->email }}</p>
-                                </div>
-                            </div>
-
-                            {{-- Tanggal --}}
-                            <div class="col-span-3">
-                                <p class="text-xs font-semibold text-gray-600">{{ $submission->created_at->format('d M Y') }}</p>
-                                <p class="text-[11px] text-gray-400">{{ $submission->created_at->format('H:i') }}</p>
-                            </div>
-
-                            {{-- Status Badge --}}
-                            <div class="col-span-2 flex justify-center">
-                                @if(!$hasFile)
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-gray-100 text-gray-500">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                        Belum Kumpul
-                                    </span>
-                                @elseif(!$isGraded)
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-700">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                        Menunggu Nilai
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-700">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                        Selesai
-                                    </span>
-                                @endif
-                            </div>
-
-                            {{-- Nilai --}}
-                            <div class="col-span-1 text-center">
-                                @if($isGraded)
-                                    <span class="text-lg font-black bg-gradient-to-br from-emerald-600 to-emerald-800 bg-clip-text text-transparent">
-                                        {{ $submission->nilai }}
-                                    </span>
-                                @else
-                                    <span class="text-gray-300 font-bold text-sm">—</span>
-                                @endif
-                            </div>
-
-                            {{-- Aksi --}}
-                            <div class="col-span-2 flex items-center justify-end gap-2">
-                                @if($hasFile)
-                                    <button @click="openGrading({{ json_encode([
-                                        'id'           => $submission->id,
-                                        'name'         => $submission->user->name,
-                                        'file'         => asset('storage/' . $submission->file_jawaban),
-                                        'isVideo'      => $isVideo,
-                                        'nilai'        => $submission->nilai,
-                                        'catatan'      => $submission->catatan_guru,
-                                        'gradeUrl'     => route('guru.submissions.grade', $submission),
-                                    ]) }})"
-                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200
-                                              {{ $isGraded
-                                                  ? 'bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700'
-                                                  : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm shadow-emerald-300/50' }}">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                        </svg>
-                                        {{ $isGraded ? 'Edit' : 'Nilai' }}
-                                    </button>
-                                @else
-                                    <span class="text-[11px] text-gray-300 font-semibold">Tidak ada file</span>
-                                @endif
-                            </div>
-
-                        </div>
-                    @endforeach
-                </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="border-b border-gray-200 bg-gray-50/50">
+                        <tr>
+                            <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Nama Siswa</th>
+                            <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Dikumpulkan</th>
+                            <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-center">Status</th>
+                            <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-center">Nilai</th>
+                            <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pengumpulan as $submission)
+                            @php
+                                $hasFile = !empty($submission->file_jawaban);
+                                $isGraded = $submission->nilai !== null;
+                                $ext = $hasFile ? strtolower(pathinfo($submission->file_jawaban, PATHINFO_EXTENSION)) : '';
+                                $isVideo = in_array($ext, ['mp4', 'webm', 'mov', 'avi']);
+                            @endphp
+                            <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold shrink-0">
+                                            {{ strtoupper(substr($submission->user->name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-800">{{ $submission->user->name }}</p>
+                                            <p class="text-[11px] text-gray-500">{{ $submission->user->email }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">
+                                    <p class="text-xs font-semibold">{{ $submission->created_at->format('d M Y') }}</p>
+                                    <p class="text-[11px] text-gray-400">{{ $submission->created_at->format('H:i') }}</p>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if(!$hasFile)
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500">
+                                            Belum Kumpul
+                                        </span>
+                                    @elseif(!$isGraded)
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">
+                                            Menunggu Nilai
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                                            Selesai
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($isGraded)
+                                        <span class="text-lg font-black text-emerald-600">{{ $submission->nilai }}</span>
+                                    @else
+                                        <span class="text-gray-300 font-bold">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($hasFile)
+                                        <button @click="openGrading({{ json_encode([
+                                            'id'           => $submission->id,
+                                            'name'         => $submission->user->name,
+                                            'file'         => asset('storage/' . $submission->file_jawaban),
+                                            'isVideo'      => $isVideo,
+                                            'nilai'        => $submission->nilai,
+                                            'catatan'      => $submission->catatan_guru,
+                                            'gradeUrl'     => route('guru.submissions.grade', $submission),
+                                        ]) }})"
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200
+                                                  {{ $isGraded ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm' }}">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                            {{ $isGraded ? 'Edit' : 'Nilai' }}
+                                        </button>
+                                    @else
+                                        <span class="text-[11px] text-gray-300 font-semibold">Tidak ada file</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         @endif
-
     </div>
+</div>
 
     {{-- ══════════════════════════════════════════
          GRADING MODAL

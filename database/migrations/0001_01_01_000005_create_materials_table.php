@@ -8,26 +8,26 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('materials', function (Blueprint $table) {
+        Schema::create('materi', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('module_id')->constrained('modules')->cascadeOnDelete();
+            $table->foreignId('modul_iqra_id')->constrained('modul_iqra')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete(); // Guru pembuat
-            $table->foreignId('category_id')->nullable()->constrained('material_categories')->nullOnDelete();
+            $table->foreignId('kategori_materi_id')->nullable()->constrained('kategori_materi')->nullOnDelete();
             $table->string('judul_materi');
             $table->text('deskripsi')->nullable();
             $table->string('file_video')->nullable();
             $table->string('huruf_hijaiyah')->nullable();
-            $table->string('file_path')->nullable();
+            $table->string('path_file')->nullable();
             $table->smallInteger('urutan')->unsigned()->nullable();
             $table->timestamps();
 
-            $table->index(['module_id', 'category_id', 'urutan']);
-            $table->index('category_id');
+            $table->index(['modul_iqra_id', 'kategori_materi_id', 'urutan']);
+            $table->index('kategori_materi_id');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('materials');
+        Schema::dropIfExists('materi');
     }
 };

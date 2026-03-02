@@ -26,8 +26,8 @@ class Iqra5MateriSeeder extends Seeder
 
         $getCategoryId = function($kategori) use ($iqra5) {
             $slug = Str::slug($kategori, '_');
-            return DB::table('material_categories')
-                ->where('module_id', $iqra5->id)
+            return DB::table('kategori_materi')
+                ->where('modul_iqra_id', $iqra5->id)
                 ->where('nama', $slug)
                 ->value('id');
         };
@@ -65,13 +65,13 @@ class Iqra5MateriSeeder extends Seeder
                 $filePath = 'materi/iqra5/' . $folderName . '/' . $item['file'];
 
                 Material::create([
-                    'module_id' => $iqra5->id,
+                    'modul_iqra_id' => $iqra5->id,
                     'user_id' => 1,
                     'judul_materi' => $item['judul'],
                     'huruf_hijaiyah' => $item['huruf'],
-                    'category_id' => $getCategoryId($item['kategori']),
+                    'kategori_materi_id' => $getCategoryId($item['kategori']),
                     'deskripsi' => $item['deskripsi'],
-                    'file_path' => $filePath, 
+                    'path_file' => $filePath, 
                     'urutan' => $urutan++,
                 ]);
             }

@@ -9,15 +9,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Material extends Model
 {
+    protected $table = 'materi';
+
     protected $fillable = [
-        'module_id',
+        'modul_iqra_id',
         'user_id',
-        'category_id',
+        'kategori_materi_id',
         'judul_materi',
         'deskripsi',
         'file_video',
         'huruf_hijaiyah',
-        'file_path',
+        'path_file',
         'urutan',
     ];
 
@@ -25,9 +27,9 @@ class Material extends Model
         'video_embed_url',
     ];
 
-    public function module(): BelongsTo
+    public function modulIqra(): BelongsTo
     {
-        return $this->belongsTo(Module::class);
+        return $this->belongsTo(Module::class, 'modul_iqra_id');
     }
 
     public function creator(): BelongsTo
@@ -35,14 +37,14 @@ class Material extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function category(): BelongsTo
+    public function kategoriMateri(): BelongsTo
     {
-        return $this->belongsTo(MaterialCategory::class, 'category_id');
+        return $this->belongsTo(MaterialCategory::class, 'kategori_materi_id');
     }
 
-    public function progress(): HasMany
+    public function progressBelajar(): HasMany
     {
-        return $this->hasMany(LearningProgress::class);
+        return $this->hasMany(LearningProgress::class, 'materi_id');
     }
 
     protected function videoEmbedUrl(): Attribute

@@ -36,30 +36,30 @@ class SiswaController extends Controller
          'completedMateri' => $completedMateri,
          'overallProgress' => $overallProgress] = $this->getStudentStats($user->id);
 
-        $modules = Module::withCount('materials')->with('materials:id,module_id')->get();
+        $modules = Module::withCount('materi')->with('materi:id,modul_iqra_id')->get();
 
         $completedIds = LearningProgress::where('user_id', $user->id)
             ->where('status', 'selesai')
-            ->pluck('material_id')
+            ->pluck('materi_id')
             ->flip();
 
         $modules = $modules->map(function ($module) use ($completedIds) {
-            $moduleMateriIds = $module->materials->pluck('id');
+            $moduleMateriIds = $module->materi->pluck('id');
             $done = $moduleMateriIds->filter(fn($id) => isset($completedIds[$id]))->count();
             $module->done_count = $done;
-            $module->progress = $module->materials_count > 0
-                ? ($done / $module->materials_count) * 100
+            $module->progress = $module->materi_count > 0
+                ? ($done / $module->materi_count) * 100
                 : 0;
             return $module;
         });
 
         $completedModules = $modules->filter(fn($m) => $m->progress >= 100)->count();
 
-        $tugasMendatang = Assignment::with(['submissions' => function ($q) use ($user) {
+        $tugasMendatang = Assignment::with(['pengumpulanTugas' => function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             }])
-            ->where('deadline', '>=', now())
-            ->orderBy('deadline')
+            ->where('tenggat_waktu', '>=', now())
+            ->orderBy('tenggat_waktu')
             ->limit(5)
             ->get();
 
@@ -86,17 +86,17 @@ class SiswaController extends Controller
         $nextModule = Module::where('id', '>', $currentModuleId)
             ->orderBy('id')->first();
 
-        $materis = Material::with(['module', 'category', 'progress' => function ($q) use ($user) {
+        $materis = Material::with(['modulIqra', 'kategoriMateri', 'progressBelajar' => function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             }])
-            ->where('module_id', $currentModuleId)
+            ->where('modul_iqra_id', $currentModuleId)
             ->orderBy('urutan')
             ->get();
 
         $totalModules = $modules->count();
         $currentPosition = $modules->search(fn($m) => $m->id == $currentModuleId) + 1;
 
-        $hasKategori = $materis->whereNotNull('category_id')->isNotEmpty();
+        $hasKategori = $materis->whereNotNull('kategori_materi_id')->isNotEmpty();
 
         $materisByKategori = null;
         $kategoriInfo = [];
@@ -106,12 +106,12 @@ class SiswaController extends Controller
 
         if ($hasKategori) {
             // Ambil urutan kategori langsung dari DB berdasarkan kolom 'urutan'
-            $kategorisOrdered = \App\Models\MaterialCategory::where('module_id', $currentModuleId)
+            $kategorisOrdered = \App\Models\MaterialCategory::where('modul_iqra_id', $currentModuleId)
                 ->orderBy('urutan')
                 ->get();
 
             $materisByKategori = $materis->groupBy(function ($m) {
-                return $m->category ? $m->category->nama : '';
+                return $m->kategoriMateri ? $m->kategoriMateri->nama : '';
             })->map(function ($items) {
                 return $items->map(fn($materi) => [
                     'id'             => $materi->id,
@@ -119,8 +119,8 @@ class SiswaController extends Controller
                     'huruf_hijaiyah' => $materi->huruf_hijaiyah,
                     'file_video'     => $materi->file_video,
                     'deskripsi'      => $materi->deskripsi,
-                    'file_path'      => $materi->file_path,
-                    'is_completed'   => $materi->progress?->first()?->status === 'selesai',
+                    'path_file'      => $materi->path_file,
+                    'is_completed'   => $materi->progressBelajar?->first()?->status === 'selesai',
                 ]);
             });
 
@@ -193,8 +193,8 @@ class SiswaController extends Controller
     public function completeMateri(Material $materi)
     {
         LearningProgress::updateOrCreate(
-            ['material_id' => $materi->id, 'user_id' => auth()->id()],
-            ['status' => 'selesai', 'progress_value' => 100]
+            ['materi_id' => $materi->id, 'user_id' => auth()->id()],
+            ['status' => 'selesai', 'nilai_progress' => 100]
         );
 
         return back()->with('success', 'Materi ditandai selesai!');
@@ -202,16 +202,16 @@ class SiswaController extends Controller
 
     public function kuis()
     {
-        $kuisList = Quiz::with(['module', 'questions'])->get();
+        $kuisList = Quiz::with(['modulIqra', 'kuisPertanyaan'])->get();
         return view('siswa.kuis.index', compact('kuisList'));
     }
 
     public function showKuis(Quiz $kuis)
     {
-        $kuis->load(['questions.options']);
+        $kuis->load(['kuisPertanyaan.opsiJawaban']);
 
         // Check if already completed
-        $hasAnswered = \App\Models\QuizAnswer::where('quiz_id', $kuis->id)
+        $hasAnswered = \App\Models\QuizAnswer::where('kuis_id', $kuis->id)
             ->where('user_id', auth()->id())
             ->exists();
 
@@ -227,28 +227,28 @@ class SiswaController extends Controller
     public function submitKuis(Request $request, Quiz $kuis)
     {
         $answers = $request->input('answers', []);
-        $kuis->load(['questions.options']);
+        $kuis->load(['kuisPertanyaan.opsiJawaban']);
 
-        $totalQuestions = $kuis->questions->count();
+        $totalQuestions = $kuis->kuisPertanyaan->count();
         $correctAnswers = 0;
 
         foreach ($answers as $pertanyaanId => $selectedOpsi) {
-            $pertanyaan = $kuis->questions->find($pertanyaanId);
+            $pertanyaan = $kuis->kuisPertanyaan->find($pertanyaanId);
             if (! $pertanyaan) continue;
 
-            $correctOpsi = $pertanyaan->options->firstWhere('is_correct', true);
+            $correctOpsi = $pertanyaan->opsiJawaban->firstWhere('is_correct', true);
             $isCorrect   = $correctOpsi && $correctOpsi->id == $selectedOpsi;
 
             if ($isCorrect) $correctAnswers++;
 
             QuizAnswer::updateOrCreate(
                 [
-                    'quiz_id'         => $kuis->id,
+                    'kuis_id'         => $kuis->id,
                     'user_id'         => auth()->id(),
-                    'question_id'     => $pertanyaanId,
+                    'kuis_pertanyaan_id'     => $pertanyaanId,
                 ],
                 [
-                    'option_id'       => $selectedOpsi,
+                    'kuis_opsi_jawaban_id'       => $selectedOpsi,
                 ]
             );
         }
@@ -263,19 +263,19 @@ class SiswaController extends Controller
 
     public function kuisResults(Quiz $kuis)
     {
-        $kuis->load(['questions.options']);
+        $kuis->load(['kuisPertanyaan.opsiJawaban']);
 
         // Load user answers from DB (persistent — no session dependency)
-        $userAnswers = \App\Models\QuizAnswer::where('quiz_id', $kuis->id)
+        $userAnswers = \App\Models\QuizAnswer::where('kuis_id', $kuis->id)
             ->where('user_id', auth()->id())
-            ->pluck('option_id', 'question_id');
+            ->pluck('kuis_opsi_jawaban_id', 'kuis_pertanyaan_id');
 
-        $totalQuestions = $kuis->questions->count();
+        $totalQuestions = $kuis->kuisPertanyaan->count();
         $correctAnswers = 0;
 
-        foreach ($kuis->questions as $question) {
+        foreach ($kuis->kuisPertanyaan as $question) {
             $selectedOptionId = $userAnswers[$question->id] ?? null;
-            $correctOption = $question->options->firstWhere('is_correct', true);
+            $correctOption = $question->opsiJawaban->firstWhere('is_correct', true);
             if ($correctOption && $correctOption->id == $selectedOptionId) {
                 $correctAnswers++;
             }
@@ -292,16 +292,16 @@ class SiswaController extends Controller
 
     public function tugas()
     {
-        $tugasList = Assignment::with(['submissions' => function ($q) {
+        $tugasList = Assignment::with(['pengumpulanTugas' => function ($q) {
             $q->where('user_id', auth()->id());
-        }])->orderBy('deadline')->get();
+        }])->orderBy('tenggat_waktu')->get();
 
         return view('siswa.tugas.index', compact('tugasList'));
     }
 
     public function showTugas(Assignment $tugas)
     {
-        $pengumpulan = Submission::where('assignment_id', $tugas->id)
+        $pengumpulan = Submission::where('tugas_id', $tugas->id)
             ->where('user_id', auth()->id())
             ->first();
 
@@ -319,7 +319,7 @@ class SiswaController extends Controller
         $path     = $file->storeAs('tugas', $filename, 'public');
 
         Submission::updateOrCreate(
-            ['assignment_id' => $tugas->id, 'user_id' => auth()->id()],
+            ['tugas_id' => $tugas->id, 'user_id' => auth()->id()],
             ['file_jawaban' => $path]
         );
 
@@ -336,14 +336,14 @@ class SiswaController extends Controller
 
         $totalKuis     = Quiz::count();
         $completedKuis = QuizAnswer::where('user_id', $user->id)
-            ->distinct('quiz_id')
-            ->count('quiz_id');
+            ->distinct('kuis_id')
+            ->count('kuis_id');
 
         $totalTugas     = Assignment::count();
         $completedTugas = Submission::where('user_id', $user->id)->count();
 
         $recentProgress = LearningProgress::where('user_id', $user->id)
-            ->with('material')
+            ->with('materi')
             ->latest('updated_at')
             ->limit(5)
             ->get();

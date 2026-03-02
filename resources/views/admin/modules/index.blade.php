@@ -9,7 +9,7 @@
             'id' => $m->id,
             'nama_modul' => $m->nama_modul,
             'deskripsi' => $m->deskripsi ?? '-',
-            'materi_count' => $m->materials_count ?? 0,
+            'materi_count' => $m->materi_count ?? 0,
         ])"
         :columns="[
             ['key' => 'nama_modul', 'label' => 'Nama Modul', 'class' => 'font-bold text-lg text-emerald-600'],

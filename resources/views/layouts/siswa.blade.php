@@ -8,7 +8,13 @@
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preconnect & DNS Prefetch untuk memangkas latensi video embed -->
+    <link rel="preconnect" href="https://www.youtube.com">
+    <link rel="preconnect" href="https://www.youtube-nocookie.com">
+    <link rel="preconnect" href="https://drive.google.com">
+    <link rel="preconnect" href="https://i.ytimg.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Custom CSS -->
@@ -23,6 +29,7 @@
             background-size: 24px 24px;
         }
         .nav-active-pip { width: 4px; height: 4px; border-radius: 9999px; background: #059669; margin-top: 2px; }
+        .font-arab { font-family: 'Amiri Quran', serif; }
     </style>
     @stack('styles')
 </head>

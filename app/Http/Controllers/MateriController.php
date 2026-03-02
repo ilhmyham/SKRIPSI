@@ -13,22 +13,22 @@ class MateriController extends Controller
 {
     public function index()
     {
-        $modules = Module::withCount('materials')->orderBy('id')->get();
+        $modules = Module::withCount('materi')->orderBy('id')->get();
         $view = auth()->user()->isAdmin() ? 'admin.materi.index' : 'guru.materi.index';
         return view($view, compact('modules'));
     }
 
     public function byModule(Module $module)
     {
-        $materis = $module->materials()
-            ->with('category')
+        $materis = $module->materi()
+            ->with('kategoriMateri')
             ->orderByRaw('urutan IS NULL, urutan ASC')
             ->orderBy('created_at', 'asc')
             ->get();
 
 
         $modules = Module::all();
-        $categories = MaterialCategory::where('module_id', $module->id)->orderBy('urutan')->get();
+        $categories = MaterialCategory::where('modul_iqra_id', $module->id)->orderBy('urutan')->get();
         
         $view = auth()->user()->isAdmin() ? 'admin.materi.show' : 'guru.materi.show';
         return view($view, compact('module', 'materis', 'modules', 'categories'));
@@ -37,23 +37,23 @@ class MateriController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'module_id'      => 'required|exists:modules,id',
-            'category_id'    => 'nullable|exists:material_categories,id',
+            'modul_iqra_id'      => 'required|exists:modul_iqra,id',
+            'kategori_materi_id'    => 'nullable|exists:kategori_materi,id',
             'judul_materi'   => 'required|string|max:255',
             'huruf_hijaiyah' => 'nullable|string|max:10',
             'file_video'     => 'nullable|string',
-            'file_path'      => 'nullable|image|max:5120',
+            'path_file'      => 'nullable|image|max:5120',
             'deskripsi'      => 'nullable|string',
             'urutan'         => 'nullable|integer|min:1',
         ]);
 
         $validated['user_id'] = auth()->id();
 
-        $module     = Module::find($validated['module_id']);
+        $module     = Module::find($validated['modul_iqra_id']);
         $folderPath = $this->getModuleFolderPath($module);
 
-        if ($request->hasFile('file_path')) {
-            $validated['file_path'] = $request->file('file_path')->store($folderPath, 'public');
+        if ($request->hasFile('path_file')) {
+            $validated['path_file'] = $request->file('path_file')->store($folderPath, 'public');
         }
 
         $materi = Material::create($validated);
@@ -68,18 +68,18 @@ class MateriController extends Controller
             return back()->with('success', $message);
         }
 
-        return redirect()->route('guru.materi.by-module', ['module' => $validated['module_id']])->with('success', $message);
+        return redirect()->route('guru.materi.by-module', ['module' => $validated['modul_iqra_id']])->with('success', $message);
     }
 
     public function update(Request $request, Material $materi)
     {
         $validated = $request->validate([
-            'module_id'      => 'required|exists:modules,id',
-            'category_id'    => 'nullable|exists:material_categories,id',
+            'modul_iqra_id'      => 'required|exists:modul_iqra,id',
+            'kategori_materi_id'    => 'nullable|exists:kategori_materi,id',
             'judul_materi'   => 'required|string|max:255',
             'huruf_hijaiyah' => 'nullable|string|max:10',
             'file_video'     => 'nullable|string',
-            'file_path'      => 'nullable|image|max:5120',
+            'path_file'      => 'nullable|image|max:5120',
             'deskripsi'      => 'nullable|string',
             'urutan'         => 'nullable|integer|min:1',
         ]);
@@ -88,15 +88,15 @@ class MateriController extends Controller
             unset($validated['file_video']);
         }
 
-        $module     = Module::find($validated['module_id']);
+        $module     = Module::find($validated['modul_iqra_id']);
         $folderPath = $this->getModuleFolderPath($module);
 
-        if ($request->hasFile('file_path')) {
-            if ($materi->file_path) Storage::disk('public')->delete($materi->file_path);
-            $validated['file_path'] = $request->file('file_path')->store($folderPath, 'public');
+        if ($request->hasFile('path_file')) {
+            if ($materi->path_file) Storage::disk('public')->delete($materi->path_file);
+            $validated['path_file'] = $request->file('path_file')->store($folderPath, 'public');
         } else {
-            // Keep existing file_path if no new file uploaded
-            unset($validated['file_path']);
+            // Keep existing path_file if no new file uploaded
+            unset($validated['path_file']);
         }
 
         $materi->update($validated);
@@ -111,15 +111,15 @@ class MateriController extends Controller
             return back()->with('success', $message);
         }
 
-        return redirect()->route('guru.materi.by-module', ['module' => $materi->module_id])->with('success', $message);
+        return redirect()->route('guru.materi.by-module', ['module' => $materi->modul_iqra_id])->with('success', $message);
     }
 
     public function destroy(Material $materi)
     {
         $materiName = $materi->judul_materi;
         
-        if ($materi->file_path) {
-            Storage::disk('public')->delete($materi->file_path);
+        if ($materi->path_file) {
+            Storage::disk('public')->delete($materi->path_file);
         }
 
         $materi->delete();

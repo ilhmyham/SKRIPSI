@@ -8,16 +8,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Assignment extends Model
 {
+    protected $table = 'tugas';
+
     protected $fillable = [
         'user_id',
-        'module_id',
+        'modul_iqra_id',
         'judul_tugas',
         'deskripsi_tugas',
-        'deadline',
+        'tenggat_waktu',
     ];
 
     protected $casts = [
-        'deadline' => 'date',
+        'tenggat_waktu' => 'date',
     ];
 
     public function creator(): BelongsTo
@@ -25,13 +27,13 @@ class Assignment extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function module(): BelongsTo
+    public function modulIqra(): BelongsTo
     {
-        return $this->belongsTo(Module::class);
+        return $this->belongsTo(Module::class, 'modul_iqra_id');
     }
 
-    public function submissions(): HasMany
+    public function pengumpulanTugas(): HasMany
     {
-        return $this->hasMany(Submission::class);
+        return $this->hasMany(Submission::class, 'tugas_id');
     }
 }
