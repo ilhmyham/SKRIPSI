@@ -28,6 +28,13 @@ function _initYtPlayer(initialVideoId = null) {
     const wrapper = getVideoWrapper();
     if (!wrapper) return;
 
+    // Pastikan library YouTube (objek YT) sudah sepenuhnya di-load oleh browser
+    if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+        // Jika belum, coba lagi 100md kemudian (retry loop)
+        setTimeout(() => _initYtPlayer(initialVideoId), 100);
+        return;
+    }
+
     // Pastikan kontainer player ada
     if (!document.getElementById('player')) {
         wrapper.insertAdjacentHTML('beforeend', `
@@ -172,17 +179,17 @@ function _loadVideo(videoUrl) {
         } else {
             // Jika API telat atau belum dibuat (karena baru klik pertama kali)
             if (!ytPlayer) {
-                if (ytReady) {
+                if (ytReady && typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
                     // API sudah siap, modal sudah terbuka, buat player sekarang!
                     _showOverlaySpinner('Menyiapkan video...');
                     _initYtPlayer(videoId);
                 } else {
-                    // API belum di-download (internet lambat)
+                    // API masih di-download di background
                     _showOverlaySpinner('Menghubungkan ke server...');
                     setTimeout(() => _loadVideo(videoUrl), 500);
                 }
             } else {
-                // Player sedang dibuat, tapi onReady belum dipanggil
+                // Player sedang dibuat (typeof YT.Player ada), tapi fungsi loadVideoById belum siap
                 _showOverlaySpinner('Menyiapkan pemutar...');
                 setTimeout(() => _loadVideo(videoUrl), 500);
             }
