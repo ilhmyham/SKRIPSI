@@ -1,11 +1,6 @@
 User-agent: *
+
 Allow: /
 
-Disallow: /login
-Disallow: /register
-Disallow: /admin
-Disallow: /guru 
-Disallow: /dashboard
-Disallow: /materi
 
 Sitemap: https://ayatisyarat.my.id/sitemap.xml
