@@ -41,6 +41,8 @@ function _initYtPlayer(initialVideoId = null) {
         height: '100%', width: '100%',
         videoId: initialVideoId,
         playerVars: {
+            start: startTime,
+            end: endTime,
             autoplay: 1,
             controls: 1,
             rel: 0,
