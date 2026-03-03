@@ -357,7 +357,7 @@ function materiPagination() {
 </script>
 @endif
 
-{{-- External player JS (YouTube + Drive logic) --}}
+{{-- External player JS (YouTube + Drive logic) - Dimuat defer --}}
 <script src="{{ asset('js/materi-player.js') }}" defer></script>
 
 @endsection

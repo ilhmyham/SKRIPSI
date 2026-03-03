@@ -58,11 +58,7 @@
                     Hapus
                 </button>
             </form>
-        </x-slot:actions>
-
-        <x-slot:footer>
-            {{ $users->links() }}
-        </x-slot:footer>
+        </x-slot:actions>      
     </x-table>
 
     <!-- Create User Modal -->

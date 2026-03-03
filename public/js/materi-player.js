@@ -5,9 +5,18 @@
  */
 
 // ─── YouTube IFrame API Bootstrap ────────────────────────────────────────────
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-document.head.appendChild(tag);
+// YouTube IFrame API akan di-load secara dinamis hanya saat dibutuhkan (Lazy Load)
+let isYoutubeApiLoaded = false;
+
+function loadYoutubeApi() {
+    if (isYoutubeApiLoaded) return;
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    // Pasang API script ke head
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    isYoutubeApiLoaded = true;
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 var ytPlayer = null;
@@ -27,6 +36,9 @@ function _initYtPlayer() {
 
     const wrapper = getVideoWrapper();
     if (!wrapper) return;
+
+    // Load Youtube API JS if not yet loaded
+    loadYoutubeApi();
 
     // Pastikan kontainer player ada
     if (!document.getElementById('player')) {
@@ -165,7 +177,8 @@ function _loadVideo(videoUrl) {
             _startLoopCheck();
         } else {
             // Jika API telat, fallback buat instance
-            _showOverlaySpinner('Menghubungkan ke server...');
+            _showOverlaySpinner('Menghubungkan ke server YouTube...');
+            loadYoutubeApi(); // Pastikan API dipanggil jika belum
             _initYtPlayer();
             setTimeout(() => _loadVideo(videoUrl), 500); // retry
         }
