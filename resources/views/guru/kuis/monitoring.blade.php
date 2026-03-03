@@ -43,7 +43,45 @@
         <div class="px-6 py-4 border-b border-gray-100">
             <h2 class="font-semibold text-gray-800">Daftar Kuis & Rekap Pengerjaan</h2>
         </div>
-        <div class="overflow-x-auto">
+
+        {{-- Mobile: Card View --}}
+        <div class="md:hidden divide-y divide-gray-100">
+            @forelse($kuisList as $i => $kuis)
+                @php $pct = $totalSiswa > 0 ? round(($kuis->total_pengerjaan / $totalSiswa) * 100) : 0; @endphp
+                <div class="p-4 space-y-3">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <p class="font-semibold text-gray-900 text-sm">{{ $kuis->judul_kuis }}</p>
+                            @if($kuis->deskripsi)
+                                <p class="text-xs text-gray-400 mt-0.5 line-clamp-1">{{ $kuis->deskripsi }}</p>
+                            @endif
+                        </div>
+                        <span class="inline-block px-2 py-0.5 text-xs font-bold bg-indigo-100 text-indigo-700 rounded-full shrink-0">
+                            {{ $kuis->modulIqra?->nama_modul ?? '-' }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-600">
+                        <span>Dikerjakan: <strong class="text-gray-900">{{ $kuis->total_pengerjaan }}</strong> / {{ $totalSiswa }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full {{ $pct >= 75 ? 'bg-emerald-500' : ($pct >= 40 ? 'bg-yellow-400' : 'bg-red-400') }}"
+                                 style="width: {{ $pct }}%"></div>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-600 w-10 text-right">{{ $pct }}%</span>
+                    </div>
+                    <a href="{{ route('guru.kuis.monitoring.detail', $kuis) }}"
+                       class="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline">
+                        <x-icon name="eye" class="w-4 h-4" /> Lihat Detail
+                    </a>
+                </div>
+            @empty
+                <div class="p-8 text-center text-gray-400 text-sm">Belum ada kuis.</div>
+            @endforelse
+        </div>
+
+        {{-- Desktop: Table View --}}
+        <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="border-b border-gray-200 bg-gray-50/50">
                     <tr>

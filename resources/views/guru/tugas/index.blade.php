@@ -61,9 +61,8 @@
             </form>
         </x-slot:actions>
 
-        <x-slot:footer>
-            {{ $tugasList->links() }}
-        </x-slot:footer>
+
+
     </x-table>
 
     <!-- Create Tugas Modal -->
