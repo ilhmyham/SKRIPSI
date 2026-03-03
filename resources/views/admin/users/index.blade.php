@@ -60,7 +60,9 @@
             </form>
         </x-slot:actions>
 
-
+        <x-slot:footer>
+            {{ $users->links() }}
+        </x-slot:footer>
     </x-table>
 
     <!-- Create User Modal -->

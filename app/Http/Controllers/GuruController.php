@@ -182,30 +182,27 @@ class GuruController extends Controller
             ? round(($completedMateri / $totalMateri) * 100, 1)
             : 0;
 
-        // ── Rekap Hasil Kuis (eager-load semua jawaban sekaligus — fix N+1) ──
+        // ── Rekap Hasil Kuis ─────────────────────────────────────────────────
         $kuisList = Quiz::with('kuisPertanyaan')->get();
-
-        // Ambil semua jawaban siswa ini untuk semua kuis sekaligus
-        $allAnswers = QuizAnswer::where('user_id', $user->id)
-            ->with('opsiJawaban')
-            ->get()
-            ->groupBy('kuis_id');
-
-        $hasilKuis = $kuisList->map(function ($kuis) use ($allAnswers) {
+        $hasilKuis = $kuisList->map(function ($kuis) use ($user) {
             $totalSoal = $kuis->kuisPertanyaan->count();
             if ($totalSoal === 0) return null;
 
-            $answers = $allAnswers->get($kuis->id, collect());
+            $answers = QuizAnswer::where('kuis_id', $kuis->id)
+                ->where('user_id', $user->id)
+                ->with('opsiJawaban')
+                ->get();
+
             if ($answers->isEmpty()) return null; // belum mengerjakan
 
             $benar = $answers->filter(fn($a) => $a->opsiJawaban && $a->opsiJawaban->is_correct)->count();
             $skor  = round(($benar / $totalSoal) * 100, 1);
 
             return [
-                'kuis'          => $kuis,
-                'skor'          => $skor,
-                'benar'         => $benar,
-                'total_soal'    => $totalSoal,
+                'kuis'       => $kuis,
+                'skor'       => $skor,
+                'benar'      => $benar,
+                'total_soal' => $totalSoal,
                 'dikerjakan_at' => $answers->max('updated_at'),
             ];
         })->filter()->values();
@@ -252,25 +249,29 @@ class GuruController extends Controller
         $kuis->load('modulIqra', 'kuisPertanyaan.opsiJawaban');
         $totalSoal = $kuis->kuisPertanyaan->count();
 
-        // Eager-load semua jawaban + user + opsiJawaban sekaligus — fix N+1
-        $allAnswers = QuizAnswer::where('kuis_id', $kuis->id)
-            ->with(['opsiJawaban', 'user'])
-            ->get()
-            ->groupBy('user_id');
+        // Ambil semua siswa yang sudah mengerjakan kuis ini
+        $siswaIds = QuizAnswer::where('kuis_id', $kuis->id)
+            ->distinct('user_id')
+            ->pluck('user_id');
 
-        $hasilSiswa = $allAnswers->map(function ($answers, $userId) use ($totalSoal) {
-            $siswa = $answers->first()->user;
+        $hasilSiswa = $siswaIds->map(function ($userId) use ($kuis, $totalSoal) {
+            $siswa = User::find($userId);
             if (!$siswa) return null;
+
+            $answers = QuizAnswer::where('kuis_id', $kuis->id)
+                ->where('user_id', $userId)
+                ->with('opsiJawaban')
+                ->get();
 
             $benar = $answers->filter(fn($a) => $a->opsiJawaban && $a->opsiJawaban->is_correct)->count();
             $skor  = $totalSoal > 0 ? round(($benar / $totalSoal) * 100, 1) : 0;
 
             return [
-                'siswa'         => $siswa,
-                'benar'         => $benar,
-                'salah'         => $totalSoal - $benar,
-                'total_soal'    => $totalSoal,
-                'skor'          => $skor,
+                'siswa'      => $siswa,
+                'benar'      => $benar,
+                'salah'      => $totalSoal - $benar,
+                'total_soal' => $totalSoal,
+                'skor'       => $skor,
                 'dikerjakan_at' => $answers->max('updated_at'),
             ];
         })->filter()->sortByDesc('skor')->values();

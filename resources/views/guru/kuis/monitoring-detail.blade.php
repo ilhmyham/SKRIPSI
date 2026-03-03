@@ -49,54 +49,7 @@
             <h2 class="font-semibold text-gray-800">Hasil Per Siswa</h2>
             <span class="text-xs text-gray-400">Diurutkan berdasarkan skor tertinggi</span>
         </div>
-
-        {{-- Mobile: Card View --}}
-        <div class="md:hidden divide-y divide-gray-100">
-            @forelse($hasilSiswa as $i => $hasil)
-                @php
-                    $skor = $hasil['skor'];
-                    $rank = $i + 1;
-                    $scoreColor = $skor >= 80 ? 'text-emerald-600' : ($skor >= 60 ? 'text-yellow-600' : 'text-red-500');
-                    $barColor   = $skor >= 80 ? 'bg-emerald-500' : ($skor >= 60 ? 'bg-yellow-400' : 'bg-red-400');
-                @endphp
-                <div class="p-4 space-y-2">
-                    <div class="flex items-center gap-3">
-                        <span class="text-lg font-black {{ $rank === 1 ? 'text-yellow-500' : ($rank === 2 ? 'text-gray-400' : ($rank === 3 ? 'text-orange-500' : 'text-gray-300')) }}">
-                            {{ $rank <= 3 ? '🥇🥈🥉'[$rank - 1] : '#' . $rank }}
-                        </span>
-                        @if($hasil['siswa']->avatar && str_starts_with($hasil['siswa']->avatar, 'http'))
-                            <img src="{{ $hasil['siswa']->avatar }}" class="w-9 h-9 rounded-full object-cover">
-                        @else
-                            <div class="w-9 h-9 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                {{ strtoupper(substr($hasil['siswa']->name, 0, 1)) }}
-                            </div>
-                        @endif
-                        <div>
-                            <p class="font-semibold text-gray-900 text-sm">{{ $hasil['siswa']->name }}</p>
-                            <p class="text-xs text-gray-400">{{ $hasil['siswa']->email }}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4 text-sm pl-1">
-                        <span class="text-emerald-600 font-bold">{{ $hasil['benar'] }} benar</span>
-                        <span class="text-red-500 font-bold">{{ $hasil['salah'] }} salah</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full {{ $barColor }}" style="width: {{ $skor }}%"></div>
-                        </div>
-                        <span class="text-xs font-black w-10 text-right {{ $scoreColor }}">{{ $skor }}%</span>
-                    </div>
-                    <p class="text-xs text-gray-400 pl-1">
-                        {{ $hasil['dikerjakan_at'] ? \Carbon\Carbon::parse($hasil['dikerjakan_at'])->format('d M Y') : 'Belum dikerjakan' }}
-                    </p>
-                </div>
-            @empty
-                <div class="p-8 text-center text-gray-400 text-sm">Belum ada siswa yang mengerjakan kuis ini.</div>
-            @endforelse
-        </div>
-
-        {{-- Desktop: Table View --}}
-        <div class="hidden md:block overflow-x-auto">
+        <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="border-b border-gray-200 bg-gray-50/50">
                     <tr>

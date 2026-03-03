@@ -40,37 +40,7 @@
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 class="font-semibold text-gray-800">Daftar Progress Siswa</h2>
         </div>
-
-        {{-- Mobile: Card View --}}
-        <div class="md:hidden divide-y divide-gray-100">
-            @forelse($siswaList as $index => $siswa)
-                <div class="p-4 flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        @if($siswa->avatar && str_starts_with($siswa->avatar, 'http'))
-                            <img src="{{ $siswa->avatar }}" class="w-10 h-10 rounded-full object-cover shrink-0" alt="{{ $siswa->name }}">
-                        @else
-                            <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0">
-                                {{ strtoupper(substr($siswa->name, 0, 1)) }}
-                            </div>
-                        @endif
-                        <div>
-                            <p class="font-medium text-gray-900 text-sm">{{ $siswa->name }}</p>
-                            <p class="text-xs text-gray-400">{{ $siswa->email }}</p>
-                            <p class="text-xs text-gray-500 mt-0.5">
-                                Selesai: <strong class="text-gray-800">{{ $siswa->completed_materi }}</strong> / {{ $totalMateri }} Materi
-                            </p>
-                        </div>
-                    </div>
-                    <a href="{{ route('guru.progress.show', $siswa) }}"
-                       class="text-blue-600 hover:underline text-sm font-medium shrink-0">Detail</a>
-                </div>
-            @empty
-                <div class="p-8 text-center text-gray-400 text-sm">Belum ada data siswa.</div>
-            @endforelse
-        </div>
-
-        {{-- Desktop: Table View --}}
-        <div class="hidden md:block overflow-x-auto">
+        <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="border-b border-gray-200 bg-gray-50/50">
                     <tr>
@@ -78,6 +48,7 @@
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Nama Siswa</th>
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Email</th>
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-center">Materi Selesai</th>
+                        <!-- <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Progress</th> -->
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Aksi</th>
                     </tr>
                 </thead>
@@ -102,6 +73,17 @@
                                 <span class="font-semibold text-gray-900">{{ $siswa->completed_materi }}</span>
                                 <span class="text-gray-500"> / {{ $totalMateri }}</span>
                             </td>
+                            <!-- <td class="px-6 py-4 min-w-[160px]">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                        <div class="h-full rounded-full transition-all
+                                            {{ $siswa->progress_pct >= 75 ? 'bg-emerald-500' : ($siswa->progress_pct >= 40 ? 'bg-yellow-400' : 'bg-red-400') }}"
+                                            style="width: {{ $siswa->progress_pct }}%">
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-gray-700 w-10 text-right">{{ $siswa->progress_pct }}%</span>
+                                </div>
+                            </td> -->
                             <td class="px-6 py-4">
                                 <a href="{{ route('guru.progress.show', $siswa) }}"
                                    class="text-blue-600 hover:underline text-sm font-medium">
@@ -111,7 +93,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-16 text-center text-gray-500">
+                            <td colspan="6" class="px-6 py-16 text-center text-gray-500">
                                 Belum ada data siswa.
                             </td>
                         </tr>

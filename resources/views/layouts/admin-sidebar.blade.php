@@ -6,7 +6,7 @@
         <div class="p-6 border-b border-gray-700 flex items-center justify-center h-[89px]">
             <div class="flex items-center gap-3 w-full" :class="isSidebarOpen ? 'justify-start' : 'justify-center'">
                 <div class="shrink-0">
-                    <img src="{{ asset('images/logo.webp') }}" alt="Ayat Isyarat" class="h-11 w-11 object-contain" width="44" height="44" loading="eager">
+                    <img src="{{ asset('images/logo.webp') }}" alt="Ayat Isyarat" class="h-11 w-11 object-contain">
                 </div>
                 <div x-show="isSidebarOpen" class="whitespace-nowrap transition-opacity duration-300">
                     <h1 class="text-xl font-bold">Ayat Isyarat</h1>
@@ -71,11 +71,8 @@
             <div class="px-6 py-4 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <!-- Hamburger Toggle Button -->
-                    <button @click="isSidebarOpen = !isSidebarOpen"
-                            :aria-expanded="isSidebarOpen.toString()"
-                            aria-label="Toggle navigasi sidebar"
-                            class="p-2 -ml-2 rounded-lg hover:bg-gray-100 text-gray-500 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <button @click="isSidebarOpen = !isSidebarOpen" class="p-2 -ml-2 rounded-lg hover:bg-gray-100 text-gray-500 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
@@ -84,10 +81,7 @@
 
                 <!-- Profile Dropdown -->
                 <div class="relative">
-                    <button @click="profileOpen = !profileOpen"
-                            :aria-expanded="profileOpen.toString()"
-                            aria-controls="admin-profile-dropdown"
-                            aria-label="Menu profil pengguna"
+                    <button @click="profileOpen = !profileOpen" 
                             class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
                         <div class="text-right">
                             <div class="text-sm font-semibold text-gray-700">{{ auth()->user()->name }}</div>
@@ -96,12 +90,11 @@
                         <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold">
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         </div>
-                        <x-icon name="chevron-down" class="w-4 h-4 text-gray-500" aria-hidden="true" />
+                        <x-icon name="chevron-down" class="w-4 h-4 text-gray-500" />
                     </button>
 
                     <!-- Dropdown Menu -->
-                    <div id="admin-profile-dropdown"
-                         x-show="profileOpen" 
+                    <div x-show="profileOpen" 
                          @click.away="profileOpen = false"
                          x-transition:enter="transition ease-out duration-100"
                          x-transition:enter-start="transform opacity-0 scale-95"
@@ -109,7 +102,6 @@
                          x-transition:leave="transition ease-in duration-75"
                          x-transition:leave-start="transform opacity-100 scale-100"
                          x-transition:leave-end="transform opacity-0 scale-95"
-                         role="menu"
                          class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
                          style="display: none;">
                         <div class="px-4 py-3 border-b border-gray-100">
