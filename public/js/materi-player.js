@@ -16,13 +16,13 @@ var endTime = 0;
 var loopInterval;
 var ytReady = false;
 
-// Pre-initialize player di background saat halaman dimuat
+// API siap di background, tapi player JANGAN DIBUAT DULU karena modal masih hidden (display: none)
 function onYouTubeIframeAPIReady() {
     ytReady = true;
-    _initYtPlayer();
+    // _initYtPlayer(); // <- Dihapus agar tidak error karena kontainer tersembunyi berukuran 0x0
 }
 
-function _initYtPlayer() {
+function _initYtPlayer(initialVideoId = null) {
     if (ytPlayer) return;
 
     const wrapper = getVideoWrapper();
@@ -39,6 +39,7 @@ function _initYtPlayer() {
 
     ytPlayer = new YT.Player('player', {
         height: '100%', width: '100%',
+        videoId: initialVideoId,
         playerVars: {
             autoplay: 1,
             controls: 1,
@@ -51,7 +52,10 @@ function _initYtPlayer() {
         },
         events: {
             onReady: function (event) {
-                // Player sudah siap di memori
+                // Player sudah siap di memori, hapus spinner jika onStateChange telat
+                const spinner = document.getElementById('videoSpinner');
+                if (spinner) spinner.remove();
+                _startLoopCheck();
             },
             onStateChange: _onPlayerStateChange
         }
@@ -164,10 +168,22 @@ function _loadVideo(videoUrl) {
             });
             _startLoopCheck();
         } else {
-            // Jika API telat, fallback buat instance
-            _showOverlaySpinner('Menghubungkan ke server...');
-            _initYtPlayer();
-            setTimeout(() => _loadVideo(videoUrl), 500); // retry
+            // Jika API telat atau belum dibuat (karena baru klik pertama kali)
+            if (!ytPlayer) {
+                if (ytReady) {
+                    // API sudah siap, modal sudah terbuka, buat player sekarang!
+                    _showOverlaySpinner('Menyiapkan video...');
+                    _initYtPlayer(videoId);
+                } else {
+                    // API belum di-download (internet lambat)
+                    _showOverlaySpinner('Menghubungkan ke server...');
+                    setTimeout(() => _loadVideo(videoUrl), 500);
+                }
+            } else {
+                // Player sedang dibuat, tapi onReady belum dipanggil
+                _showOverlaySpinner('Menyiapkan pemutar...');
+                setTimeout(() => _loadVideo(videoUrl), 500);
+            }
         }
 
     } else if (videoUrl.includes('drive.google.com')) {
