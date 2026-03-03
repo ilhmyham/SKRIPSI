@@ -1,56 +1,55 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@layer base {
+    :root {
+        /* Islamic Color Palette - Cheerful & Calm */
+        --color-primary: oklch(0.55 0.15 165);
+        /* Soft emerald green */
+        --color-primary-dark: oklch(0.45 0.18 165);
+        /* Darker emerald */
+        --color-secondary: oklch(0.65 0.12 165);
+        /* Light emerald */
+        --color-accent: oklch(0.75 0.10 165);
+        /* Very light emerald */
 
-@theme {
-    /* Islamic Color Palette - Cheerful & Calm */
-    --color-primary: oklch(0.55 0.15 165);
-    /* Soft emerald green */
-    --color-primary-dark: oklch(0.45 0.18 165);
-    /* Darker emerald */
-    --color-secondary: oklch(0.65 0.12 165);
-    /* Light emerald */
-    --color-accent: oklch(0.75 0.10 165);
-    /* Very light emerald */
+        --color-bg: oklch(0.98 0.01 165);
+        /* Soft green-white */
+        --color-card: oklch(1 0 0);
+        /* Pure white */
+        --color-surface: oklch(0.96 0.01 165);
+        /* Light gray-green */
 
-    --color-bg: oklch(0.98 0.01 165);
-    /* Soft green-white */
-    --color-card: oklch(1 0 0);
-    /* Pure white */
-    --color-surface: oklch(0.96 0.01 165);
-    /* Light gray-green */
+        --color-text-primary: oklch(0.25 0.01 260);
+        /* Dark charcoal */
+        --color-text-secondary: oklch(0.50 0.01 260);
+        /* Medium gray */
+        --color-text-muted: oklch(0.65 0.01 260);
+        /* Light gray */
 
-    --color-text-primary: oklch(0.25 0.01 260);
-    /* Dark charcoal */
-    --color-text-secondary: oklch(0.50 0.01 260);
-    /* Medium gray */
-    --color-text-muted: oklch(0.65 0.01 260);
-    /* Light gray */
+        --color-success: oklch(0.60 0.15 150);
+        /* Success green */
+        --color-warning: oklch(0.70 0.15 90);
+        /* Warm yellow */
+        --color-danger: oklch(0.60 0.18 25);
+        /* Soft red */
+        --color-info: oklch(0.60 0.15 240);
+        /* Soft blue */
 
-    --color-success: oklch(0.60 0.15 150);
-    /* Success green */
-    --color-warning: oklch(0.70 0.15 90);
-    /* Warm yellow */
-    --color-danger: oklch(0.60 0.18 25);
-    /* Soft red */
-    --color-info: oklch(0.60 0.15 240);
-    /* Soft blue */
+        /* Typography */
+        --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        --font-display: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-    /* Typography */
-    --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    --font-display: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        /* Spacing for touch targets */
+        --touch-target-min: 48px;
 
-    /* Spacing for touch targets */
-    --touch-target-min: 48px;
-
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        /* Shadows */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
 }
 
 /* Base Styles */
@@ -157,6 +156,16 @@ body {
     outline: 3px solid var(--color-primary);
     outline-offset: 2px;
     border-radius: 0.375rem;
+    transition: outline 0.1s ease-in-out;
+}
+
+/* Base interactive elements targets minimum 44px (A11y standard) */
+button,
+a.btn,
+input,
+select,
+textarea {
+    min-height: 44px;
 }
 
 /* Utility classes */
