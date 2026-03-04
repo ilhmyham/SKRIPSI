@@ -15,12 +15,10 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        if (config('app.env') === 'production') {
+        // Force HTTPS if not on localhost
+        if (request()->server('HTTP_HOST') !== 'localhost' && request()->server('HTTP_HOST') !== '127.0.0.1:8000') {
             URL::forceScheme('https');
         }
     }

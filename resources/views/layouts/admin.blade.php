@@ -7,8 +7,7 @@
     <title>@yield('title', 'Dashboard Admin') - Ayat Isyarat</title>
     <link rel="icon" type="image/webp" href="{{ asset('images/logo.webp') }}">
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ @filemtime(public_path('css/app.css')) }}">
     <!-- Alpine.js CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 </head>
