@@ -15,13 +15,13 @@
 <body class="pattern-bg">
     <!-- Flash Messages -->
     @if(session('success'))
-        <x-alert type="success" class="fixed top-4 right-4 z-50">
+        <x-alert type="success" class="fixed top-2 right-4 md:right-4" style="z-index: 9999;">
             {{ session('success') }}
         </x-alert>
     @endif
 
     @if(session('error'))
-        <x-alert type="error" class="fixed top-4 right-4 z-50">
+        <x-alert type="error" class="fixed top-2 right-4 md:right-4" style="z-index: 9999;">
             {{ session('error') }}
         </x-alert>
     @endif

@@ -91,10 +91,10 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]"></span>
                 Modul Iqra
             </h2>
-            <a href="{{ route('siswa.materi.index') }}"
-               class="text-xs font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all duration-200">
+            <a href="{{ route('siswa.materi.index') }}" aria-label="Lihat Semua Modul"
+               class="text-xs font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all duration-200 focus-visible:outline-emerald-500">
                 Semua
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                 </svg>
             </a>
@@ -109,8 +109,8 @@
                     $done      = $module->done_count;
                     $pctMod    = round($module->progress);
                 @endphp
-                <a href="{{ route('siswa.materi.index', ['module' => $module->id]) }}"
-                   class="bg-white rounded-2xl p-5 border-2 border-gray-200 hover:-translate-y-1.5 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all duration-200 group flex flex-col relative overflow-hidden">                    
+                <a href="{{ route('siswa.materi.index', ['module' => $module->id]) }}" aria-label="Mulai {{ $module->nama_modul }}"
+                   class="bg-white rounded-2xl p-5 border-2 border-gray-200 hover:-translate-y-1.5 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all duration-200 group flex flex-col relative overflow-hidden focus-visible:ring-4 focus-visible:ring-emerald-200 focus:outline-none">                    
 
                     <p class="text-4xl font-black bg-gradient-to-br from-emerald-600 to-emerald-800 bg-clip-text text-transparent leading-none mb-2">
                         {{ $arabicNum }}
@@ -138,10 +138,10 @@
                     <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)]"></span>
                     Tugas Mendatang
                 </h2>
-                <a href="{{ route('siswa.tugas.index') }}"
-                   class="text-xs font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all duration-200">
+                <a href="{{ route('siswa.tugas.index') }}" aria-label="Lihat Semua Tugas"
+                   class="text-xs font-bold text-emerald-600 flex items-center gap-1 hover:gap-2 transition-all duration-200 focus-visible:outline-emerald-500">
                     Semua
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                     </svg>
                 </a>
@@ -149,21 +149,21 @@
 
             <div class="space-y-3">
                 @foreach($tugasMendatang as $tugas)
-                    <a href="{{ route('siswa.tugas.show', $tugas) }}"
-                       class="flex items-center gap-4 bg-white rounded-2xl p-4 border border-amber-100 shadow-sm hover:translate-x-1 hover:shadow-md hover:shadow-amber-100/60 transition-all duration-200 group">
+                    <a href="{{ route('siswa.tugas.show', $tugas) }}" aria-label="Kerjakan Tugas {{ $tugas->judul_tugas }}"
+                       class="flex items-center gap-4 bg-white rounded-2xl p-4 border border-amber-100 shadow-sm hover:translate-x-1 hover:shadow-md hover:shadow-amber-100/60 transition-all duration-200 group focus-visible:ring-4 focus-visible:ring-amber-200 focus:outline-none">
                         <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-2xl shrink-0">
-                            ⏰
+                            <span aria-hidden="true">⏰</span>
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-bold text-gray-800 truncate">{{ $tugas->judul_tugas }}</p>
                             <p class="text-xs text-amber-600 font-semibold mt-0.5 flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
-                                {{ $tugas->deadline->format('d M Y') }}
+                                {{ $tugas->tenggat_waktu->format('d M Y') }}
                             </p>
                         </div>
-                        <svg class="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform duration-200 shrink-0"
+                        <svg aria-hidden="true" class="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform duration-200 shrink-0"
                              fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                         </svg>

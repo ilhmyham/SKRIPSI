@@ -5,7 +5,7 @@
 
 @section('content')
     <!-- Breadcrumb -->
-    <div class="mb-6">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <nav class="flex items-center gap-2 text-sm text-gray-600">
             <a href="{{ route('admin.materi.index') }}" class="hover:text-emerald-600">Manajemen Materi</a>
             <span>/</span>
@@ -13,9 +13,20 @@
             <span>/</span>
             <span class="font-semibold">Kategori</span>
         </nav>
+
+        <button 
+            @click="$dispatch('open-modal-create-category')"
+            class="w-full sm:w-auto mt-2 sm:mt-0 inline-flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
+        >
+            <x-icon name="plus" class="w-4 h-4" />
+            Tambah Kategori
+        </button>
     </div>
 
-    <x-table
+    <!-- Wrapping table with horizontal scroll wrapper for mobile -->
+    <div class="overflow-x-auto pb-4">
+        <div class="min-w-[600px]">
+            <x-table
         :items="$categories->map(fn($c) => [
             'id' => $c->id,
             'urutan' => $c->urutan ?? '-',
@@ -30,34 +41,28 @@
         ]"
         :searchKeys="['nama']"
     >
-        <x-slot:header>
-            <button 
-                @click="$dispatch('open-modal-create-category')"
-                class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
-            >
-                <x-icon name="plus" class="w-5 h-5" />
-                Tambah Kategori
-            </button>
-        </x-slot:header>
 
         <x-slot:actions>
             <button 
                 @click="$dispatch('set-edit-category-data', item)"
-                class="text-blue-600 hover:underline text-sm font-medium">
-                <x-icon name="edit" class="w-4 h-4 inline" />
+                aria-label="Edit Kategori"
+                class="text-blue-600 hover:underline text-sm font-medium focus-visible:outline-blue-600">
+                <x-icon name="edit" class="w-4 h-4 inline" aria-hidden="true" />
                 Edit
             </button>
             <form method="POST" :action="`{{ url('admin/categories') }}/${item.id}`" 
                   onsubmit="return confirm('Hapus kategori ini?')" class="inline">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="text-red-600 hover:underline text-sm font-medium">
-                    <x-icon name="trash" class="w-4 h-4 inline" />
+                <button type="submit" aria-label="Hapus Kategori" class="text-red-600 hover:underline text-sm font-medium focus-visible:outline-red-600">
+                    <x-icon name="trash" class="w-4 h-4 inline" aria-hidden="true" />
                     Hapus
                 </button>
             </form>
         </x-slot:actions>
     </x-table>
+        </div>
+    </div>
 
     <!-- Create Category Modal -->
     <x-modal name="create-category" title="Tambah Kategori Baru" description="Buat kategori materi untuk modul {{ $module->nama_modul }}." maxWidth="2xl">
@@ -65,10 +70,11 @@
             @csrf
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Kategori</label>
+                <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Kategori</label>
                 <input 
                     type="text" 
                     name="nama" 
+                    id="nama"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     placeholder="Contoh: Mad 2 Harakat"
@@ -77,10 +83,11 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Urutan Tampil <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                <label for="urutan" class="block text-sm font-medium text-gray-700 mb-2">Urutan Tampil <span class="text-gray-400 font-normal">(Opsional)</span></label>
                 <input 
                     type="number" 
                     name="urutan"
+                    id="urutan"
                     min="1"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     placeholder="Contoh: 1, 2, 3"
@@ -116,10 +123,11 @@
                 @method('PUT')
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Kategori</label>
+                    <label for="edit_nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Kategori</label>
                     <input 
                         type="text" 
                         name="nama" 
+                        id="edit_nama"
                         x-model="editData.nama_raw"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
@@ -128,10 +136,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Urutan Tampil <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                    <label for="edit_urutan" class="block text-sm font-medium text-gray-700 mb-2">Urutan Tampil <span class="text-gray-400 font-normal">(Opsional)</span></label>
                     <input 
                         type="number" 
                         name="urutan"
+                        id="edit_urutan"
                         x-model="editData.urutan"
                         min="1"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"

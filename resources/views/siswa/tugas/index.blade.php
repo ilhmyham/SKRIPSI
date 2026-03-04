@@ -43,19 +43,19 @@
                                ($isSubmitted ? 'bg-blue-100' :
                                ($isOverdue ? 'bg-red-100' : 'bg-amber-100')) }}">
                             @if($isGraded)
-                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <svg aria-hidden="true" class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                             @elseif($isSubmitted)
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <svg aria-hidden="true" class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                 </svg>
                             @elseif($isOverdue)
-                                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <svg aria-hidden="true" class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                             @else
-                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <svg aria-hidden="true" class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                             @endif
@@ -66,7 +66,7 @@
                             <h3 class="text-sm font-black text-gray-800 leading-tight">{{ $tugas->judul_tugas }}</h3>
 
                             <div class="flex items-center gap-1.5 mt-1.5">
-                                <svg class="w-3.5 h-3.5 {{ $isOverdue ? 'text-red-400' : 'text-gray-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <svg aria-hidden="true" class="w-3.5 h-3.5 {{ $isOverdue ? 'text-red-400' : 'text-gray-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
                                 <span class="text-xs font-semibold {{ $isOverdue ? 'text-red-500' : 'text-gray-400' }}">
@@ -102,12 +102,13 @@
 
                         {{-- Action button --}}
                         <a href="{{ route('siswa.tugas.show', $tugas) }}"
-                           class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200
+                           aria-label="{{ $submission ? 'Lihat Detail Tugas' : 'Kerjakan Tugas' }} {{ $tugas->judul_tugas }}"
+                           class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200
                                {{ $submission
                                    ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                    : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm shadow-emerald-300/40' }}">
                             {{ $submission ? 'Detail' : 'Kerjakan' }}
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                             </svg>
                         </a>

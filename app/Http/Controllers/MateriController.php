@@ -62,13 +62,9 @@ class MateriController extends Controller
             $this->logActivity('created', 'Material', $materi->id, 'Menambahkan materi "' . $materi->judul_materi . '" ke ' . $module->nama_modul);
         }
 
-        $message = 'Materi berhasil ditambahkan';
+        $route = auth()->user()->isAdmin() ? 'admin.materi.by-module' : 'guru.materi.by-module';
 
-        if (auth()->user()->isAdmin()) {
-            return back()->with('success', $message);
-        }
-
-        return redirect()->route('guru.materi.by-module', ['module' => $validated['modul_iqra_id']])->with('success', $message);
+        return redirect()->route($route, $validated['modul_iqra_id'])->with('success', 'Materi berhasil ditambahkan');
     }
 
     public function update(Request $request, Material $materi)
@@ -95,7 +91,6 @@ class MateriController extends Controller
             if ($materi->path_file) Storage::disk('public')->delete($materi->path_file);
             $validated['path_file'] = $request->file('path_file')->store($folderPath, 'public');
         } else {
-            // Keep existing path_file if no new file uploaded
             unset($validated['path_file']);
         }
 
@@ -105,13 +100,9 @@ class MateriController extends Controller
             $this->logActivity('updated', 'Material', $materi->id, 'Mengupdate materi "' . $materi->judul_materi . '"');
         }
 
-        $message = 'Materi berhasil diupdate';
+        $route = auth()->user()->isAdmin() ? 'admin.materi.by-module' : 'guru.materi.by-module';
 
-        if (auth()->user()->isAdmin()) {
-            return back()->with('success', $message);
-        }
-
-        return redirect()->route('guru.materi.by-module', ['module' => $materi->modul_iqra_id])->with('success', $message);
+        return redirect()->route($route, $materi->modul_iqra_id)->with('success', 'Materi berhasil diupdate');
     }
 
     public function destroy(Material $materi)

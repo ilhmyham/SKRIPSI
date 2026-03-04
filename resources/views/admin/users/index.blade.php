@@ -4,7 +4,23 @@
 @section('page-title', 'Manajemen Pengguna')
 
 @section('content')
-    <x-table
+    <!-- Action Bar -->
+    <div class="mb-6 flex items-center justify-between">
+        <p class="text-gray-600">Kelola data pengguna sistem</p>
+        
+        <button 
+            @click="$dispatch('open-modal-create-user')" aria-label="Tambah Pengguna Baru"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition focus-visible:outline-gray-900"
+        >
+            <x-icon name="plus" class="w-4 h-4" aria-hidden="true" />
+            Tambah Pengguna
+        </button>
+    </div>
+
+    <!-- Wrapping table with horizontal scroll wrapper for mobile -->
+    <div class="overflow-x-auto pb-4">
+        <div class="min-w-[800px]">
+            <x-table
        :items="$users->map(fn($u) => [
             'id' => $u->id,
             'name' => $u->name,
@@ -30,22 +46,12 @@
         :filterOptions="['admin', 'guru', 'siswa']"
         :searchKeys="['name', 'email']"
     >
-        <x-slot:header>
-                <button 
-                    @click="$dispatch('open-modal-create-user')"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
-                >
-                    <x-icon name="plus" class="w-5 h-5" />
-                    Tambah Pengguna
-                </button>
-            </x-slot:header>
-
-            <x-slot:actions>
+        <x-slot:actions>
             <button
-                @click="$dispatch('set-edit-user-data', item)"
-                class="text-blue-600 hover:underline text-sm font-medium"
+                @click="$dispatch('set-edit-user-data', item)" aria-label="Edit Pengguna"
+                class="text-blue-600 hover:underline text-sm font-medium focus-visible:outline-blue-600"
             >
-                <x-icon name="edit" class="w-4 h-4 inline" />
+                <x-icon name="edit" class="w-4 h-4 inline" aria-hidden="true" />
                 Edit
             </button>
 
@@ -53,17 +59,17 @@
                   onsubmit="return confirm('Hapus pengguna ini?')" class="inline">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="text-red-600 hover:underline text-sm font-medium">
-                    <x-icon name="trash" class="w-4 h-4 inline" />
+                <button type="submit" aria-label="Hapus Pengguna" class="text-red-600 hover:underline text-sm font-medium focus-visible:outline-red-600">
+                    <x-icon name="trash" class="w-4 h-4 inline" aria-hidden="true" />
                     Hapus
                 </button>
             </form>
         </x-slot:actions>
 
-        <x-slot:footer>
-            {{ $users->links() }}
-        </x-slot:footer>
+       
     </x-table>
+        </div>
+    </div>
 
     <!-- Create User Modal -->
     <x-modal name="create-user" title="Tambah Pengguna Baru" description="Buat akun baru untuk pengguna yang mengakses sistem.">
@@ -71,10 +77,11 @@
             @csrf
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
                 <input 
                     type="text" 
                     name="name" 
+                    id="name"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     placeholder="Masukkan nama lengkap"
@@ -82,10 +89,11 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input 
                     type="email" 
                     name="email" 
+                    id="email"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     placeholder="Masukkan email"
@@ -94,19 +102,21 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                     <input 
                         type="password" 
                         name="password" 
+                        id="password"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     >
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
                     <input 
                         type="password" 
                         name="password_confirmation" 
+                        id="password_confirmation"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     >
@@ -114,12 +124,13 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
+                <label for="role_id" class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
                     Role
                     <x-tooltip text="Admin: kelola seluruh sistem dan pengguna. Guru: buat dan kelola materi, kuis, dan tugas. Siswa: akses pembelajaran dan kerjakan tugas." />
                 </label>
                 <select
                     name="role_id"
+                    id="role_id"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition appearance-none bg-white"
                 >
@@ -156,10 +167,11 @@
                 @method('PUT')
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                    <label for="edit_name" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
                     <input 
                         type="text" 
                         name="name" 
+                        id="edit_name"
                         x-model="editData.name"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
@@ -167,10 +179,11 @@
                 </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label for="edit_email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input 
                     type="email" 
                     name="email" 
+                    id="edit_email"
                     x-model="editData.email"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
@@ -178,9 +191,10 @@
             </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <label for="edit_role_id" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
                     <select 
                         name="role_id" 
+                        id="edit_role_id"
                         x-model="editData.role_id"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition appearance-none bg-white"
@@ -198,19 +212,21 @@
                     </h4>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-2">Password Baru</label>
+                            <label for="edit_password" class="block text-xs font-medium text-gray-600 mb-2">Password Baru</label>
                             <input 
                                 type="password" 
                                 name="password" 
+                                id="edit_password"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                                 placeholder="Biarkan kosong jika tidak ingin mengganti"
                             >
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-2">Konfirmasi Password</label>
+                            <label for="edit_password_confirmation" class="block text-xs font-medium text-gray-600 mb-2">Konfirmasi Password</label>
                             <input 
                                 type="password" 
                                 name="password_confirmation" 
+                                id="edit_password_confirmation"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                             >
                         </div>

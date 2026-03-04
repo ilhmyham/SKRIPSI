@@ -17,7 +17,7 @@
                         <p class="text-sm text-gray-500">{{ $module->kuis_count }} kuis</p>
                     </div>
                     <div class="p-3 bg-purple-100 rounded-full">
-                        <x-icon name="kuis" class="w-6 h-6 text-purple-600" />
+                        <x-icon name="kuis" class="w-6 h-6 text-purple-600" aria-hidden="true" />
                     </div>
                 </div>
 
@@ -25,9 +25,9 @@
                     <p class="text-gray-600 mb-4 line-clamp-2">{{ $module->deskripsi }}</p>
                 @endif
 
-                <a href="{{ route('admin.kuis.by-module', $module) }}" 
-                   class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
-                    <x-icon name="eye" class="w-4 h-4" />
+                <a href="{{ route('admin.kuis.by-module', $module) }}" aria-label="Lihat Kuis {{ $module->nama_modul }}"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition focus-visible:outline-gray-900">
+                    <x-icon name="eye" class="w-4 h-4" aria-hidden="true" />
                     Lihat Kuis
                 </a>
             </x-card>
@@ -37,9 +37,9 @@
     @if($modules->isEmpty())
         <x-card>
             <div class="text-center py-12">
-                <x-icon name="kuis" class="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <x-icon name="kuis" class="w-16 h-16 mx-auto mb-4 text-gray-300" aria-hidden="true" />
                 <p class="text-gray-500 mb-4">Belum ada modul tersedia</p>
-                <a href="{{ route('admin.modules.index') }}" class="text-emerald-600 hover:underline">
+                <a href="{{ route('admin.modules.index') }}" class="text-emerald-600 hover:underline focus-visible:outline-emerald-600">
                     Buat modul terlebih dahulu
                 </a>
             </div>

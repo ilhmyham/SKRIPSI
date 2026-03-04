@@ -14,25 +14,16 @@ class Module extends Model
         'deskripsi',
     ];
 
-    /**
-     * Get all categories in this module
-     */
     public function kategoriMateri(): HasMany
     {
         return $this->hasMany(MaterialCategory::class, 'modul_iqra_id');
     }
 
-    /**
-     * Get all materials in this module
-     */
     public function materi(): HasMany
     {
         return $this->hasMany(Material::class, 'modul_iqra_id');
     }
 
-    /**
-     * Get all quizzes for this module
-     */
     public function kuis(): HasMany
     {
         return $this->hasMany(Quiz::class, 'modul_iqra_id');

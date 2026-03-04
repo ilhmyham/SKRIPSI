@@ -4,6 +4,17 @@
 @section('page-title', 'Manajemen Tugas')
 
 @section('content')
+    <div class="mb-4 sm:mb-6 flex justify-start">
+        <button 
+            @click="$dispatch('open-modal-create-tugas')"
+            aria-label="Tambah Tugas Baru"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm bg-gray-900 text-white font-semibold rounded hover:bg-gray-800 transition shadow-sm focus-visible:outline-gray-900"
+        >
+            <x-icon name="plus" class="w-4 h-4" aria-hidden="true" />
+            Tambah Tugas
+        </button>
+    </div>
+
     <x-table
        :items="$tugasList->map(fn($t) => [
             'id' => $t->id,
@@ -22,20 +33,12 @@
         ]"
         :searchKeys="['judul_tugas']"
     >
-        <x-slot:header>
-                <button 
-                    @click="$dispatch('open-modal-create-tugas')"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
-                >
-                    <x-icon name="plus" class="w-5 h-5" />
-                    Tambah Tugas
-                </button>
-            </x-slot:header>
 
             <x-slot:actions>
             <a :href="`{{ route('guru.tugas.index') }}/${item.id}/submissions`"
-               class="text-blue-600 hover:underline text-sm font-medium">
-                <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               :aria-label="`Lihat Pengumpulan untuk Tugas ${item.judul_tugas}`"
+               class="text-blue-600 hover:underline text-sm font-medium focus-visible:outline-blue-600 rounded px-1">
+                <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                 </svg>
@@ -44,9 +47,10 @@
 
             <button
                 @click="$dispatch('open-modal-edit-tugas', item)"
-                class="text-green-600 hover:underline text-sm font-medium"
+                :aria-label="`Edit Tugas ${item.judul_tugas}`"
+                class="text-green-600 hover:underline text-sm font-medium focus-visible:outline-green-600 rounded px-1"
             >
-                <x-icon name="edit" class="w-4 h-4 inline" />
+                <x-icon name="edit" class="w-4 h-4 inline" aria-hidden="true" />
                 Edit
             </button>
 
@@ -54,8 +58,10 @@
                   onsubmit="return confirm('Hapus tugas ini?')" class="inline">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="text-red-600 hover:underline text-sm font-medium">
-                    <x-icon name="trash" class="w-4 h-4 inline" />
+                <button type="submit" 
+                        :aria-label="`Hapus Tugas ${item.judul_tugas}`"
+                        class="text-red-600 hover:underline text-sm font-medium focus-visible:outline-red-600 rounded px-1">
+                    <x-icon name="trash" class="w-4 h-4 inline" aria-hidden="true" />
                     Hapus
                 </button>
             </form>
@@ -72,8 +78,8 @@
             @csrf
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Modul Pembelajaran</label>
-                <select name="modul_iqra_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
+                <label for="create_modul_iqra_id" class="block text-sm font-medium text-gray-700 mb-2">Modul Pembelajaran</label>
+                <select name="modul_iqra_id" id="create_modul_iqra_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
                     <option value="">-- Pilih Modul --</option>
                     @foreach($modules as $module)
                         <option value="{{ $module->id }}">{{ $module->nama_modul }}</option>
@@ -82,10 +88,11 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Judul Tugas</label>
+                <label for="create_judul_tugas" class="block text-sm font-medium text-gray-700 mb-2">Judul Tugas</label>
                 <input 
                     type="text" 
                     name="judul_tugas" 
+                    id="create_judul_tugas"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     placeholder="Masukkan judul tugas"
@@ -93,9 +100,10 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                <label for="create_deskripsi_tugas" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                 <textarea 
                     name="deskripsi_tugas" 
+                    id="create_deskripsi_tugas"
                     rows="4"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
@@ -104,10 +112,11 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
+                <label for="create_tenggat_waktu" class="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
                 <input 
                     type="date" 
                     name="tenggat_waktu" 
+                    id="create_tenggat_waktu"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                 >
@@ -117,14 +126,14 @@
                 <button 
                     type="button"
                     @click="$dispatch('close-modal-create-tugas')"
-                    class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+                    class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition focus-visible:outline-gray-600"
                 >
                     Batal
                 </button>
                 <button 
                     type="submit"
                     :disabled="isSubmitting"
-                    class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+                    class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center focus-visible:outline-gray-900"
                 >
                     <span x-show="!isSubmitting">BUAT TUGAS</span>
                     <span x-show="isSubmitting">Membuat...</span>
@@ -141,8 +150,8 @@
                 @method('PUT')
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Modul Pembelajaran</label>
-                    <select name="modul_iqra_id" x-model="editData.modul_iqra_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
+                    <label for="edit_modul_iqra_id" class="block text-sm font-medium text-gray-700 mb-2">Modul Pembelajaran</label>
+                    <select name="modul_iqra_id" id="edit_modul_iqra_id" x-model="editData.modul_iqra_id" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white">
                         <option value="">-- Pilih Modul --</option>
                         @foreach($modules as $module)
                             <option value="{{ $module->id }}">{{ $module->nama_modul }}</option>
@@ -151,10 +160,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Judul Tugas</label>
+                    <label for="edit_judul_tugas" class="block text-sm font-medium text-gray-700 mb-2">Judul Tugas</label>
                     <input 
                         type="text" 
                         name="judul_tugas" 
+                        id="edit_judul_tugas"
                         x-model="editData.judul_tugas"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
@@ -162,9 +172,10 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                    <label for="edit_deskripsi_tugas" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                     <textarea 
                         name="deskripsi_tugas" 
+                        id="edit_deskripsi_tugas"
                         x-model="editData.deskripsi_tugas"
                         rows="4"
                         required
@@ -173,10 +184,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
+                    <label for="edit_tenggat_waktu" class="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
                     <input 
                         type="date" 
                         name="tenggat_waktu" 
+                        id="edit_tenggat_waktu"
                         x-model="editData.tenggat_waktu_raw"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
@@ -187,14 +199,14 @@
                     <button 
                         type="button"
                         @click="$dispatch('close-modal-edit-tugas')"
-                        class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+                        class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition focus-visible:outline-gray-600"
                     >
                         Batal
                     </button>
                     <button 
                         type="submit"
                         :disabled="isSubmitting"
-                        class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+                        class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center focus-visible:outline-gray-900"
                     >
                         <span x-show="!isSubmitting">UPDATE TUGAS</span>
                         <span x-show="isSubmitting">Menyimpan...</span>

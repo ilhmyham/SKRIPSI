@@ -81,10 +81,11 @@
 
                         <!-- Question Text -->
                         <div class="mb-4">
-                            <label class="block font-semibold mb-2">Teks Pertanyaan (Optional jika ada gambar)</label>
+                            <label :for="'edit-q-text-' + qIndex" class="block font-semibold mb-2">Teks Pertanyaan (Optional jika ada gambar)</label>
                             <input type="text" 
-                                   :name="`pertanyaan[${qIndex}][text_pertanyaan]`" 
-                                   x-model="question.text_pertanyaan"
+                                   :id="'edit-q-text-' + qIndex"
+                                   :name="`pertanyaan[${qIndex}][teks_pertanyaan]`" 
+                                   x-model="question.teks_pertanyaan"
                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-emerald-500"
                                    placeholder="Tulis pertanyaan...">
                             
@@ -121,12 +122,12 @@
                                    accept="image/*"
                                    @change="handleQuestionImage(qIndex, $event)"
                                    class="hidden"
-                                   :id="'q-img-' + qIndex">
+                                   :id="'edit-q-img-' + qIndex">
                             
                             <div x-show="!question.gambar_preview">
-                                <label :for="'q-img-' + qIndex" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 cursor-pointer transition">
-                                    <x-icon name="upload" class="w-5 h-5" />
+                                <label :for="'edit-q-img-' + qIndex" 
+                                       class="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 cursor-pointer transition focus-visible:outline-gray-400">
+                                    <x-icon name="upload" class="w-5 h-5" aria-hidden="true" />
                                     <span x-text="question.existing_gambar ? 'Ganti Gambar' : 'Pilih Gambar'"></span>
                                 </label>
                             </div>
@@ -279,7 +280,7 @@ function quizBuilder() {
         
         addQuestion() {
             this.pertanyaan.push({
-                text_pertanyaan: '',
+                teks_pertanyaan: '',
                 existing_gambar: null,
                 gambar_preview: null,
                 opsi: [
@@ -343,7 +344,7 @@ function quizBuilder() {
         removeQuestionImage(qIndex) {
             this.pertanyaan[qIndex].gambar_preview = null;
             this.pertanyaan[qIndex].existing_gambar = null;
-            const input = document.getElementById('q-img-' + qIndex);
+            const input = document.getElementById('edit-q-img-' + qIndex);
             if (input) input.value = '';
         },
         

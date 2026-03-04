@@ -15,10 +15,7 @@ use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class GuruController extends Controller
-{
-    // ─────────────────────────────────────────────────────────
-    //  DASHBOARD
-    // ─────────────────────────────────────────────────────────
+{   
 
     public function dashboard()
     {
@@ -38,14 +35,11 @@ class GuruController extends Controller
 
         return view('guru.dashboard', compact('stats', 'recentActivities'));
     }
-
-    // ─────────────────────────────────────────────────────────
-    //  TUGAS (CRUD)
-    // ─────────────────────────────────────────────────────────
+    
 
     public function tugas()
     {
-        $modules = \App\Models\Module::all();
+        $modules = Module::all();
         $tugasList = Assignment::where('user_id', auth()->id())
             ->with('modulIqra')
             ->withCount('pengumpulanTugas as pengumpulan_count')
@@ -65,7 +59,7 @@ class GuruController extends Controller
         $validated = $request->validate([
             'modul_iqra_id' => 'required|exists:modul_iqra,id',
             'judul_tugas' => 'required|string|max:255',
-            'deskripsi_tugas'   => 'required|string', // Based on Assignment model
+            'deskripsi_tugas'   => 'required|string',
             'tenggat_waktu'    => 'required|date',
         ]);
 
@@ -85,7 +79,7 @@ class GuruController extends Controller
         $validated = $request->validate([
             'modul_iqra_id' => 'required|exists:modul_iqra,id',
             'judul_tugas' => 'required|string|max:255',
-            'deskripsi_tugas'   => 'required|string', // Changed from deskripsi to match model
+            'deskripsi_tugas'   => 'required|string',
             'tenggat_waktu'    => 'required|date',
         ]);
 
@@ -99,10 +93,7 @@ class GuruController extends Controller
         $tugas->delete();
         return redirect()->route('guru.tugas.index')->with('success', 'Tugas berhasil dihapus');
     }
-
-    // ─────────────────────────────────────────────────────────
-    //  SUBMISSIONS & GRADING
-    // ─────────────────────────────────────────────────────────
+    
 
     public function submissions(Assignment $tugas)
     {
@@ -143,10 +134,7 @@ class GuruController extends Controller
 
         return back()->with('success', 'Nilai berhasil disimpan');
     }
-
-    // ─────────────────────────────────────────────────────────
-    //  PROGRESS MONITORING
-    // ─────────────────────────────────────────────────────────
+    
 
     public function progress()
     {
@@ -182,32 +170,33 @@ class GuruController extends Controller
             ? round(($completedMateri / $totalMateri) * 100, 1)
             : 0;
 
-        // ── Rekap Hasil Kuis ─────────────────────────────────────────────────
         $kuisList = Quiz::with('kuisPertanyaan')->get();
-        $hasilKuis = $kuisList->map(function ($kuis) use ($user) {
+
+        // Load all answers for this student in one query, keyed by kuis_id
+        $allAnswers = QuizAnswer::where('user_id', $user->id)
+            ->with('opsiJawaban')
+            ->get()
+            ->groupBy('kuis_id');
+
+        $hasilKuis = $kuisList->map(function ($kuis) use ($allAnswers) {
             $totalSoal = $kuis->kuisPertanyaan->count();
             if ($totalSoal === 0) return null;
 
-            $answers = QuizAnswer::where('kuis_id', $kuis->id)
-                ->where('user_id', $user->id)
-                ->with('opsiJawaban')
-                ->get();
-
-            if ($answers->isEmpty()) return null; // belum mengerjakan
+            $answers = $allAnswers->get($kuis->id, collect());
+            if ($answers->isEmpty()) return null;
 
             $benar = $answers->filter(fn($a) => $a->opsiJawaban && $a->opsiJawaban->is_correct)->count();
             $skor  = round(($benar / $totalSoal) * 100, 1);
 
             return [
-                'kuis'       => $kuis,
-                'skor'       => $skor,
-                'benar'      => $benar,
-                'total_soal' => $totalSoal,
+                'kuis'          => $kuis,
+                'skor'          => $skor,
+                'benar'         => $benar,
+                'total_soal'    => $totalSoal,
                 'dikerjakan_at' => $answers->max('updated_at'),
             ];
         })->filter()->values();
 
-        // ── Rekap Nilai Tugas ─────────────────────────────────────────────────
         $submissions = Submission::where('user_id', $user->id)
             ->with('tugas.modulIqra')
             ->latest()
@@ -219,14 +208,7 @@ class GuruController extends Controller
             'hasilKuis', 'submissions'
         ));
     }
-
-    // ─────────────────────────────────────────────────────────
-    //  MONITORING HASIL KUIS SISWA
-    // ─────────────────────────────────────────────────────────
-
-    /**
-     * Daftar semua kuis beserta rekap jumlah siswa yang sudah mengerjakan.
-     */
+    
     public function kuisMonitoring()
     {
         $kuisList = Quiz::with('modulIqra')
@@ -240,38 +222,37 @@ class GuruController extends Controller
 
         return view('guru.kuis.monitoring', compact('kuisList', 'totalSiswa'));
     }
-
-    /**
-     * Detail hasil kuis: daftar siswa + skor masing-masing.
-     */
+   
     public function kuisMonitoringDetail(Quiz $kuis)
     {
         $kuis->load('modulIqra', 'kuisPertanyaan.opsiJawaban');
         $totalSoal = $kuis->kuisPertanyaan->count();
 
-        // Ambil semua siswa yang sudah mengerjakan kuis ini
         $siswaIds = QuizAnswer::where('kuis_id', $kuis->id)
             ->distinct('user_id')
             ->pluck('user_id');
 
-        $hasilSiswa = $siswaIds->map(function ($userId) use ($kuis, $totalSoal) {
-            $siswa = User::find($userId);
+        // Load all users & all answers in bulk — eliminates N+1 queries
+        $siswaMap = User::whereIn('id', $siswaIds)->get()->keyBy('id');
+        $answerMap = QuizAnswer::where('kuis_id', $kuis->id)
+            ->with('opsiJawaban')
+            ->get()
+            ->groupBy('user_id');
+
+        $hasilSiswa = $siswaIds->map(function ($userId) use ($siswaMap, $answerMap, $totalSoal) {
+            $siswa = $siswaMap->get($userId);
             if (!$siswa) return null;
 
-            $answers = QuizAnswer::where('kuis_id', $kuis->id)
-                ->where('user_id', $userId)
-                ->with('opsiJawaban')
-                ->get();
-
-            $benar = $answers->filter(fn($a) => $a->opsiJawaban && $a->opsiJawaban->is_correct)->count();
-            $skor  = $totalSoal > 0 ? round(($benar / $totalSoal) * 100, 1) : 0;
+            $answers = $answerMap->get($userId, collect());
+            $benar   = $answers->filter(fn($a) => $a->opsiJawaban && $a->opsiJawaban->is_correct)->count();
+            $skor    = $totalSoal > 0 ? round(($benar / $totalSoal) * 100, 1) : 0;
 
             return [
-                'siswa'      => $siswa,
-                'benar'      => $benar,
-                'salah'      => $totalSoal - $benar,
-                'total_soal' => $totalSoal,
-                'skor'       => $skor,
+                'siswa'         => $siswa,
+                'benar'         => $benar,
+                'salah'         => $totalSoal - $benar,
+                'total_soal'    => $totalSoal,
+                'skor'          => $skor,
                 'dikerjakan_at' => $answers->max('updated_at'),
             ];
         })->filter()->sortByDesc('skor')->values();

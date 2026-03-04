@@ -46,7 +46,7 @@
                     <tr>
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">No</th>
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Nama Siswa</th>
-                        <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Email</th>
+                        <!-- <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Email</th> -->
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-center">Materi Selesai</th>
                         <!-- <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Progress</th> -->
                         <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 text-left">Aksi</th>
@@ -68,7 +68,7 @@
                                     <span class="font-medium text-gray-900">{{ $siswa->name }}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-gray-600">{{ $siswa->email }}</td>
+                            <!-- <td class="px-6 py-4 text-gray-600">{{ $siswa->email }}</td> -->
                             <td class="px-6 py-4 text-center">
                                 <span class="font-semibold text-gray-900">{{ $siswa->completed_materi }}</span>
                                 <span class="text-gray-500"> / {{ $totalMateri }}</span>

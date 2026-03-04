@@ -5,15 +5,33 @@
 
 @section('content')
     <!-- Breadcrumb -->
-    <div class="mb-6">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <nav class="flex items-center gap-2 text-sm text-gray-600">
             <a href="{{ route('admin.materi.index') }}" class="hover:text-emerald-600">Manajemen Materi</a>
             <span>/</span>
             <span class="font-semibold">{{ $module->nama_modul }}</span>
         </nav>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+            <a href="{{ route('admin.categories.index', $module) }}"
+               class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition">
+                <x-icon name="list-bullet" class="w-4 h-4" />
+                Kategori
+            </a>
+            <button 
+                @click="$dispatch('open-modal-create-materi')"
+                class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition shadow-sm"
+            >
+                <x-icon name="plus" class="w-4 h-4" />
+                Tambah Materi
+            </button>
+        </div>
     </div>
 
-    <x-table
+    <!-- Wrapping table with horizontal scroll wrapper for mobile -->
+    <div class="overflow-x-auto pb-4">
+        <div class="min-w-[800px]">
+            <x-table
         :items="$materis->map(fn($m) => [
             'id'             => $m->id,
             'urutan'         => $m->urutan ?? '-',
@@ -34,22 +52,6 @@
         ]"
         :searchKeys="['judul_materi', 'huruf_hijaiyah', 'kategori']"
     >
-        <x-slot:header>
-            <div class="flex items-center gap-3">
-                <a href="{{ route('admin.categories.index', $module) }}"
-                   class="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition">
-                    <x-icon name="list-bullet" class="w-5 h-5" />
-                    Kelola Kategori
-                </a>
-                <button 
-                    @click="$dispatch('open-modal-create-materi')"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
-                >
-                    <x-icon name="plus" class="w-5 h-5" />
-                    Tambah Materi
-                </button>
-            </div>
-        </x-slot:header>
 
         <x-slot:actions>
             <button 
@@ -69,6 +71,8 @@
             </form>
         </x-slot:actions>
     </x-table>
+        </div>
+    </div>
 
     <!-- Create Materi Modal -->
     <x-modal name="create-materi" title="Tambah Materi Baru" description="Tambahkan materi pembelajaran baru." maxWidth="3xl">
@@ -123,9 +127,10 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Kategori (Opsional)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
                 <select 
                     name="kategori_materi_id"
+                    required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                 >
                     <option value="">-- Tidak ada kategori --</option>
@@ -233,10 +238,12 @@
                 </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Kategori (Opsional)</label>
+                <label for="kategori_materi_id_edit" class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
                 <select 
                     name="kategori_materi_id"
+                    id="kategori_materi_id_edit"
                     x-model="editData.kategori_materi_id"
+                    required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                 >
                     <option value="">-- Tidak ada kategori --</option>

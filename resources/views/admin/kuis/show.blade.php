@@ -5,16 +5,16 @@
 
 @section('content')
     <!-- Breadcrumb -->
-    <div class="mb-6 flex items-center justify-between">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <nav class="flex items-center gap-2 text-sm text-gray-600">
             <a href="{{ route('admin.kuis.index') }}" class="hover:text-emerald-600">Manajemen Kuis</a>
             <span>/</span>
             <span class="font-semibold">{{ $module->nama_modul }}</span>
         </nav>
 
-        <a href="{{ route('admin.kuis.create', ['modul_iqra_id' => $module->id]) }}" 
-           class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
-            <x-icon name="plus" class="w-5 h-5" />
+        <a href="{{ route('admin.kuis.create', ['modul_iqra_id' => $module->id]) }}" aria-label="Tambah Kuis"
+           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition focus-visible:outline-gray-900">
+            <x-icon name="plus" class="w-4 h-4" aria-hidden="true" />
             Tambah Kuis
         </a>
     </div>
@@ -22,10 +22,10 @@
     @if($kuisList->isEmpty())
         <x-card>
             <div class="text-center py-12">
-                <x-icon name="kuis" class="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <x-icon name="kuis" class="w-16 h-16 mx-auto mb-4 text-gray-300" aria-hidden="true" />
                 <p class="text-gray-500 mb-4">Belum ada kuis untuk modul ini</p>
                 <a href="{{ route('admin.kuis.create', ['modul_iqra_id' => $module->id]) }}" 
-                   class="text-emerald-600 hover:underline">
+                   class="text-emerald-600 hover:underline focus-visible:outline-emerald-600">
                     Buat kuis pertama
                 </a>
             </div>
@@ -46,18 +46,18 @@
                     @endif
 
                     <div class="flex gap-2 pt-3 border-t border-gray-100">
-                        <a href="{{ route('admin.kuis.edit', $kuis) }}" 
-                           class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-medium">
-                            <x-icon name="edit" class="w-4 h-4" />
+                        <a href="{{ route('admin.kuis.edit', $kuis) }}" aria-label="Edit Kuis {{ $kuis->judul_kuis }}"
+                           class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-medium focus-visible:outline-blue-600">
+                            <x-icon name="edit" class="w-4 h-4" aria-hidden="true" />
                             Edit
                         </a>
                         <form method="POST" action="{{ route('admin.kuis.destroy', $kuis) }}" 
                               onsubmit="return confirm('Hapus kuis ini?')" class="flex-1">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" 
-                                    class="w-full inline-flex items-center justify-center gap-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-sm font-medium">
-                                <x-icon name="trash" class="w-4 h-4" />
+                            <button type="submit" aria-label="Hapus Kuis {{ $kuis->judul_kuis }}"
+                                    class="w-full inline-flex items-center justify-center gap-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-sm font-medium focus-visible:outline-red-600">
+                                <x-icon name="trash" class="w-4 h-4" aria-hidden="true" />
                                 Hapus
                             </button>
                         </form>

@@ -8,12 +8,8 @@ use Illuminate\Http\Request;
 
 class MaterialCategoryController extends Controller
 {
-    /**
-     * Display a listing of the categories for a specific module.
-     */
     public function index(Module $module)
     {
-        // Load categories for this module, sorted by their set display order
         $categories = MaterialCategory::where('modul_iqra_id', $module->id)
             ->withCount('materi')
             ->orderByRaw('urutan IS NULL, urutan ASC')
@@ -22,9 +18,6 @@ class MaterialCategoryController extends Controller
         return view('admin.categories.index', compact('module', 'categories'));
     }
 
-    /**
-     * Store a newly created category in storage.
-     */
     public function store(Request $request, Module $module)
     {
         $validated = $request->validate([
@@ -32,9 +25,6 @@ class MaterialCategoryController extends Controller
             'urutan' => 'nullable|integer|min:1',
         ]);
 
-        // Automatically format string to slug-like if desired, 
-        // or just keep what they typed intact. 
-        // Here we'll convert strictly machine slug format to remain consistent with seeders:
         $validated['nama'] = \Illuminate\Support\Str::slug($validated['nama'], '_');
         
         $validated['modul_iqra_id'] = $module->id;
@@ -44,9 +34,6 @@ class MaterialCategoryController extends Controller
         return back()->with('success', 'Kategori materi berhasil ditambahkan.');
     }
 
-    /**
-     * Update the specified category in storage.
-     */
     public function update(Request $request, MaterialCategory $category)
     {
         $validated = $request->validate([
@@ -54,7 +41,6 @@ class MaterialCategoryController extends Controller
             'urutan' => 'nullable|integer|min:1',
         ]);
 
-        // Keep snake_case slug convention for data consistency
         $validated['nama'] = \Illuminate\Support\Str::slug($validated['nama'], '_');
 
         $category->update($validated);
@@ -62,15 +48,8 @@ class MaterialCategoryController extends Controller
         return back()->with('success', 'Kategori materi berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified category from storage.
-     */
     public function destroy(MaterialCategory $category)
     {
-        // You may want to prevent deletion if there are materials assigned, 
-        // but since materials' category_id is nullable, we can let foreign key cascade 
-        // SET NULL handle it (if configured in schema), or manually check:
-        
         if ($category->materi()->count() > 0) {
             return back()->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh beberapa materi. Hapus atau pindahkan materi terlebih dahulu.');
         }

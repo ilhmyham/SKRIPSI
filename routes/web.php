@@ -35,10 +35,6 @@ Route::middleware(['guest', 'prevent-back-history'])->group(function () {
     // Registration Routes
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
-
-    // Google OAuth Routes
-    Route::get('/auth/google', [RegisterController::class, 'redirectToGoogle'])->name('auth.google');
-    Route::get('/auth/google/callback', [RegisterController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 });
 
 // Fitur Logout (Khusus yang SUDAH login)

@@ -187,8 +187,7 @@ class KuisController extends Controller
             }
 
             $existingOptionIds = $pertanyaan->opsiJawaban->pluck('id')->toArray();
-
-            // ⚠️ FIX: Reset per pertanyaan agar opsi soal lain tidak ikut terhitung
+            
             $processedOptionIdsForThisQuestion = [];
 
             foreach ($pertanyaanData['opsi'] as $oIndex => $opsiData) {
@@ -226,8 +225,7 @@ class KuisController extends Controller
                     $processedOptionIdsForThisQuestion[] = $opsi->id;
                 }
             }
-
-            // Hapus opsi yang dihilangkan dari form (scope hanya untuk pertanyaan ini)
+            
             $orphanedOptions = QuestionOption::where('kuis_pertanyaan_id', $pertanyaan->id)
                 ->whereNotIn('id', $processedOptionIdsForThisQuestion)
                 ->get();

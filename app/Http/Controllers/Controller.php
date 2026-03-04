@@ -6,9 +6,6 @@ use App\Models\ActivityLog;
 
 abstract class Controller
 {
-    /**
-     * Shared activity logger — available to every child controller.
-     */
     protected function logActivity(
         string $type,
         string $subjectType,

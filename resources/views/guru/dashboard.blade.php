@@ -14,7 +14,7 @@
                     <p class="text-3xl font-bold mt-2" style="color: var(--color-primary);">{{ $stats['total_materi'] }}</p>
                 </div>
                 <div class="p-4 bg-green-100 rounded-full">
-                    <x-icon name="clipboard" class="w-8 h-8" style="color: var(--color-primary);" />
+                    <x-icon name="clipboard" class="w-8 h-8" style="color: var(--color-primary);" aria-hidden="true" />
                 </div>
             </div>
         </div>
@@ -27,7 +27,7 @@
                     <p class="text-3xl font-bold mt-2" style="color: var(--color-primary);">{{ $stats['total_kuis'] }}</p>
                 </div>
                 <div class="p-4 bg-blue-100 rounded-full">
-                    <x-icon name="kuis" class="w-8 h-8 text-blue-600" />
+                    <x-icon name="kuis" class="w-8 h-8 text-blue-600" aria-hidden="true" />
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@
                     <p class="text-3xl font-bold mt-2" style="color: var(--color-primary);">{{ $stats['total_tugas'] }}</p>
                 </div>
                 <div class="p-4 bg-purple-100 rounded-full">
-                    <x-icon name="pencil" class="w-8 h-8 text-purple-600" />
+                    <x-icon name="pencil" class="w-8 h-8 text-purple-600" aria-hidden="true" />
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
                     <p class="text-3xl font-bold mt-2" style="color: var(--color-primary);">{{ $stats['total_siswa'] }}</p>
                 </div>
                 <div class="p-4 bg-yellow-100 rounded-full">
-                    <x-icon name="users" class="w-8 h-8 text-yellow-600" />
+                    <x-icon name="users" class="w-8 h-8 text-yellow-600" aria-hidden="true" />
                 </div>
             </div>
         </div>
@@ -67,27 +67,27 @@
 
                 {{-- Konten --}}
                 <p class="col-span-2 text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Kelola Konten</p>
-                <a href="{{ route('guru.materi.index') }}" class="btn btn-primary text-center text-sm">
-                    <x-icon name="plus" class="w-5 h-5" />
+                <a href="{{ route('guru.materi.index') }}" aria-label="Akses Manajemen Materi" class="btn btn-primary text-center text-sm focus-visible:outline-gray-900">
+                    <x-icon name="plus" class="w-5 h-5" aria-hidden="true" />
                     Tambah Materi
                 </a>
-                <a href="{{ route('guru.kuis.create') }}" class="btn btn-primary text-center text-sm">
-                    <x-icon name="plus" class="w-5 h-5" />
+                <a href="{{ route('guru.kuis.create') }}" aria-label="Buat Kuis Baru" class="btn btn-primary text-center text-sm focus-visible:outline-gray-900">
+                    <x-icon name="plus" class="w-5 h-5" aria-hidden="true" />
                     Buat Kuis
                 </a>
-                <a href="{{ route('guru.tugas.create') }}" class="btn btn-secondary text-center text-sm col-span-2">
-                    <x-icon name="document" class="w-5 h-5" />
+                <a href="{{ route('guru.tugas.create') }}" aria-label="Buat Tugas Baru" class="btn btn-secondary text-center text-sm col-span-2 focus-visible:outline-gray-600">
+                    <x-icon name="document" class="w-5 h-5" aria-hidden="true" />
                     Buat Tugas Baru
                 </a>
 
                 {{-- Monitoring --}}
                 <p class="col-span-2 text-xs font-bold uppercase tracking-widest text-gray-400 mt-2 mb-1">Monitoring</p>
-                <a href="{{ route('guru.progress.index') }}" class="btn btn-secondary text-center text-sm">
-                    <x-icon name="chart-bar" class="w-5 h-5" />
+                <a href="{{ route('guru.progress.index') }}" aria-label="Lihat Kemajuan Belajar Siswa" class="btn btn-secondary text-center text-sm focus-visible:outline-gray-600">
+                    <x-icon name="chart-bar" class="w-5 h-5" aria-hidden="true" />
                     Progress Siswa
                 </a>
-                <a href="{{ route('guru.kuis.monitoring') }}" class="btn btn-secondary text-center text-sm">
-                    <x-icon name="clipboard-list" class="w-5 h-5" />
+                <a href="{{ route('guru.kuis.monitoring') }}" aria-label="Lihat Hasil Kuis Siswa" class="btn btn-secondary text-center text-sm focus-visible:outline-gray-600">
+                    <x-icon name="clipboard-list" class="w-5 h-5" aria-hidden="true" />
                     Hasil Kuis
                 </a>
 
@@ -127,16 +127,16 @@
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $activity->badge_color }}">
                                         @switch($activity->activity_type)
                                             @case('created')
-                                                <x-icon name="plus" class="w-3 h-3 mr-1" />
+                                                <x-icon name="plus" class="w-3 h-3 mr-1" aria-hidden="true" />
                                                 @break
                                             @case('updated')
-                                                <x-icon name="edit" class="w-3 h-3 mr-1" />
+                                                <x-icon name="edit" class="w-3 h-3 mr-1" aria-hidden="true" />
                                                 @break
                                             @case('deleted')
-                                                <x-icon name="trash" class="w-3 h-3 mr-1" />
+                                                <x-icon name="trash" class="w-3 h-3 mr-1" aria-hidden="true" />
                                                 @break
                                             @case('graded')
-                                                <x-icon name="check" class="w-3 h-3 mr-1" />
+                                                <x-icon name="check" class="w-3 h-3 mr-1" aria-hidden="true" />
                                                 @break
                                         @endswitch
                                         {{ ucfirst($activity->activity_type) }}
@@ -153,7 +153,7 @@
                 </div>
             @else
                 <div class="text-center py-12">
-                    <x-icon name="document" class="mx-auto h-12 w-12 text-gray-400" />
+                    <x-icon name="document" class="mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
                     <p class="mt-4 text-sm text-gray-500">Belum ada aktivitas</p>
                 </div>
             @endif

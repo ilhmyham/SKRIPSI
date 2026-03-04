@@ -4,7 +4,23 @@
 @section('page-title', 'Manajemen Modul Iqra')
 
 @section('content')
-    <x-table
+    <!-- Action Bar -->
+    <div class="mb-6 flex items-center justify-between">
+        <p class="text-gray-600">Kelola modul Iqra</p>
+        
+        <button 
+            @click="$dispatch('open-modal-create-module')" aria-label="Tambah Modul Baru"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition focus-visible:outline-gray-900"
+        >
+            <x-icon name="plus" class="w-4 h-4" aria-hidden="true" />
+            Tambah Modul
+        </button>
+    </div>
+
+    <!-- Wrapping table with horizontal scroll wrapper for mobile -->
+    <div class="overflow-x-auto pb-4">
+        <div class="min-w-[800px]">
+            <x-table
         :items="$modules->map(fn($m) => [
             'id' => $m->id,
             'nama_modul' => $m->nama_modul,
@@ -18,40 +34,33 @@
         ]"
         :searchKeys="['nama_modul', 'deskripsi']"
     >
-        <x-slot:header>
-            <button 
-                @click="$dispatch('open-modal-create-module')"
-                class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition"
-            >
-                <x-icon name="plus" class="w-5 h-5" />
-                Tambah Modul
-            </button>
-        </x-slot:header>
 
         <x-slot:actions>
             <a 
-                :href="`{{ url('admin/categories/module') }}/${item.id}`"
-                class="text-emerald-600 hover:underline text-sm font-medium inline-flex items-center gap-1">
-                <x-icon name="folder" class="w-4 h-4 inline" />
+                :href="`{{ url('admin/categories/module') }}/${item.id}`" aria-label="Lihat Kategori Modul"
+                class="text-emerald-600 hover:underline text-sm font-medium inline-flex items-center gap-1 focus-visible:outline-emerald-600">
+                <x-icon name="folder" class="w-4 h-4 inline" aria-hidden="true" />
                 Kategori
             </a>
             <button 
-                @click="$dispatch('open-modal-edit-module', item)"
-                class="text-blue-600 hover:underline text-sm font-medium">
-                <x-icon name="edit" class="w-4 h-4 inline" />
+                @click="$dispatch('open-modal-edit-module', item)" aria-label="Edit Modul"
+                class="text-blue-600 hover:underline text-sm font-medium focus-visible:outline-blue-600">
+                <x-icon name="edit" class="w-4 h-4 inline" aria-hidden="true" />
                 Edit
             </button>
             <form method="POST" :action="`{{ route('admin.modules.index') }}/${item.id}`" 
                   onsubmit="return confirm('Hapus modul ini? Semua materi terkait akan terhapus!')" class="inline">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="text-red-600 hover:underline text-sm font-medium">
-                    <x-icon name="trash" class="w-4 h-4 inline" />
+                <button type="submit" aria-label="Hapus Modul" class="text-red-600 hover:underline text-sm font-medium focus-visible:outline-red-600">
+                    <x-icon name="trash" class="w-4 h-4 inline" aria-hidden="true" />
                     Hapus
                 </button>
             </form>
         </x-slot:actions>
     </x-table>
+        </div>
+    </div>
 
     <!-- Create Module Modal -->
     <x-modal name="create-module" title="Tambah Modul Baru" description="Buat modul Iqra baru untuk pembelajaran.">
@@ -59,10 +68,11 @@
             @csrf
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Modul</label>
+                <label for="nama_modul" class="block text-sm font-medium text-gray-700 mb-2">Nama Modul</label>
                 <input 
                     type="text" 
                     name="nama_modul" 
+                    id="nama_modul"
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
                     placeholder="Contoh: Iqra 7"
@@ -70,9 +80,10 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                <label for="deskripsi" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                 <textarea 
                     name="deskripsi" 
+                    id="deskripsi"
                     rows="4"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
                     placeholder="Jelaskan modul ini..."
@@ -105,10 +116,11 @@
                 @method('PUT')
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Modul</label>
+                    <label for="edit_nama_modul" class="block text-sm font-medium text-gray-700 mb-2">Nama Modul</label>
                     <input 
                         type="text" 
                         name="nama_modul" 
+                        id="edit_nama_modul"
                         x-model="editData.nama_modul"
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
@@ -116,9 +128,10 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                    <label for="edit_deskripsi" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                     <textarea 
                         name="deskripsi" 
+                        id="edit_deskripsi"
                         x-model="editData.deskripsi"
                         rows="4"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"

@@ -33,8 +33,8 @@
     {{-- Back Button & Header Info --}}
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-            <a href="{{ route('guru.tugas.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <a href="{{ route('guru.tugas.index') }}" aria-label="Kembali ke Manajemen Tugas" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition focus-visible:outline-gray-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
                 Kembali
@@ -75,15 +75,7 @@
             <div>
                 <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Belum Dinilai</p>
             </div>
-        </div>
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex items-center gap-4">
-            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 font-bold text-xl">
-                {{ $stats['avg'] }}
-            </div>
-            <div>
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Rata-rata Nilai</p>
-            </div>
-        </div>
+        </div>        
     </div>
 
     {{-- Submissions Table --}}
@@ -94,7 +86,7 @@
 
         @if($pengumpulan->isEmpty())
             <div class="p-16 text-center">
-                <div class="text-5xl mb-4">📭</div>
+                <div class="text-5xl mb-4" aria-hidden="true">📭</div>
                 <p class="text-base font-bold text-gray-400">Belum ada siswa yang mengumpulkan</p>
             </div>
         @else
@@ -116,6 +108,7 @@
                                 $isGraded = $submission->nilai !== null;
                                 $ext = $hasFile ? strtolower(pathinfo($submission->file_jawaban, PATHINFO_EXTENSION)) : '';
                                 $isVideo = in_array($ext, ['mp4', 'webm', 'mov', 'avi']);
+                                $isLate = $hasFile && $submission->created_at->gt($tugas->tenggat_waktu->endOfDay());
                             @endphp
                             <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition">
                                 <td class="px-6 py-4">
@@ -134,19 +127,27 @@
                                     <p class="text-[11px] text-gray-400">{{ $submission->created_at->format('H:i') }}</p>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    @if(!$hasFile)
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500">
-                                            Belum Kumpul
-                                        </span>
-                                    @elseif(!$isGraded)
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">
-                                            Menunggu Nilai
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                                            Selesai
-                                        </span>
-                                    @endif
+                                    <div class="flex flex-col items-center gap-1.5">
+                                        @if(!$hasFile)
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500">
+                                                Belum Kumpul
+                                            </span>
+                                        @elseif(!$isGraded)
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">
+                                                Menunggu Nilai
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                                                Selesai
+                                            </span>
+                                        @endif
+
+                                        @if($isLate)
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700">
+                                                Terlambat
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     @if($isGraded)
@@ -166,9 +167,10 @@
                                             'catatan'      => $submission->catatan_guru,
                                             'gradeUrl'     => route('guru.submissions.grade', $submission),
                                         ]) }})"
-                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200
+                                           aria-label="{{ $isGraded ? 'Edit' : 'Beri' }} Nilai untuk {{ $submission->user->name }}"
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 focus-visible:outline-emerald-600
                                                   {{ $isGraded ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm' }}">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                             </svg>
                                             {{ $isGraded ? 'Edit' : 'Nilai' }}
@@ -184,11 +186,7 @@
             </div>
         @endif
     </div>
-</div>
-
-    {{-- ══════════════════════════════════════════
-         GRADING MODAL
-    ══════════════════════════════════════════ --}}
+   
     <div x-show="open"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
@@ -212,9 +210,9 @@
                     <h2 class="text-base font-black text-gray-900">Penilaian Tugas</h2>
                     <p class="text-xs text-gray-400 font-semibold mt-0.5" x-text="current.name"></p>
                 </div>
-                <button @click="closeGrading()"
-                        class="w-8 h-8 rounded-xl bg-gray-100 hover:bg-red-50 hover:text-red-500 flex items-center justify-center text-gray-400 transition-all duration-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <button @click="closeGrading()" aria-label="Tutup Panel Penilaian"
+                        class="w-8 h-8 rounded-xl bg-gray-100 hover:bg-red-50 hover:text-red-500 flex items-center justify-center text-gray-400 transition-all duration-200 focus-visible:outline-gray-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
@@ -238,9 +236,9 @@
                                     📄
                                 </div>
                                 <p class="text-white/70 text-sm font-semibold">File Jawaban</p>
-                                <a :href="current.file" target="_blank"
-                                   class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-colors duration-200">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <a :href="current.file" target="_blank" aria-label="Download File Jawaban"
+                                   class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-colors duration-200 focus-visible:outline-emerald-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                     </svg>
                                     Download File
@@ -272,13 +270,14 @@
 
                             {{-- Nilai Input --}}
                             <div>
-                                <label class="block text-xs font-black text-gray-700 uppercase tracking-widest mb-2">
+                                <label for="nilai" class="block text-xs font-black text-gray-700 uppercase tracking-widest mb-2">
                                     Nilai <span class="text-red-500">*</span>
                                     <span class="text-gray-400 normal-case font-semibold tracking-normal ml-1">(0 – 100)</span>
                                 </label>
                                 <div class="relative">
                                     <input type="number"
                                            name="nilai"
+                                           id="nilai"
                                            min="0" max="100"
                                            :value="current.nilai"
                                            required
@@ -289,27 +288,28 @@
 
                             {{-- Catatan Guru --}}
                             <div class="flex-1">
-                                <label class="block text-xs font-black text-gray-700 uppercase tracking-widest mb-2">
+                                <label for="catatan_guru" class="block text-xs font-black text-gray-700 uppercase tracking-widest mb-2">
                                     Catatan Guru
                                     <span class="text-gray-400 normal-case font-semibold tracking-normal ml-1">(opsional)</span>
                                 </label>
                                 <textarea name="catatan_guru"
+                                          id="catatan_guru"
                                           rows="4"
                                           :value="current.catatan"
                                           placeholder="Tulis catatan atau feedback untuk siswa..."
-                                          class="w-full px-4 py-3 text-sm text-gray-700 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:bg-white transition-all duration-200 resize-none placeholder:text-gray-300"
+                                          class="w-full px-4 py-3 text-sm text-gray-700 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:bg-white transition-all duration-200 resize-none placeholder:text-gray-300 focus-visible:outline-emerald-500"
                                           x-text="current.catatan"></textarea>
                             </div>
 
                             {{-- Actions --}}
                             <div class="flex gap-3 pt-1">
                                 <button type="button" @click="closeGrading()"
-                                        class="flex-1 py-3 rounded-2xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors duration-200">
+                                        class="flex-1 py-3 rounded-2xl text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 focus-visible:outline-gray-400">
                                     Batal
                                 </button>
                                 <button type="submit"
-                                        class="flex-1 py-3 rounded-2xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-300/40 transition-all duration-200 flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        class="flex-1 py-3 rounded-2xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-300/40 transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline-emerald-800">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                     </svg>
                                     Simpan Nilai
@@ -323,7 +323,5 @@
 
         </div>
     </div>
-
 </div>
-
 @endsection

@@ -104,8 +104,7 @@ class SiswaController extends Controller
         $materiData = [];
         $firstTab = null;
 
-        if ($hasKategori) {
-            // Ambil urutan kategori langsung dari DB berdasarkan kolom 'urutan'
+        if ($hasKategori) {            
             $kategorisOrdered = \App\Models\MaterialCategory::where('modul_iqra_id', $currentModuleId)
                 ->orderBy('urutan')
                 ->get();
@@ -146,23 +145,16 @@ class SiswaController extends Controller
                 'tanda_sifir'     => ['label' => 'Sifir',       'fullLabel' => 'TANDA SIFIR',          'color' => 'blue'],
                 'tanda_waqaf'     => ['label' => 'Waqaf',       'fullLabel' => 'TANDA WAQAF',          'color' => 'orange'],
             ];
-
-            // Urutan kategori diambil dari DB (kolom 'urutan'), bukan dari array hardcoded.
-            // Kategoris yang ada di DB didahulukan sesuai urutan DB,
-            // lalu tambahkan kategori dinamis yang tidak ada di DB di akhir.
+            
             $dbNamaOrdered  = $kategorisOrdered->pluck('nama')->toArray();
             $orderedKnown   = array_values(array_intersect($dbNamaOrdered, $existingKategori));
             $dynamicUnknown = array_values(array_diff($existingKategori, $dbNamaOrdered));
             $kategoriList   = array_merge($orderedKnown, $dynamicUnknown);
-
-            // Build $kategoriInfo: use hardcoded config for known ones,
-            // and auto-generate label from slug for dynamic ones.
+            
             foreach ($kategoriList as $kat) {
                 if (isset($allKategoriConfig[$kat])) {
                     $kategoriInfo[$kat] = $allKategoriConfig[$kat];
                 } else {
-                    // Auto-generate human-readable label from slug
-                    // e.g. "ragam_hamzah" → label: "Ragam Hamzah", fullLabel: "RAGAM HAMZAH"
                     $humanLabel = \Illuminate\Support\Str::title(str_replace('_', ' ', $kat));
                     $kategoriInfo[$kat] = [
                         'label'     => $humanLabel,
@@ -210,7 +202,6 @@ class SiswaController extends Controller
     {
         $kuis->load(['kuisPertanyaan.opsiJawaban']);
 
-        // Check if already completed
         $hasAnswered = \App\Models\QuizAnswer::where('kuis_id', $kuis->id)
             ->where('user_id', auth()->id())
             ->exists();
@@ -220,7 +211,6 @@ class SiswaController extends Controller
 
     public function startKuis(Quiz $kuis)
     {
-        // Just redirect to the quiz show page; the form is already there
         return redirect()->route('siswa.kuis.show', $kuis);
     }
 
@@ -243,12 +233,12 @@ class SiswaController extends Controller
 
             QuizAnswer::updateOrCreate(
                 [
-                    'kuis_id'         => $kuis->id,
-                    'user_id'         => auth()->id(),
-                    'kuis_pertanyaan_id'     => $pertanyaanId,
+                    'kuis_id'=> $kuis->id,
+                    'user_id'=> auth()->id(),
+                    'kuis_pertanyaan_id'=> $pertanyaanId,
                 ],
                 [
-                    'kuis_opsi_jawaban_id'       => $selectedOpsi,
+                    'kuis_opsi_jawaban_id'=> $selectedOpsi,
                 ]
             );
         }
@@ -264,8 +254,7 @@ class SiswaController extends Controller
     public function kuisResults(Quiz $kuis)
     {
         $kuis->load(['kuisPertanyaan.opsiJawaban']);
-
-        // Load user answers from DB (persistent — no session dependency)
+        
         $userAnswers = \App\Models\QuizAnswer::where('kuis_id', $kuis->id)
             ->where('user_id', auth()->id())
             ->pluck('kuis_opsi_jawaban_id', 'kuis_pertanyaan_id');

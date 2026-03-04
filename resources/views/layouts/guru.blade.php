@@ -6,29 +6,27 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard Guru') - Ayat Isyarat</title>
     <link rel="icon" type="image/webp" href="{{ asset('images/logo.webp') }}">
-    
-    <!-- Custom CSS -->
-    <!-- Custom CSS -->
+  
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <!-- Alpine.js CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 </head>
 <body class="pattern-bg">
-    <!-- Flash Messages -->
+
     @if(session('success'))
-        <x-alert type="success" class="fixed top-4 right-4 z-50">
+        <x-alert type="success" class="fixed top-2 right-4 md:right-4" style="z-index: 9999;">
             {{ session('success') }}
         </x-alert>
     @endif
 
     @if(session('error'))
-        <x-alert type="error" class="fixed top-4 right-4 z-50">
+        <x-alert type="error" class="fixed top-2 right-4 md:right-4" style="z-index: 9999;">
             {{ session('error') }}
         </x-alert>
     @endif
 
-    <!-- Include Sidebar Layout -->
-    @include('layouts.guru-sidebar')
+    @include('layouts.guru-sidebar')        
+
     @stack('scripts')
 </body>
 </html>

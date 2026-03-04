@@ -12,8 +12,8 @@
             <div class="absolute bottom-0 left-0 w-48 h-48 bg-amber-300 rounded-full blur-3xl"></div>
         </div>
         <div class="max-w-2xl mx-auto relative z-10">
-            <a href="{{ route('siswa.kuis.index') }}" class="inline-flex items-center gap-1.5 text-emerald-200 hover:text-white text-sm font-semibold mb-4 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <a href="{{ route('siswa.kuis.index') }}" aria-label="Kembali ke Daftar Kuis" class="inline-flex items-center gap-1.5 text-emerald-200 hover:text-white text-sm font-semibold mb-4 transition-colors focus-visible:outline-white">
+                <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                 </svg>
                 Kembali ke Daftar Kuis
@@ -34,7 +34,7 @@
 
                 {{-- Stat --}}
                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-emerald-50 mb-6">
-                    <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <svg aria-hidden="true" class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                 </div>
@@ -48,9 +48,9 @@
 
                 <p class="text-sm text-gray-400 mb-6">Baca setiap pertanyaan dengan teliti sebelum menjawab.</p>
 
-                <button @click="startQuiz"
-                        class="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-black text-lg py-4 px-8 rounded-2xl shadow-lg shadow-emerald-200 transition-all duration-200">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <button @click="startQuiz" aria-label="Mulai Mengerjakan Kuis"
+                        class="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-black text-lg py-4 px-8 rounded-2xl shadow-lg shadow-emerald-200 transition-all duration-200 focus-visible:outline-emerald-600 focus-visible:outline-offset-2">
+                    <svg aria-hidden="true" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/>
                     </svg>
                     Mulai Kuis
@@ -118,7 +118,7 @@
                             :class="answers[{{ $pertanyaan->id }}] === {{ $opsi->id }}
                                 ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100'
                                 : 'border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50'"
-                            class="w-full text-left flex items-center gap-4 px-4 py-3.5 border-2 rounded-2xl transition-all duration-200 group">
+                            class="w-full text-left flex items-center gap-4 px-4 py-3.5 border-2 rounded-2xl transition-all duration-200 group focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200">
 
                             {{-- Label huruf --}}
                             <div class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-sm font-black transition-all duration-200"
@@ -148,7 +148,7 @@
                             {{-- Checkmark --}}
                             <div x-show="answers[{{ $pertanyaan->id }}] === {{ $opsi->id }}"
                                  class="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center">
-                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <svg aria-hidden="true" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                 </svg>
                             </div>
@@ -159,27 +159,27 @@
                     {{-- Navigasi --}}
                     <div class="flex gap-3 mt-6">
                         <button x-show="currentQuestion > 0"
-                                @click="currentQuestion--"
-                                class="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl border-2 border-gray-200 bg-white text-gray-600 font-bold text-sm hover:border-gray-300 hover:bg-gray-50 transition-all duration-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                @click="currentQuestion--" aria-label="Ke Pertanyaan Sebelumnya"
+                                class="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl border-2 border-gray-200 bg-white text-gray-600 font-bold text-sm hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-gray-200">
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                             </svg>
                             Sebelumnya
                         </button>
 
                         <button x-show="currentQuestion < {{ $kuis->kuisPertanyaan->count() - 1 }}"
-                                @click="currentQuestion++"
-                                class="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm shadow-emerald-200 transition-all duration-200">
+                                @click="currentQuestion++" aria-label="Ke Pertanyaan Selanjutnya"
+                                class="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-sm shadow-emerald-200 transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200">
                             Selanjutnya
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                             </svg>
                         </button>
 
                         <button x-show="currentQuestion === {{ $kuis->kuisPertanyaan->count() - 1 }}"
-                                @click="submitQuiz"
-                                class="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-lg shadow-emerald-200 transition-all duration-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                @click="submitQuiz" aria-label="Selesaikan Kuis dan Kirim Jawaban"
+                                class="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-lg shadow-emerald-200 transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200">
+                            <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             Selesai
