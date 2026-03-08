@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="max-w-6xl mx-auto" x-data="quizBuilder()">
-    <form method="POST" action="{{ route('guru.kuis.store') }}" enctype="multipart/form-data" @submit="validateBeforeSubmit">
+    <form method="POST" action="{{ route('guru.kuis.store') }}" enctype="multipart/form-data" @submit.prevent="submitProcess">
         @csrf
 
         <!-- Success/Error Messages -->
@@ -235,11 +235,12 @@
 
         <!-- Submit Buttons -->
         <div class="flex gap-4">
-            <button type="submit" aria-label="Simpan Kuis Penuh"
-                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition font-semibold focus-visible:outline-gray-900"
-                    x-bind:disabled="pertanyaan.length === 0">
+            <button type="submit" 
+                    class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 text-white rounded-lg transition font-semibold focus-visible:outline-gray-900"
+                    :class="pertanyaan.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800'"
+                    :disabled="pertanyaan.length === 0">
                 <x-icon name="check" class="w-6 h-6" aria-hidden="true" />
-                Simpan Kuis
+                <span x-text="pertanyaan.length === 0 ? 'Minimal 1 Pertanyaan' : 'Simpan Kuis'"></span>
             </button>
             <a href="{{ route('guru.kuis.index') }}" aria-label="Batal dan Kembali ke Daftar Kuis"
                class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold text-center focus-visible:outline-gray-400">
@@ -249,10 +250,35 @@
     </form>
 </div>
 
+@php
+    $oldPertanyaan = old('pertanyaan');
+    $initialData = [];
+
+    if ($oldPertanyaan) {
+        foreach ($oldPertanyaan as $qIndex => $q) {
+            $opsiList = [];
+            if (isset($q['opsi'])) {
+                foreach ($q['opsi'] as $oIndex => $o) {
+                    $opsiList[] = [
+                        'teks_opsi' => $o['teks_opsi'] ?? '',
+                        'gambar_preview' => null,
+                        'is_benar' => isset($o['is_benar']) ? (bool)$o['is_benar'] : false,
+                    ];
+                }
+            }
+            $initialData[] = [
+                'teks_pertanyaan' => $q['teks_pertanyaan'] ?? '',
+                'gambar_preview' => null,
+                'opsi' => $opsiList
+            ];
+        }
+    }
+@endphp
+
 <script>
 function quizBuilder() {
     return {
-        pertanyaan: [],
+        pertanyaan: @json($initialData),
         
         addQuestion() {
             this.pertanyaan.push({
@@ -338,14 +364,55 @@ function quizBuilder() {
             if (input) input.value = '';
         },
         
-        validateBeforeSubmit(e) {
+        submitProcess(e) {
             if (this.pertanyaan.length === 0) {
-                e.preventDefault();
                 alert('Tambahkan minimal 1 pertanyaan');
-                return false;
+                return;
             }
-            // Let form submit naturally if validation passes
-            return true;
+
+            let isValid = true;
+
+            for (let i = 0; i < this.pertanyaan.length; i++) {
+                let q = this.pertanyaan[i];
+                
+                // Mencegah error null.trim()
+                let teksPertanyaan = q.teks_pertanyaan || ''; 
+
+                // 1. Validasi Pertanyaan Utama
+                if (teksPertanyaan.trim() === '' && !q.gambar_preview) {
+                    alert(`Pertanyaan ke-${i + 1} tidak boleh kosong. Harap isi teks atau tambahkan gambar.`);
+                    isValid = false;
+                    break;
+                }
+
+                // 2. Auto-Hapus Opsi Kosong
+                let validOpsis = q.opsi.filter(o => {
+                    let teksOpsi = o.teks_opsi || ''; // Mencegah error null.trim()
+                    return teksOpsi.trim() !== '' || o.gambar_preview !== null;
+                });
+
+                // 3. Validasi Sisa Opsi
+                if (validOpsis.length < 2) {
+                    alert(`Pertanyaan ke-${i + 1} memiliki terlalu banyak opsi kosong. Minimal harus tersisa 2 opsi jawaban yang valid.`);
+                    isValid = false;
+                    break;
+                }
+
+                // Timpa data opsi lama dengan data yang sudah bersih dari opsi kosong
+                q.opsi = validOpsis;
+
+                // 4. Pastikan masih ada jawaban yang diset "Benar"
+                if (!q.opsi.some(o => o.is_benar)) {
+                    q.opsi[0].is_benar = true;
+                }
+            }
+
+            // Jika semua pengecekan lolos, kirim form ke Laravel
+            if (isValid) {
+                this.$nextTick(() => {
+                    e.target.submit();
+                });
+            }
         }
     }
 }

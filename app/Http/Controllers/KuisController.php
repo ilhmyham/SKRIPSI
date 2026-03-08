@@ -45,12 +45,25 @@ class KuisController extends Controller
             'judul_kuis' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'pertanyaan' => 'required|array|min:1',
-            'pertanyaan.*.teks_pertanyaan' => 'nullable|string',
-            'pertanyaan.*.gambar_pertanyaan' => 'nullable|image|max:2048',
+            
+            // Tambahan: mimes:jpg,jpeg,png agar sesuai dengan custom message
+            'pertanyaan.*.teks_pertanyaan' => 'required_without:pertanyaan.*.gambar_pertanyaan|nullable|string',
+            'pertanyaan.*.gambar_pertanyaan' => 'required_without:pertanyaan.*.teks_pertanyaan|nullable|image|mimes:jpg,jpeg,png|max:2048',
+            
             'pertanyaan.*.opsi' => 'required|array|min:2',
-            'pertanyaan.*.opsi.*.teks_opsi' => 'nullable|string',
-            'pertanyaan.*.opsi.*.gambar_opsi' => 'nullable|image|max:2048',
+            
+            'pertanyaan.*.opsi.*.teks_opsi' => 'required_without:pertanyaan.*.opsi.*.gambar_opsi|nullable|string',
+            'pertanyaan.*.opsi.*.gambar_opsi' => 'required_without:pertanyaan.*.opsi.*.teks_opsi|nullable|image|mimes:jpg,jpeg,png|max:2048',
             'pertanyaan.*.opsi.*.is_benar' => 'required|boolean',
+        ], [
+            'pertanyaan.*.teks_pertanyaan.required_without' => 'Pertanyaan tidak boleh dibiarkan kosong sepenuhnya (isi teks atau gambar).',
+            'pertanyaan.*.opsi.*.teks_opsi.required_without' => 'Opsi jawaban tidak boleh kosong (isi teks atau gambar).',
+            'pertanyaan.*.gambar_pertanyaan.max' => 'Ukuran gambar pada pertanyaan maksimal 2MB.',
+            'pertanyaan.*.opsi.*.gambar_opsi.max' => 'Ukuran gambar pada opsi jawaban maksimal 2MB.',
+            'pertanyaan.*.gambar_pertanyaan.image' => 'File pertanyaan harus berupa gambar (JPG/PNG).',
+            'pertanyaan.*.opsi.*.gambar_opsi.image' => 'File opsi jawaban harus berupa gambar (JPG/PNG).',
+            'pertanyaan.*.gambar_pertanyaan.mimes' => 'File pertanyaan harus berformat JPG atau PNG.',
+            'pertanyaan.*.opsi.*.gambar_opsi.mimes' => 'File opsi jawaban harus berformat JPG atau PNG.',
         ]);
 
         $kuis = Quiz::create([
@@ -133,15 +146,27 @@ class KuisController extends Controller
             'deskripsi' => 'nullable|string',
             'pertanyaan' => 'required|array|min:1',
             'pertanyaan.*.id' => 'nullable|integer|exists:kuis_pertanyaan,id',
-            'pertanyaan.*.teks_pertanyaan' => 'nullable|string',
-            'pertanyaan.*.gambar_pertanyaan' => 'nullable|image|max:2048',
+            
+            'pertanyaan.*.teks_pertanyaan' => 'required_without_all:pertanyaan.*.gambar_pertanyaan,pertanyaan.*.existing_gambar_pertanyaan|nullable|string',
+            'pertanyaan.*.gambar_pertanyaan' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'pertanyaan.*.existing_gambar_pertanyaan' => 'nullable|string',
+            
             'pertanyaan.*.opsi' => 'required|array|min:2',
             'pertanyaan.*.opsi.*.id' => 'nullable|integer|exists:kuis_opsi_jawaban,id',
-            'pertanyaan.*.opsi.*.teks_opsi' => 'nullable|string',
-            'pertanyaan.*.opsi.*.gambar_opsi' => 'nullable|image|max:2048',
+            
+            'pertanyaan.*.opsi.*.teks_opsi' => 'required_without_all:pertanyaan.*.opsi.*.gambar_opsi,pertanyaan.*.opsi.*.existing_gambar_opsi|nullable|string',
+            'pertanyaan.*.opsi.*.gambar_opsi' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'pertanyaan.*.opsi.*.existing_gambar_opsi' => 'nullable|string',
             'pertanyaan.*.opsi.*.is_benar' => 'required|boolean',
+        ], [
+            'pertanyaan.*.teks_pertanyaan.required_without_all' => 'Pertanyaan tidak boleh dibiarkan kosong sepenuhnya.',
+            'pertanyaan.*.opsi.*.teks_opsi.required_without_all' => 'Opsi jawaban tidak boleh kosong.',
+            'pertanyaan.*.gambar_pertanyaan.max' => 'Ukuran gambar pada pertanyaan maksimal 2MB.',
+            'pertanyaan.*.opsi.*.gambar_opsi.max' => 'Ukuran gambar pada opsi jawaban maksimal 2MB.',
+            'pertanyaan.*.gambar_pertanyaan.image' => 'File pertanyaan harus berupa gambar (JPG/PNG).',
+            'pertanyaan.*.opsi.*.gambar_opsi.image' => 'File opsi jawaban harus berupa gambar (JPG/PNG).',
+            'pertanyaan.*.gambar_pertanyaan.mimes' => 'File pertanyaan harus berformat JPG atau PNG.',
+            'pertanyaan.*.opsi.*.gambar_opsi.mimes' => 'File opsi jawaban harus berformat JPG atau PNG.',
         ]);
 
         $kuis->update([
@@ -155,28 +180,33 @@ class KuisController extends Controller
 
         foreach ($validated['pertanyaan'] as $index => $pertanyaanData) {
             $questionId = $pertanyaanData['id'] ?? null;
-
+            $oldQuestion = $questionId ? Question::find($questionId) : null;
             $gambarPath = null;
+
+            // KOREKSI: Pengecekan Replace / Remove file fisik pertanyaan
             if ($request->hasFile("pertanyaan.{$index}.gambar_pertanyaan")) {
                 $gambarPath = $request->file("pertanyaan.{$index}.gambar_pertanyaan")->store('kuis/pertanyaan', 'public');
                 
-                if ($questionId) {
-                    $oldQuestion = Question::find($questionId);
-                    if ($oldQuestion && $oldQuestion->gambar_pertanyaan) {
-                        Storage::disk('public')->delete($oldQuestion->gambar_pertanyaan);
-                    }
+                // Hapus file lama jika di-replace dengan file baru
+                if ($oldQuestion && $oldQuestion->gambar_pertanyaan) {
+                    Storage::disk('public')->delete($oldQuestion->gambar_pertanyaan);
                 }
-            } elseif (!empty($pertanyaanData['existing_gambar_pertanyaan'])) {
-                $gambarPath = $pertanyaanData['existing_gambar_pertanyaan'];
+            } else {
+                $gambarPath = $pertanyaanData['existing_gambar_pertanyaan'] ?? null;
+                
+                // Hapus file fisik jika user sengaja menghapus gambar dari form tanpa upload gambar baru
+                if (empty($gambarPath) && $oldQuestion && $oldQuestion->gambar_pertanyaan) {
+                    Storage::disk('public')->delete($oldQuestion->gambar_pertanyaan);
+                }
             }
 
             if ($questionId && in_array($questionId, $existingQuestionIds)) {
-                $pertanyaan = Question::find($questionId);
-                $pertanyaan->update([
+                $oldQuestion->update([
                     'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
                     'gambar_pertanyaan' => $gambarPath,
                 ]);
                 $processedQuestionIds[] = $questionId;
+                $pertanyaan = $oldQuestion; // Set untuk digunakan di child (opsi)
             } else {
                 $pertanyaan = Question::create([
                     'kuis_id' => $kuis->id,
@@ -187,29 +217,32 @@ class KuisController extends Controller
             }
 
             $existingOptionIds = $pertanyaan->opsiJawaban->pluck('id')->toArray();
-            
             $processedOptionIdsForThisQuestion = [];
 
             foreach ($pertanyaanData['opsi'] as $oIndex => $opsiData) {
                 $optionId = $opsiData['id'] ?? null;
-
+                $oldOption = $optionId ? QuestionOption::find($optionId) : null;
                 $gambarOpsiPath = null;
+
+                // KOREKSI: Pengecekan Replace / Remove file fisik opsi
                 if ($request->hasFile("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")) {
                     $gambarOpsiPath = $request->file("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")->store('kuis/opsi', 'public');
                     
-                    if ($optionId) {
-                        $oldOption = QuestionOption::find($optionId);
-                        if ($oldOption && $oldOption->gambar_opsi) {
-                            Storage::disk('public')->delete($oldOption->gambar_opsi);
-                        }
+                    // Hapus file lama jika di-replace dengan file baru
+                    if ($oldOption && $oldOption->gambar_opsi) {
+                        Storage::disk('public')->delete($oldOption->gambar_opsi);
                     }
-                } elseif (!empty($opsiData['existing_gambar_opsi'])) {
-                    $gambarOpsiPath = $opsiData['existing_gambar_opsi'];
+                } else {
+                    $gambarOpsiPath = $opsiData['existing_gambar_opsi'] ?? null;
+                    
+                    // Hapus file fisik jika user sengaja menghapus gambar opsi dari form
+                    if (empty($gambarOpsiPath) && $oldOption && $oldOption->gambar_opsi) {
+                        Storage::disk('public')->delete($oldOption->gambar_opsi);
+                    }
                 }
 
                 if ($optionId && in_array($optionId, $existingOptionIds)) {
-                    $opsi = QuestionOption::find($optionId);
-                    $opsi->update([
+                    $oldOption->update([
                         'teks_opsi' => $opsiData['teks_opsi'] ?? null,
                         'gambar_opsi' => $gambarOpsiPath,
                         'is_correct' => $opsiData['is_benar'],
@@ -226,6 +259,7 @@ class KuisController extends Controller
                 }
             }
             
+            // Hapus opsi yang di-delete oleh user (Orphan options)
             $orphanedOptions = QuestionOption::where('kuis_pertanyaan_id', $pertanyaan->id)
                 ->whereNotIn('id', $processedOptionIdsForThisQuestion)
                 ->get();
@@ -238,6 +272,7 @@ class KuisController extends Controller
             }
         }
 
+        // Hapus pertanyaan yang di-delete oleh user (Orphan questions)
         $orphanedQuestions = Question::where('kuis_id', $kuis->id)
             ->whereNotIn('id', $processedQuestionIds)
             ->get();
