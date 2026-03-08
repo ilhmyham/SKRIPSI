@@ -58,9 +58,7 @@ class MateriController extends Controller
 
         $materi = Material::create($validated);
 
-        if (auth()->user()->isAdmin()) {
-            $this->logActivity('created', 'Material', $materi->id, 'Menambahkan materi "' . $materi->judul_materi . '" ke ' . $module->nama_modul);
-        }
+        $this->logActivity('created', 'Material', $materi->id, 'Menambahkan materi "' . $materi->judul_materi . '" ke ' . $module->nama_modul);
 
         $route = auth()->user()->isAdmin() ? 'admin.materi.by-module' : 'guru.materi.by-module';
 
@@ -96,9 +94,7 @@ class MateriController extends Controller
 
         $materi->update($validated);
 
-        if (auth()->user()->isAdmin()) {
-            $this->logActivity('updated', 'Material', $materi->id, 'Mengupdate materi "' . $materi->judul_materi . '"');
-        }
+        $this->logActivity('updated', 'Material', $materi->id, 'Mengupdate materi "' . $materi->judul_materi . '"');
 
         $route = auth()->user()->isAdmin() ? 'admin.materi.by-module' : 'guru.materi.by-module';
 
@@ -115,9 +111,7 @@ class MateriController extends Controller
 
         $materi->delete();
         
-        if (auth()->user()->isAdmin()) {
-            $this->logActivity('deleted', 'Material', $materi->id, "Menghapus materi \"" . $materiName . "\"");
-        }
+        $this->logActivity('deleted', 'Material', $materi->id, "Menghapus materi \"" . $materiName . "\"");
         
         return back()->with('success', 'Materi berhasil dihapus');
     }

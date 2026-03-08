@@ -102,10 +102,8 @@ class KuisController extends Controller
             }
         }
 
-        if (auth()->user()->isAdmin()) {
-            $module = Module::find($validated['modul_iqra_id']);
-            $this->logActivity('created', 'Quiz', $kuis->id, "Membuat kuis \"" . $kuis->judul_kuis . "\" untuk " . $module->nama_modul);
-        }
+        $module = Module::find($validated['modul_iqra_id']);
+        $this->logActivity('created', 'Quiz', $kuis->id, "Membuat kuis \"" . $kuis->judul_kuis . "\" untuk " . $module->nama_modul);
 
         $route = auth()->user()->isAdmin() ? 'admin.kuis.by-module' : 'guru.kuis.by-module';
         return redirect()->route($route, $validated['modul_iqra_id'])->with('success', 'Kuis berhasil ditambahkan');
@@ -290,9 +288,7 @@ class KuisController extends Controller
             $orphanedQuestion->delete();
         }
 
-        if (auth()->user()->isAdmin()) {
-            $this->logActivity('updated', 'Quiz', $kuis->id, "Mengupdate kuis \"" . $kuis->judul_kuis . "\"");
-        }
+        $this->logActivity('updated', 'Quiz', $kuis->id, "Mengupdate kuis \"" . $kuis->judul_kuis . "\"");
 
         $route = auth()->user()->isAdmin() ? 'admin.kuis.by-module' : 'guru.kuis.by-module';
         return redirect()->route($route, $kuis->modul_iqra_id)->with('success', 'Kuis berhasil diupdate');
@@ -318,9 +314,7 @@ class KuisController extends Controller
 
         $kuis->delete();
 
-        if (auth()->user()->isAdmin()) {
-            $this->logActivity('deleted', 'Quiz', $kuis->id, "Menghapus kuis \"" . $kuisName . "\"");
-        }
+        $this->logActivity('deleted', 'Quiz', $kuis->id, "Menghapus kuis \"" . $kuisName . "\"");
 
         $route = auth()->user()->isAdmin() ? 'admin.kuis.by-module' : 'guru.kuis.by-module';
         return redirect()->route($route, $moduleId)->with('success', 'Kuis berhasil dihapus');

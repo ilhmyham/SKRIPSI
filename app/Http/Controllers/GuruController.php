@@ -64,7 +64,9 @@ class GuruController extends Controller
         ]);
 
         $validated['user_id'] = auth()->id();
-        Assignment::create($validated);
+        $tugas = Assignment::create($validated);
+
+        $this->logActivity('created', 'Assignment', $tugas->id, "Membuat tugas \"" . $tugas->judul_tugas . "\"");
 
         return redirect()->route('guru.tugas.index')->with('success', 'Tugas berhasil dibuat');
     }
@@ -85,12 +87,19 @@ class GuruController extends Controller
 
         $tugas->update($validated);
 
+        $this->logActivity('updated', 'Assignment', $tugas->id, "Mengupdate tugas \"" . $tugas->judul_tugas . "\"");
+
         return redirect()->route('guru.tugas.index')->with('success', 'Tugas berhasil diupdate');
     }
 
     public function destroyTugas(Assignment $tugas)
     {
+        $tugasName = $tugas->judul_tugas;
+        $tugasId = $tugas->id;
         $tugas->delete();
+
+        $this->logActivity('deleted', 'Assignment', $tugasId, "Menghapus tugas \"" . $tugasName . "\"");
+
         return redirect()->route('guru.tugas.index')->with('success', 'Tugas berhasil dihapus');
     }
     
@@ -131,6 +140,8 @@ class GuruController extends Controller
         ]);
 
         $submission->update($validated);
+
+        $this->logActivity('graded', 'Submission', $submission->id, "Menilai pengumpulan tugas dari \"" . ($submission->user->name ?? 'Siswa') . "\" untuk tugas \"" . $submission->tugas->judul_tugas . "\"");
 
         return back()->with('success', 'Nilai berhasil disimpan');
     }
