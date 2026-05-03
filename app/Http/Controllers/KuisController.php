@@ -9,6 +9,7 @@ use App\Models\ModulIqra;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class KuisController extends Controller
 {
@@ -56,41 +57,44 @@ class KuisController extends Controller
             'pertanyaan.*.opsi.*.is_benar' => 'required|boolean',
         ]);
 
-        $kuis = Kuis::create([
-            'modul_iqra_id' => $validated['modul_iqra_id'],
-            'user_id' => auth()->id(),
-            'judul_kuis' => $validated['judul_kuis'],
-            'deskripsi' => $validated['deskripsi'] ?? null,
-        ]);
-
-        foreach ($validated['pertanyaan'] as $index => $pertanyaanData) {
-            $gambarPath = null;
-            if ($request->hasFile("pertanyaan.{$index}.gambar_pertanyaan")) {
-                $gambarPath = $request->file("pertanyaan.{$index}.gambar_pertanyaan")
-                                      ->store('kuis/pertanyaan', 'public');
-            }
-            
-            $pertanyaan = KuisPertanyaan::create([
-                'kuis_id' => $kuis->id,
-                'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
-                'gambar_pertanyaan' => $gambarPath,
+        $kuis = DB::transaction(function () use ($validated, $request) {
+            $kuis = Kuis::create([
+                'modul_iqra_id' => $validated['modul_iqra_id'],
+                'user_id' => auth()->id(),
+                'judul_kuis' => $validated['judul_kuis'],
+                'deskripsi' => $validated['deskripsi'] ?? null,
             ]);
 
-            foreach ($pertanyaanData['opsi'] as $oIndex => $opsiData) {
-                $gambarOpsiPath = null;
-                if ($request->hasFile("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")) {
-                    $gambarOpsiPath = $request->file("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")
-                                              ->store('kuis/opsi', 'public');
+            foreach ($validated['pertanyaan'] as $index => $pertanyaanData) {
+                $gambarPath = null;
+                if ($request->hasFile("pertanyaan.{$index}.gambar_pertanyaan")) {
+                    $gambarPath = $request->file("pertanyaan.{$index}.gambar_pertanyaan")
+                                          ->store('kuis/pertanyaan', 'public');
                 }
                 
-                KuisOpsiJawaban::create([
-                    'kuis_pertanyaan_id' => $pertanyaan->id,
-                    'teks_opsi' => $opsiData['teks_opsi'] ?? null,
-                    'gambar_opsi' => $gambarOpsiPath,
-                    'is_correct' => $opsiData['is_benar'],
+                $pertanyaan = KuisPertanyaan::create([
+                    'kuis_id' => $kuis->id,
+                    'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
+                    'gambar_pertanyaan' => $gambarPath,
                 ]);
+
+                foreach ($pertanyaanData['opsi'] as $oIndex => $opsiData) {
+                    $gambarOpsiPath = null;
+                    if ($request->hasFile("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")) {
+                        $gambarOpsiPath = $request->file("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")
+                                                  ->store('kuis/opsi', 'public');
+                    }
+                    
+                    KuisOpsiJawaban::create([
+                        'kuis_pertanyaan_id' => $pertanyaan->id,
+                        'teks_opsi' => $opsiData['teks_opsi'] ?? null,
+                        'gambar_opsi' => $gambarOpsiPath,
+                        'is_correct' => $opsiData['is_benar'],
+                    ]);
+                }
             }
-        }
+            return $kuis;
+        });
 
         $module = ModulIqra::find($validated['modul_iqra_id']);
         $this->logActivity('created', 'Quiz', $kuis->id, "Membuat kuis \"" . $kuis->judul_kuis . "\" untuk " . $module->nama_modul);
@@ -148,114 +152,116 @@ class KuisController extends Controller
             'pertanyaan.*.opsi.*.is_benar' => 'required|boolean',
         ]);
 
-        $kuis->update([
-            'modul_iqra_id' => $validated['modul_iqra_id'],
-            'judul_kuis' => $validated['judul_kuis'],
-            'deskripsi' => $validated['deskripsi'] ?? null,
-        ]);
+        DB::transaction(function () use ($validated, $request, $kuis) {
+            $kuis->update([
+                'modul_iqra_id' => $validated['modul_iqra_id'],
+                'judul_kuis' => $validated['judul_kuis'],
+                'deskripsi' => $validated['deskripsi'] ?? null,
+            ]);
 
-        $existingQuestionIds = $kuis->kuisPertanyaan->pluck('id')->toArray();
-        $processedQuestionIds = [];
+            $existingQuestionIds = $kuis->kuisPertanyaan->pluck('id')->toArray();
+            $processedQuestionIds = [];
 
-        foreach ($validated['pertanyaan'] as $index => $pertanyaanData) {
-            $questionId = $pertanyaanData['id'] ?? null;
-            $oldQuestion = $questionId ? KuisPertanyaan::find($questionId) : null;
-            $gambarPath = null;
+            foreach ($validated['pertanyaan'] as $index => $pertanyaanData) {
+                $questionId = $pertanyaanData['id'] ?? null;
+                $oldQuestion = $questionId ? KuisPertanyaan::find($questionId) : null;
+                $gambarPath = null;
 
-            if ($request->hasFile("pertanyaan.{$index}.gambar_pertanyaan")) {
-                $gambarPath = $request->file("pertanyaan.{$index}.gambar_pertanyaan")->store('kuis/pertanyaan', 'public');
-                if ($oldQuestion && $oldQuestion->gambar_pertanyaan) {
-                    Storage::disk('public')->delete($oldQuestion->gambar_pertanyaan);
-                }
-            } else {
-                $gambarPath = $pertanyaanData['existing_gambar_pertanyaan'] ?? null;
-                if (empty($gambarPath) && $oldQuestion && $oldQuestion->gambar_pertanyaan) {
-                    Storage::disk('public')->delete($oldQuestion->gambar_pertanyaan);
-                }
-            }
-
-            if ($questionId && in_array($questionId, $existingQuestionIds)) {
-                $oldQuestion->update([
-                    'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
-                    'gambar_pertanyaan' => $gambarPath,
-                ]);
-                $processedQuestionIds[] = $questionId;
-                $pertanyaan = $oldQuestion; 
-            } else {
-                $pertanyaan = KuisPertanyaan::create([
-                    'kuis_id' => $kuis->id,
-                    'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
-                    'gambar_pertanyaan' => $gambarPath,
-                ]);
-                $processedQuestionIds[] = $pertanyaan->id;
-            }
-
-            $existingOptionIds = $pertanyaan->opsiJawaban->pluck('id')->toArray();
-            $processedOptionIdsForThisQuestion = [];
-
-            foreach ($pertanyaanData['opsi'] as $oIndex => $opsiData) {
-                $optionId = $opsiData['id'] ?? null;
-                $oldOption = $optionId ? KuisOpsiJawaban::find($optionId) : null;
-                $gambarOpsiPath = null;
-
-                if ($request->hasFile("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")) {
-                    $gambarOpsiPath = $request->file("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")->store('kuis/opsi', 'public');
-                    if ($oldOption && $oldOption->gambar_opsi) {
-                        Storage::disk('public')->delete($oldOption->gambar_opsi);
+                if ($request->hasFile("pertanyaan.{$index}.gambar_pertanyaan")) {
+                    $gambarPath = $request->file("pertanyaan.{$index}.gambar_pertanyaan")->store('kuis/pertanyaan', 'public');
+                    if ($oldQuestion && $oldQuestion->gambar_pertanyaan) {
+                        Storage::disk('public')->delete($oldQuestion->gambar_pertanyaan);
                     }
                 } else {
-                    $gambarOpsiPath = $opsiData['existing_gambar_opsi'] ?? null;
-                    if (empty($gambarOpsiPath) && $oldOption && $oldOption->gambar_opsi) {
-                        Storage::disk('public')->delete($oldOption->gambar_opsi);
+                    $gambarPath = $pertanyaanData['existing_gambar_pertanyaan'] ?? null;
+                    if (empty($gambarPath) && $oldQuestion && $oldQuestion->gambar_pertanyaan) {
+                        Storage::disk('public')->delete($oldQuestion->gambar_pertanyaan);
                     }
                 }
 
-                if ($optionId && in_array($optionId, $existingOptionIds)) {
-                    $oldOption->update([
-                        'teks_opsi' => $opsiData['teks_opsi'] ?? null,
-                        'gambar_opsi' => $gambarOpsiPath,
-                        'is_correct' => $opsiData['is_benar'],
+                if ($questionId && in_array($questionId, $existingQuestionIds)) {
+                    $oldQuestion->update([
+                        'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
+                        'gambar_pertanyaan' => $gambarPath,
                     ]);
-                    $processedOptionIdsForThisQuestion[] = $optionId;
+                    $processedQuestionIds[] = $questionId;
+                    $pertanyaan = $oldQuestion; 
                 } else {
-                    $opsi = KuisOpsiJawaban::create([
-                        'kuis_pertanyaan_id' => $pertanyaan->id,
-                        'teks_opsi' => $opsiData['teks_opsi'] ?? null,
-                        'gambar_opsi' => $gambarOpsiPath,
-                        'is_correct' => $opsiData['is_benar'],
+                    $pertanyaan = KuisPertanyaan::create([
+                        'kuis_id' => $kuis->id,
+                        'teks_pertanyaan' => $pertanyaanData['teks_pertanyaan'] ?? null,
+                        'gambar_pertanyaan' => $gambarPath,
                     ]);
-                    $processedOptionIdsForThisQuestion[] = $opsi->id;
+                    $processedQuestionIds[] = $pertanyaan->id;
+                }
+
+                $existingOptionIds = $pertanyaan->opsiJawaban->pluck('id')->toArray();
+                $processedOptionIdsForThisQuestion = [];
+
+                foreach ($pertanyaanData['opsi'] as $oIndex => $opsiData) {
+                    $optionId = $opsiData['id'] ?? null;
+                    $oldOption = $optionId ? KuisOpsiJawaban::find($optionId) : null;
+                    $gambarOpsiPath = null;
+
+                    if ($request->hasFile("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")) {
+                        $gambarOpsiPath = $request->file("pertanyaan.{$index}.opsi.{$oIndex}.gambar_opsi")->store('kuis/opsi', 'public');
+                        if ($oldOption && $oldOption->gambar_opsi) {
+                            Storage::disk('public')->delete($oldOption->gambar_opsi);
+                        }
+                    } else {
+                        $gambarOpsiPath = $opsiData['existing_gambar_opsi'] ?? null;
+                        if (empty($gambarOpsiPath) && $oldOption && $oldOption->gambar_opsi) {
+                            Storage::disk('public')->delete($oldOption->gambar_opsi);
+                        }
+                    }
+
+                    if ($optionId && in_array($optionId, $existingOptionIds)) {
+                        $oldOption->update([
+                            'teks_opsi' => $opsiData['teks_opsi'] ?? null,
+                            'gambar_opsi' => $gambarOpsiPath,
+                            'is_correct' => $opsiData['is_benar'],
+                        ]);
+                        $processedOptionIdsForThisQuestion[] = $optionId;
+                    } else {
+                        $opsi = KuisOpsiJawaban::create([
+                            'kuis_pertanyaan_id' => $pertanyaan->id,
+                            'teks_opsi' => $opsiData['teks_opsi'] ?? null,
+                            'gambar_opsi' => $gambarOpsiPath,
+                            'is_correct' => $opsiData['is_benar'],
+                        ]);
+                        $processedOptionIdsForThisQuestion[] = $opsi->id;
+                    }
+                }
+                
+                $orphanedOptions = KuisOpsiJawaban::where('kuis_pertanyaan_id', $pertanyaan->id)
+                    ->whereNotIn('id', $processedOptionIdsForThisQuestion)
+                    ->get();
+                
+                foreach ($orphanedOptions as $orphanedOption) {
+                    if ($orphanedOption->gambar_opsi) {
+                        Storage::disk('public')->delete($orphanedOption->gambar_opsi);
+                    }
+                    $orphanedOption->delete();
                 }
             }
-            
-            $orphanedOptions = KuisOpsiJawaban::where('kuis_pertanyaan_id', $pertanyaan->id)
-                ->whereNotIn('id', $processedOptionIdsForThisQuestion)
+
+            $orphanedQuestions = KuisPertanyaan::where('kuis_id', $kuis->id)
+                ->whereNotIn('id', $processedQuestionIds)
                 ->get();
             
-            foreach ($orphanedOptions as $orphanedOption) {
-                if ($orphanedOption->gambar_opsi) {
-                    Storage::disk('public')->delete($orphanedOption->gambar_opsi);
+            foreach ($orphanedQuestions as $orphanedQuestion) {
+                if ($orphanedQuestion->gambar_pertanyaan) {
+                    Storage::disk('public')->delete($orphanedQuestion->gambar_pertanyaan);
                 }
-                $orphanedOption->delete();
-            }
-        }
-
-        $orphanedQuestions = KuisPertanyaan::where('kuis_id', $kuis->id)
-            ->whereNotIn('id', $processedQuestionIds)
-            ->get();
-        
-        foreach ($orphanedQuestions as $orphanedQuestion) {
-            if ($orphanedQuestion->gambar_pertanyaan) {
-                Storage::disk('public')->delete($orphanedQuestion->gambar_pertanyaan);
-            }
-            foreach ($orphanedQuestion->opsiJawaban as $opsi) {
-                if ($opsi->gambar_opsi) {
-                    Storage::disk('public')->delete($opsi->gambar_opsi);
+                foreach ($orphanedQuestion->opsiJawaban as $opsi) {
+                    if ($opsi->gambar_opsi) {
+                        Storage::disk('public')->delete($opsi->gambar_opsi);
+                    }
+                    $opsi->delete();
                 }
-                $opsi->delete();
+                $orphanedQuestion->delete();
             }
-            $orphanedQuestion->delete();
-        }
+        });
 
         $this->logActivity('updated', 'Quiz', $kuis->id, "Mengupdate kuis \"" . $kuis->judul_kuis . "\"");
 
