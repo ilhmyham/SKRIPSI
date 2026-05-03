@@ -1,0 +1,347 @@
+@extends('layouts.admin')
+
+@section('title', 'Materi ' . $module->nama_modul)
+@section('page-title', 'Materi ' . $module->nama_modul)
+
+@section('content')
+    <!-- Breadcrumb -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <nav class="flex items-center gap-2 text-sm text-gray-600">
+            <a href="{{ route('admin.materi.index') }}" class="hover:text-emerald-600">Manajemen Materi</a>
+            <span>/</span>
+            <span class="font-semibold">{{ $module->nama_modul }}</span>
+        </nav>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+
+            <button 
+                @click="$dispatch('open-modal-create-materi')"
+                class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition shadow-sm"
+            >
+                <x-icon name="plus" class="w-4 h-4" />
+                Tambah Materi
+            </button>
+        </div>
+    </div>
+
+    <!-- Wrapping table with horizontal scroll wrapper for mobile -->
+    <div class="overflow-x-auto pb-4">
+        <div class="min-w-[800px]">
+            <x-table
+        :items="$materis->map(fn($m) => [
+            'id'             => $m->id,
+            'urutan'         => $m->urutan ?? '-',
+            'judul_materi'   => $m->judul_materi,
+            'huruf_hijaiyah' => $m->huruf_hijaiyah ?? '-',
+            'video_url'      => $m->file_video ?? '-',
+            'kategori_materi' => $m->kategori_materi ?? '',
+            'kategori'       => Str::title(str_replace('_', ' ', $m->kategori_materi ?? '-')),
+            'file_path'      => $m->path_file,
+            'deskripsi'      => $m->deskripsi ?? '-',
+        ])"
+        :columns="[
+            ['key' => 'urutan', 'label' => '#', 'class' => 'text-center text-gray-500 w-12'],
+            ['key' => 'judul_materi', 'label' => 'Judul Materi', 'class' => 'font-bold text-base'],
+            ['key' => 'huruf_hijaiyah', 'label' => 'Huruf Hijaiyah', 'class' => 'text-center text-2xl'],
+            ['key' => 'kategori', 'label' => 'Kategori', 'class' => 'text-sm text-gray-600 font-medium capitalize'],
+            ['key' => 'video_url', 'label' => 'Video', 'class' => 'text-sm text-gray-600'],
+        ]"
+        :searchKeys="['judul_materi', 'huruf_hijaiyah']"
+        filterKey="kategori_materi"
+    >
+        <x-slot:filterTabs>
+            @if(count($kategoriList) > 1)
+                <div class="flex flex-wrap gap-2 pb-2">
+                    <button 
+                        @click="filterValue = 'all'; currentPage = 1" 
+                        :class="filterValue === 'all' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                        class="px-4 py-2 text-sm font-semibold rounded-full transition-colors focus:outline-none"
+                    >
+                        Semua Kategori
+                    </button>
+                    @foreach($kategoriList as $key => $label)
+                        <button 
+                            @click="filterValue = '{{ $key }}'; currentPage = 1" 
+                            :class="filterValue === '{{ $key }}' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                            class="px-4 py-2 text-sm font-semibold rounded-full transition-colors focus:outline-none"
+                        >
+                            {{ $label }}
+                        </button>
+                    @endforeach
+                </div>
+            @endif
+        </x-slot:filterTabs>
+
+        <x-slot:actions>
+            <button 
+                @click="$dispatch('set-edit-materi-data', item)"
+                class="text-blue-600 hover:underline text-sm font-medium">
+                <x-icon name="edit" class="w-4 h-4 inline" />
+                Edit
+            </button>
+            <form method="POST" :action="`{{ url('admin/materi') }}/${item.id}`" 
+                  onsubmit="return confirm('Hapus materi ini?')" class="inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="text-red-600 hover:underline text-sm font-medium">
+                    <x-icon name="trash" class="w-4 h-4 inline" />
+                    Hapus
+                </button>
+            </form>
+        </x-slot:actions>
+    </x-table>
+        </div>
+    </div>
+
+    <!-- Create Materi Modal -->
+    <x-modal name="create-materi" title="Tambah Materi Baru" description="Tambahkan materi pembelajaran baru." maxWidth="3xl">
+        <form id="form-create-materi-admin" method="POST" action="{{ route('admin.materi.store') }}" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
+            @csrf
+
+            <input type="hidden" name="modul_iqra_id" value="{{ $module->id }}">
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Judul Materi</label>
+                    <input 
+                        type="text" 
+                        name="judul_materi" 
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                        placeholder="Contoh: Belajar Huruf Alif"
+                    >
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Huruf Hijaiyah</label>
+                    <input 
+                        type="text" 
+                        name="huruf_hijaiyah"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition text-center text-2xl"
+                        placeholder="ا"
+                    >
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Urutan <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                <input 
+                    type="number" 
+                    name="urutan"
+                    min="1"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                    placeholder="Contoh: 1, 2, 3 ... (kosongkan jika tidak perlu urutan)"
+                >
+                <p class="mt-1 text-xs text-gray-500">Isi angka urutan untuk mengatur posisi materi. Materi tanpa urutan akan tampil di akhir.</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Link Video (YouTube atau Google Drive)</label>
+                <input 
+                    type="text" 
+                    name="file_video"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                    placeholder="https://youtu.be/xxx atau ID Google Drive"
+                >
+                <p class="mt-1 text-xs text-gray-500">Masukkan link YouTube lengkap atau ID video Google Drive</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                <select 
+                    name="kategori_materi"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                >
+                    <option value="">-- Tidak ada kategori --</option>
+                    @foreach($kategoriList as $key => $label)
+                        <option value="{{ $key }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Pilih kategori materi ini (jika ada)</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Bahasa Isyarat</label>
+                <input 
+                    type="file" 
+                    name="path_file"
+                    accept="image/*"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                >
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                <textarea 
+                    name="deskripsi" 
+                    rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
+                    placeholder="Jelaskan materi ini..."
+                ></textarea>
+            </div>
+
+            <div class="flex gap-3 pt-4">
+                <button 
+                    type="button"
+                    @click="document.getElementById('form-create-materi-admin').reset(); $dispatch('close-modal-create-materi')"
+                    class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+                >
+                    Batal
+                </button>
+                <button 
+                    type="submit"
+                    :disabled="isSubmitting"
+                    class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+                >
+                    <span x-show="!isSubmitting">SIMPAN MATERI</span>
+                    <span x-show="isSubmitting">Menyimpan...</span>
+                </button>
+            </div>
+        </form>
+    </x-modal>
+
+    <!-- Edit Materi Modal -->
+    <div x-data="editMateriModal()">
+        <x-modal name="edit-materi" title="Edit Materi" description="Perbarui informasi materi." maxWidth="3xl">
+            <form :action="`{{ url('admin/materi') }}/${editData.id}`" method="POST" enctype="multipart/form-data" class="space-y-5" x-data="{ isSubmitting: false }" @submit="isSubmitting = true">
+                @csrf
+                @method('PUT')
+
+                <input type="hidden" name="modul_iqra_id" value="{{ $module->id }}">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Judul Materi</label>
+                        <input 
+                            type="text" 
+                            name="judul_materi" 
+                            x-model="editData.judul_materi"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Huruf Hijaiyah</label>
+                        <input 
+                            type="text" 
+                            name="huruf_hijaiyah"
+                            x-model="editData.huruf_hijaiyah"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition text-center text-2xl"
+                        >
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Urutan <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                    <input 
+                        type="number" 
+                        name="urutan"
+                        x-model="editData.urutan"
+                        min="1"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                        placeholder="Contoh: 1, 2, 3 ... (kosongkan jika tidak perlu urutan)"
+                    >
+                    <p class="mt-1 text-xs text-gray-500">Isi angka urutan untuk mengatur posisi materi. Materi tanpa urutan akan tampil di akhir.</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Link Video (YouTube atau Google Drive)</label>
+                    <input 
+                        type="text" 
+                        name="file_video"
+                        x-model="editData.file_video"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                        placeholder="https://youtu.be/xxx atau ID Google Drive"
+                    >
+                    <p class="mt-1 text-xs text-gray-500">Masukkan link YouTube lengkap atau ID video Google Drive</p>
+                </div>
+
+            <div>
+                <label for="kategori_materi_edit" class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                <select 
+                    name="kategori_materi"
+                    id="kategori_materi_edit"
+                    x-model="editData.kategori_materi"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                >
+                    <option value="">-- Tidak ada kategori --</option>
+                    @foreach($kategoriList as $key => $label)
+                        <option value="{{ $key }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Pilih kategori materi ini (jika ada)</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Bahasa Isyarat (Opsional - Biarkan kosong jika tidak ingin mengganti)</label>
+                    <input 
+                        type="file" 
+                        name="path_file"
+                        accept="image/*"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                    <textarea 
+                        name="deskripsi" 
+                        x-model="editData.deskripsi"
+                        rows="3"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition resize-none"
+                    ></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button 
+                        type="button"
+                        @click="$dispatch('close-modal-edit-materi')"
+                        class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+                    >
+                        Batal
+                    </button>
+                    <button 
+                        type="submit"
+                        :disabled="isSubmitting"
+                        class="flex-1 px-6 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+                    >
+                        <span x-show="!isSubmitting">UPDATE MATERI</span>
+                        <span x-show="isSubmitting">Menyimpan...</span>
+                    </button>
+                </div>
+            </form>
+        </x-modal>
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('editMateriModal', () => ({
+                editData: {
+                    id: '',
+                    urutan: '',
+                    judul_materi: '',
+                    huruf_hijaiyah: '',
+                    file_video: '',
+                    kategori_materi: '',
+                    deskripsi: ''
+                },
+                init() {
+                    window.addEventListener('set-edit-materi-data', (e) => {
+                        const data = e.detail;
+                        this.editData = {
+                            id: data.id,
+                            urutan: data.urutan !== '-' ? data.urutan : '',
+                            judul_materi: data.judul_materi,
+                            huruf_hijaiyah: data.huruf_hijaiyah !== '-' ? data.huruf_hijaiyah : '',
+                            file_video: data.video_url !== '-' ? data.video_url : '',
+                            kategori_materi: data.kategori_materi || '',
+                            deskripsi: data.deskripsi !== '-' ? data.deskripsi : ''
+                        };
+                        this.$nextTick(() => {
+                            window.dispatchEvent(new CustomEvent('open-modal-edit-materi'));
+                        });
+                    });
+                }
+            }));
+        });
+    </script>
+@endsection
